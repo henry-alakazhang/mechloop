@@ -1,4 +1,5 @@
 import { Graphics, Ticker } from "pixi.js";
+import { normalizeVector } from "../util/math";
 
 /**
  * A basic graphic object with movement physics
@@ -24,11 +25,25 @@ export class PhysicsObject extends Graphics {
     this.ticker.start();
   }
 
+  /**
+   * Set velocity via explicit x/y velocity.
+   */
   public setVelocity(x: number, y: number): this {
     this.velocityX = x;
     this.velocityY = y;
     this.updateRotation();
     return this;
+  }
+
+  /**
+   * Set velocity to move towards a certain point at a given speed
+   */
+  public setVelocityTo(x: number, y: number, speed: number): this {
+    const { x: vx, y: vy } = normalizeVector(
+      { x: x - this.x, y: y - this.y },
+      speed
+    );
+    return this.setVelocity(vx, vy);
   }
 
   public setAcceleration(x: number, y: number): this {

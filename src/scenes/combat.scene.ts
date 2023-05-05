@@ -5,8 +5,8 @@ import {
   Graphics,
   Ticker,
 } from "pixi.js";
+import { PlayerShip } from "../objects/player-ship";
 import { Projectile } from "../objects/projectile";
-import { normalizeVector } from "../util/math";
 
 export class CombatScene extends Container {
   private background: Graphics;
@@ -15,6 +15,8 @@ export class CombatScene extends Container {
    * The current location of the pointer while firing.
    */
   private shootAt?: { x: number; y: number };
+
+  private player: PlayerShip;
 
   private gun = {
     rof: 240,
@@ -36,6 +38,12 @@ export class CombatScene extends Container {
 
     this.addChild(this.background);
 
+    this.player = new PlayerShip();
+    this.player.x = 750;
+    this.player.y = 400;
+
+    this.addChild(this.player);
+
     this.calculateBounds();
 
     this.on("pointerdown", (e: FederatedPointerEvent) =>
@@ -45,6 +53,42 @@ export class CombatScene extends Container {
       this.handleMouseMove(e)
     );
     this.on("pointerup", (e: FederatedPointerEvent) => this.handleMouseUp(e));
+
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      // set speed based on direction
+      switch (e.code) {
+        case "KeyW":
+          this.player.setDirectionY(-1);
+          break;
+        case "KeyA":
+          this.player.setDirectionX(-1);
+          break;
+        case "KeyS":
+          this.player.setDirectionY(1);
+          break;
+        case "KeyD":
+          this.player.setDirectionX(1);
+          break;
+        default:
+          break;
+      }
+    });
+
+    document.addEventListener("keyup", (e: KeyboardEvent) => {
+      // reset speed to 0
+      switch (e.code) {
+        case "KeyW":
+        case "KeyS":
+          this.player.setDirectionY(0);
+          break;
+        case "KeyA":
+        case "KeyD":
+          this.player.setDirectionX(0);
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   handleMouseMove(e: FederatedPointerEvent): void {
@@ -52,6 +96,11 @@ export class CombatScene extends Container {
     if (this.shootAt) {
       this.shootAt = { x: e.globalX, y: e.globalY };
     }
+
+    this.player.rotation = Math.atan2(
+      e.globalY - this.player.y,
+      e.globalX - this.player.x
+    );
   }
 
   handleMouseDown(e: FederatedPointerEvent): void {
@@ -68,20 +117,16 @@ export class CombatScene extends Container {
       this.shootTime += this.ticker.deltaMS;
     } else {
       if (this.shootAt) {
-        const origin = { x: 750, y: 400 };
         this.shootTime = 0;
-        const velocity = normalizeVector(
-          { x: this.shootAt.x - origin.x, y: this.shootAt.y - origin.y },
-          10
-        );
+        const origin = this.player.shootBox.getGlobalPosition();
         const projectile = new Projectile()
           .beginFill(0xffffff)
-          .drawRect(0, 0, 6, 2)
+          .drawRect(0, -1, 6, 1)
           .endFill()
-          .setRotatable(true)
-          .setVelocity(velocity.x, velocity.y);
+          .setRotatable(true);
         projectile.x = origin.x;
         projectile.y = origin.y;
+        projectile.setVelocityTo(this.shootAt.x, this.shootAt.y, 10);
 
         this.addChild(projectile);
       }
