@@ -5,6 +5,7 @@ import {
   Graphics,
   Ticker,
 } from "pixi.js";
+import { WEAPONS, Weapon } from "../data/weapons";
 import { PlayerShip } from "../objects/player-ship";
 import { Projectile } from "../objects/projectile";
 
@@ -19,9 +20,7 @@ export class CombatScene extends Container {
 
   private player: PlayerShip;
 
-  private gun = {
-    rof: 360,
-  };
+  private gun: Weapon = WEAPONS.cannon;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
@@ -120,11 +119,8 @@ export class CombatScene extends Container {
       if (this.firing) {
         this.shootTime = 0;
         const origin = this.player.shootBox.getGlobalPosition();
-        const projectile = new Projectile()
-          .beginFill(0xffffff)
-          .drawRect(0, -1, 6, 1)
-          .endFill()
-          .setRotatable(true);
+        const projectile = new Projectile().setRotatable(true);
+        this.gun.drawProjectile(projectile);
         projectile.x = origin.x;
         projectile.y = origin.y;
         projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
