@@ -14,12 +14,13 @@ export class CombatScene extends Container {
   /**
    * The current location of the pointer while firing.
    */
-  private shootAt?: { x: number; y: number };
+  private crosshair = { x: 0, y: 0 };
+  private firing = false;
 
   private player: PlayerShip;
 
   private gun = {
-    rof: 240,
+    rof: 360,
   };
 
   private shootTime = 0;
@@ -35,6 +36,7 @@ export class CombatScene extends Container {
       .beginFill(0x000000)
       .drawRect(1, 1, 1498, 798)
       .endFill();
+    this.cursor = "crosshair";
 
     this.addChild(this.background);
 
@@ -93,30 +95,29 @@ export class CombatScene extends Container {
 
   handleMouseMove(e: FederatedPointerEvent): void {
     // update pointer location if set
-    if (this.shootAt) {
-      this.shootAt = { x: e.globalX, y: e.globalY };
-    }
-
-    this.player.rotation = Math.atan2(
-      e.globalY - this.player.y,
-      e.globalX - this.player.x
-    );
+    this.crosshair.x = e.globalX;
+    this.crosshair.y = e.globalY;
   }
 
   handleMouseDown(e: FederatedPointerEvent): void {
-    this.shootAt = e.global;
+    this.firing = true;
   }
 
   handleMouseUp(e: FederatedPointerEvent): void {
-    this.shootAt = undefined;
+    this.firing = false;
   }
 
   update() {
+    this.player.rotation = Math.atan2(
+      this.crosshair.y - this.player.y,
+      this.crosshair.x - this.player.x
+    );
+
     // Fire if able
     if (this.shootTime <= 60_000 / this.gun.rof) {
       this.shootTime += this.ticker.deltaMS;
     } else {
-      if (this.shootAt) {
+      if (this.firing) {
         this.shootTime = 0;
         const origin = this.player.shootBox.getGlobalPosition();
         const projectile = new Projectile()
@@ -126,7 +127,7 @@ export class CombatScene extends Container {
           .setRotatable(true);
         projectile.x = origin.x;
         projectile.y = origin.y;
-        projectile.setVelocityTo(this.shootAt.x, this.shootAt.y, 10);
+        projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
 
         this.addChild(projectile);
       }

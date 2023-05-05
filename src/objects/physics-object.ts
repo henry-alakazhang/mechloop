@@ -5,6 +5,9 @@ import { normalizeVector } from "../util/math";
  * A basic graphic object with movement physics
  */
 export class PhysicsObject extends Graphics {
+  /** Side for the purposes of collision detection */
+  public side: "player" | "enemy" = "player";
+
   private velocityX = 0;
   private velocityY = 0;
   private accelX = 0;
