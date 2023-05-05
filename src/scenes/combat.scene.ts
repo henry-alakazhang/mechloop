@@ -142,7 +142,21 @@ export class CombatScene extends Container {
       });
 
       if (!this.background.getBounds().intersects(child1.getBounds())) {
-        cull.push(child1);
+        if (child1 === this.player) {
+          const bounds = this.background.getBounds();
+          // let player ship wrap around
+          if (this.player.x > bounds.right) {
+            this.player.x = bounds.left;
+          } else if (this.player.x < bounds.left) {
+            this.player.x = bounds.right;
+          } else if (this.player.y > bounds.bottom) {
+            this.player.y = bounds.top;
+          } else if (this.player.y < bounds.top) {
+            this.player.y = bounds.bottom;
+          }
+        } else {
+          cull.push(child1);
+        }
       }
     });
 
