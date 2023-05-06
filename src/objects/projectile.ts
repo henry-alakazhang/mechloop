@@ -1,9 +1,10 @@
+import { Weapon } from "../data/weapons";
 import { PhysicsObject } from "./physics-object";
 
 export class Projectile extends PhysicsObject {
   public override readonly showHealthBar = "never";
 
-  public damage = 0;
+  public source?: Weapon;
 
   constructor() {
     super();
@@ -15,8 +16,11 @@ export class Projectile extends PhysicsObject {
     // but piercing projectiles have extra HP so they can survive multiple contacts
     this.hp -= 1;
 
-    // deal self damage to other object
-    other.hp -= this.damage;
+    // deal self damage to other object\
+    if (this.source) {
+      other.hp -= this.source?.damage;
+      this.source.onHit?.(this);
+    }
 
     return this;
   }

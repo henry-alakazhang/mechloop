@@ -144,7 +144,7 @@ export class CombatScene extends Container {
         this.weapons[this.selectedWeapon].drawProjectile(projectile);
         projectile.x = origin.x;
         projectile.y = origin.y;
-        projectile.damage = this.weapons[this.selectedWeapon].damage;
+        projectile.source = this.weapons[this.selectedWeapon];
         projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
 
         this.addChild(projectile);
@@ -164,6 +164,7 @@ export class CombatScene extends Container {
           child1.side !== child2.side &&
           child1.getBounds().intersects(child2.getBounds())
         ) {
+          // TODO: make it so objects only collide once by default
           child1.onCollide(child2);
           child2.onCollide(child1);
         }

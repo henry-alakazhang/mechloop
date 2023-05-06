@@ -106,7 +106,7 @@ export abstract class PhysicsObject extends Graphics {
     } else {
       this.healthBar.visible = false;
     }
-    this.healthBar.width = (this.width * this.hp) / this.maxHP;
+    this.healthBar.width = Math.max(0, (this.width * this.hp) / this.maxHP);
 
     // update physics properties: position, speed, acceleration
     this.x = this.x + this.velocityX * delta;
