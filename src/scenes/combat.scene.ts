@@ -5,7 +5,9 @@ import {
   Graphics,
   Ticker,
 } from "pixi.js";
-import { WEAPONS, Weapon } from "../data/weapons";
+import { WEAPONS } from "../data/weapons";
+import { Enemy } from "../objects/enemy";
+import { PhysicsObject } from "../objects/physics-object";
 import { PlayerShip } from "../objects/player-ship";
 import { Projectile } from "../objects/projectile";
 
@@ -20,10 +22,12 @@ export class CombatScene extends Container {
 
   private player: PlayerShip;
 
-  private gun: Weapon = WEAPONS.cannon;
+  private weapons = Object.values(WEAPONS);
+  private selectedWeapon = 0;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
+  private spawner: Ticker;
 
   constructor() {
     super();
@@ -44,6 +48,11 @@ export class CombatScene extends Container {
     this.player.y = 400;
 
     this.addChild(this.player);
+
+    this.spawner = new Ticker().add(() => this.spawnEnemy());
+    this.spawner.minFPS = 2;
+    this.spawner.maxFPS = 2;
+    this.spawner.start();
 
     this.calculateBounds();
 
@@ -69,6 +78,10 @@ export class CombatScene extends Container {
           break;
         case "KeyD":
           this.player.setDirectionX(1);
+          break;
+        case "Space":
+          // cycle weapons
+          this.selectedWeapon = (this.selectedWeapon + 1) % this.weapons.length;
           break;
         default:
           break;
@@ -106,6 +119,14 @@ export class CombatScene extends Container {
     this.firing = false;
   }
 
+  spawnEnemy() {
+    const enemy = Enemy.ASTEROID();
+    enemy.x = Math.random() * 1500;
+    enemy.y = Math.random() * 800;
+    enemy.setVelocityTo(this.player.x, this.player.y, 1);
+    this.addChild(enemy);
+  }
+
   update() {
     this.player.rotation = Math.atan2(
       this.crosshair.y - this.player.y,
@@ -113,16 +134,17 @@ export class CombatScene extends Container {
     );
 
     // Fire if able
-    if (this.shootTime <= 60_000 / this.gun.rof) {
+    if (this.shootTime <= 60_000 / this.weapons[this.selectedWeapon].rof) {
       this.shootTime += this.ticker.deltaMS;
     } else {
       if (this.firing) {
         this.shootTime = 0;
         const origin = this.player.shootBox.getGlobalPosition();
         const projectile = new Projectile().setRotatable(true);
-        this.gun.drawProjectile(projectile);
+        this.weapons[this.selectedWeapon].drawProjectile(projectile);
         projectile.x = origin.x;
         projectile.y = origin.y;
+        projectile.damage = this.weapons[this.selectedWeapon].damage;
         projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
 
         this.addChild(projectile);
@@ -131,10 +153,19 @@ export class CombatScene extends Container {
 
     const cull: DisplayObject[] = [];
 
-    this.children.forEach((child1) => {
-      this.children.forEach((child2) => {
-        if (child1.getBounds().intersects(child2.getBounds())) {
-          // handle collision
+    const physicsObjects = this.children.filter(
+      (x): x is PhysicsObject => x instanceof PhysicsObject
+    );
+
+    physicsObjects.forEach((child1) => {
+      physicsObjects.forEach((child2) => {
+        // check collision between objects of different sides
+        if (
+          child1.side !== child2.side &&
+          child1.getBounds().intersects(child2.getBounds())
+        ) {
+          child1.onCollide(child2);
+          child2.onCollide(child1);
         }
       });
 
@@ -154,6 +185,11 @@ export class CombatScene extends Container {
         } else {
           cull.push(child1);
         }
+      }
+
+      // and delete anything that has run out of HP
+      if (child1.hp <= 0) {
+        cull.push(child1);
       }
     });
 

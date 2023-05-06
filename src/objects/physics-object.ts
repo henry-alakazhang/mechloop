@@ -4,9 +4,20 @@ import { normalizeVector } from "../util/math";
 /**
  * A basic graphic object with movement physics
  */
-export class PhysicsObject extends Graphics {
+export abstract class PhysicsObject extends Graphics {
   /** Side for the purposes of collision detection */
   public side: "player" | "enemy" = "player";
+
+  /**
+   * Hit points.
+   * When this reaches 0, the object is destroyed.
+   */
+  public maxHP = 1;
+  public hp = 1;
+
+  /** Whether to display the healthbar above the object */
+  public showHealthBar: "never" | "damaged" | "always" = "never";
+  private healthBar: Graphics;
 
   private velocityX = 0;
   private velocityY = 0;
@@ -26,7 +37,15 @@ export class PhysicsObject extends Graphics {
 
     this.ticker = new Ticker().add((delta: number) => this.update(delta));
     this.ticker.start();
+
+    this.healthBar = this.addChild(
+      new Graphics().beginFill(0x00ff00).drawRect(0, 0, 10, 2).endFill()
+    );
+    this.healthBar.visible = this.showHealthBar === "always";
   }
+
+  /** Callback for when this physics object with something else */
+  abstract onCollide(other: PhysicsObject): void;
 
   /**
    * Set velocity via explicit x/y velocity.
@@ -66,7 +85,30 @@ export class PhysicsObject extends Graphics {
     return this;
   }
 
-  private update(delta: number): void {
+  /**
+   * Moves the HP Bar to be exactly above the object.
+   * Call after adjusting the size or shape of the object.
+   */
+  public moveHealthBar() {
+    const bounds = this.getLocalBounds();
+    if (this.healthBar.y !== bounds.top) {
+      this.healthBar.x = bounds.left;
+      this.healthBar.y = bounds.top - 5;
+    }
+  }
+
+  protected update(delta: number): void {
+    // update health bar visibility and size
+    if (this.showHealthBar === "always") {
+      this.healthBar.visible = true;
+    } else if (this.showHealthBar === "damaged") {
+      this.healthBar.visible = this.hp !== this.maxHP;
+    } else {
+      this.healthBar.visible = false;
+    }
+    this.healthBar.width = (this.width * this.hp) / this.maxHP;
+
+    // update physics properties: position, speed, acceleration
     this.x = this.x + this.velocityX * delta;
     this.y = this.y + this.velocityY * delta;
 
