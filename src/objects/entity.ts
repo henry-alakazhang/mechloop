@@ -25,7 +25,7 @@ export class Entity extends PhysicsObject {
 
   // TODO: move this to some kind of enemies.ts
   public static ASTEROID(): Entity {
-    const size = Math.floor(Math.random() * 20);
+    const size = Math.ceil(Math.random() * 20);
     const asteroid = new Entity({ maxHP: size, side: "enemy" })
       .lineStyle(2, 0xaaaa00)
       .drawCircle(0, 0, size + 20);

@@ -3,6 +3,7 @@ import {
   DisplayObject,
   FederatedPointerEvent,
   Graphics,
+  Text,
   Ticker,
 } from "pixi.js";
 import { WEAPONS } from "../data/weapons";
@@ -13,6 +14,9 @@ import { Projectile } from "../objects/projectile";
 
 export class CombatScene extends Container {
   private background: Graphics;
+
+  private score = 0;
+  private scoreText: Text;
 
   /**
    * The current location of the pointer while firing.
@@ -42,14 +46,22 @@ export class CombatScene extends Container {
       .drawRect(1, 1, 1498, 798)
       .endFill();
     this.cursor = "crosshair";
-
     this.addChild(this.background);
 
     this.player = new Player();
     this.player.x = 750;
     this.player.y = 400;
-
     this.addChild(this.player);
+    this.player.on("destroyed", () => this.handleGameEnd());
+
+    this.scoreText = new Text(`Score ${this.score}`, {
+      fill: 0x00ff00,
+      fontFamily: "Courier New",
+      fontSize: 18,
+    });
+    this.scoreText.x = 1400;
+    this.scoreText.y = 770;
+    this.addChild(this.scoreText);
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;
@@ -67,6 +79,9 @@ export class CombatScene extends Container {
     this.on("pointerup", (e: FederatedPointerEvent) => this.handleMouseUp(e));
 
     document.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (this.player.destroyed) {
+        return;
+      }
       // set speed based on direction
       switch (e.code) {
         case "KeyW":
@@ -97,6 +112,9 @@ export class CombatScene extends Container {
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
+      if (this.player.destroyed) {
+        return;
+      }
       // reset speed to 0
       switch (e.code) {
         case "KeyW":
@@ -127,15 +145,46 @@ export class CombatScene extends Container {
     this.firing = false;
   }
 
+  handleGameEnd() {
+    const gameEndBox = this.addChild(
+      new Graphics().beginFill(0x111111).drawRect(0, 0, 800, 200).endFill()
+    );
+    const gameEndText = this.addChild(
+      new Text(
+        `Game Over!\nFinal Score: ${this.score}\n\nRefresh to play again.`,
+        {
+          fill: 0xeeeeee,
+          fontSize: 36,
+          fontFamily: "Courier New",
+          align: "center",
+        }
+      )
+    );
+    gameEndBox.x = 750 - gameEndBox.width / 2;
+    gameEndBox.y = 400 - gameEndBox.height / 2;
+    gameEndText.x = 750 - gameEndText.width / 2;
+    gameEndText.y = 400 - gameEndText.height / 2;
+
+    this.ticker.stop();
+    this.spawner.stop();
+  }
+
   spawnEnemy() {
     const enemy = Entity.ASTEROID();
     enemy.x = Math.random() * 1500;
     enemy.y = Math.random() * 800;
     enemy.setVelocityTo(this.player.x, this.player.y, 1);
+    enemy.on("destroyed", () => {
+      if (enemy.hp <= 0) {
+        this.score += 1;
+      }
+    });
     this.addChild(enemy);
   }
 
   update() {
+    this.scoreText.text = `Score ${this.score}`;
+
     this.player.rotation = Math.atan2(
       this.crosshair.y - this.player.y,
       this.crosshair.x - this.player.x
