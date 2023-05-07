@@ -6,9 +6,9 @@ import {
   Ticker,
 } from "pixi.js";
 import { WEAPONS } from "../data/weapons";
-import { Enemy } from "../objects/enemy";
+import { Entity } from "../objects/entity";
 import { PhysicsObject } from "../objects/physics-object";
-import { PlayerShip } from "../objects/player-ship";
+import { Player } from "../objects/player-ship";
 import { Projectile } from "../objects/projectile";
 
 export class CombatScene extends Container {
@@ -20,7 +20,7 @@ export class CombatScene extends Container {
   private crosshair = { x: 0, y: 0 };
   private firing = false;
 
-  private player: PlayerShip;
+  private player: Player;
 
   private weapons = Object.values(WEAPONS);
   private selectedWeapon = 0;
@@ -43,7 +43,7 @@ export class CombatScene extends Container {
 
     this.addChild(this.background);
 
-    this.player = new PlayerShip();
+    this.player = new Player();
     this.player.x = 750;
     this.player.y = 400;
 
@@ -120,7 +120,7 @@ export class CombatScene extends Container {
   }
 
   spawnEnemy() {
-    const enemy = Enemy.ASTEROID();
+    const enemy = Entity.ASTEROID();
     enemy.x = Math.random() * 1500;
     enemy.y = Math.random() * 800;
     enemy.setVelocityTo(this.player.x, this.player.y, 1);
@@ -140,7 +140,9 @@ export class CombatScene extends Container {
       if (this.firing) {
         this.shootTime = 0;
         const origin = this.player.shootBox.getGlobalPosition();
-        const projectile = new Projectile().setRotatable(true);
+        const projectile = new Projectile({ side: "player" }).setRotatable(
+          true
+        );
         this.weapons[this.selectedWeapon].drawProjectile(projectile);
         projectile.x = origin.x;
         projectile.y = origin.y;

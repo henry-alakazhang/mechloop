@@ -1,12 +1,14 @@
 import { DisplayObject, Graphics } from "pixi.js";
+import { Entity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 
-export class PlayerShip extends PhysicsObject {
-  public override readonly side = "player";
-  public override readonly showHealthBar = "always";
+export class Player extends Entity {
+  /** Coordinates to fire bullets from */
   public shootBox: DisplayObject;
 
+  /** Horizontal movement direction */
   public directionX: -1 | 0 | 1 = 0;
+  /** Vertical movement direction */
   public directionY: -1 | 0 | 1 = 0;
 
   public maxSpeed = 5;
@@ -15,7 +17,7 @@ export class PlayerShip extends PhysicsObject {
   private iframes = 0;
 
   constructor() {
-    super();
+    super({ side: "player", maxHP: 20, showHealthBar: "always" });
 
     this.lineStyle(1, 0x00ff00).drawPolygon([
       { x: 10, y: 0 },
@@ -30,13 +32,10 @@ export class PlayerShip extends PhysicsObject {
     );
     this.shootBox.x = 10;
 
-    this.maxHP = 20;
-    this.hp = 20;
-
     this.moveHealthBar();
   }
 
-  setDirectionX(x: -1 | 0 | 1) {
+  public setDirectionX(x: -1 | 0 | 1) {
     this.directionX = x;
     this.setVelocityTo(
       this.x + this.directionX,
@@ -45,7 +44,7 @@ export class PlayerShip extends PhysicsObject {
     );
   }
 
-  setDirectionY(y: -1 | 0 | 1) {
+  public setDirectionY(y: -1 | 0 | 1) {
     this.directionY = y;
     this.setVelocityTo(
       this.x + this.directionX,
@@ -54,14 +53,14 @@ export class PlayerShip extends PhysicsObject {
     );
   }
 
-  override update(delta: number) {
+  protected override update(delta: number) {
     super.update(delta);
     if (this.iframes > 0) {
       this.iframes = Math.max(0, this.iframes - delta);
     }
   }
 
-  onCollide(other: PhysicsObject) {
+  public override onCollide(other: PhysicsObject) {
     if (this.iframes <= 0) {
       // take 10% of HP in damage
       this.hp -= Math.ceil(this.maxHP * 0.1);
