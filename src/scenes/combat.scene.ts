@@ -280,10 +280,9 @@ export class CombatScene extends Container {
         this.activeCollisions[child1.id][child2.id] = isColliding;
 
         if (isColliding && !wasColliding) {
-          // first time these objects are detected as colliding.
-          // trigger onCollide effects
+          // first time these objects are detected as colliding - trigger collide effects.
+          // the other side of the collision is handled by the loop in the other direction
           child1.onCollide(child2);
-          child2.onCollide(child1);
         }
         // cleaning up active collision is done automatically when they stop intersecting.
       });
