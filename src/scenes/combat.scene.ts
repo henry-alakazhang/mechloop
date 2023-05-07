@@ -29,6 +29,9 @@ export class CombatScene extends Container {
 
   private weapons = Object.values(WEAPONS);
   private selectedWeapon = 0;
+  private selectedWeaponText: Text;
+
+  private pausedText: Text;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
@@ -49,6 +52,8 @@ export class CombatScene extends Container {
     this.cursor = "crosshair";
     this.addChild(this.background);
 
+    // todo: add some helpers which make adding/setting location of these elements nicer.
+
     this.player = new Player();
     this.player.x = 750;
     this.player.y = 400;
@@ -63,6 +68,28 @@ export class CombatScene extends Container {
     this.scoreText.x = 1400;
     this.scoreText.y = 770;
     this.addChild(this.scoreText);
+
+    this.selectedWeaponText = new Text(
+      `Selected Weapon: [${this.weapons[this.selectedWeapon].name}]`,
+      {
+        fill: 0x00ffff,
+        fontFamily: "Courier New",
+        fontSize: 18,
+      }
+    );
+    this.selectedWeaponText.x = 20;
+    this.selectedWeaponText.y = 770;
+    this.addChild(this.selectedWeaponText);
+
+    this.pausedText = new Text("GAME PAUSED", {
+      fill: 0xffffff,
+      fontFamily: "Courier New",
+      fontSize: 36,
+    });
+    this.pausedText.x = 750 - this.pausedText.width / 2;
+    this.pausedText.y = 400 - this.pausedText.height / 2;
+    this.pausedText.visible = false;
+    this.addChild(this.pausedText);
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;
@@ -80,7 +107,11 @@ export class CombatScene extends Container {
     this.on("pointerup", (e: FederatedPointerEvent) => this.handleMouseUp(e));
 
     document.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (this.player.destroyed) {
+      if (e.code === "Escape") {
+        this.togglePause();
+        return;
+      }
+      if (!this.ticker.started) {
         return;
       }
       // set speed based on direction
@@ -113,7 +144,7 @@ export class CombatScene extends Container {
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
-      if (this.player.destroyed) {
+      if (!this.ticker.started) {
         return;
       }
       // reset speed to 0
@@ -170,6 +201,18 @@ export class CombatScene extends Container {
     this.spawner.stop();
   }
 
+  togglePause() {
+    if (this.ticker.started) {
+      this.pausedText.visible = true;
+      this.ticker.stop();
+      this.spawner.stop();
+    } else {
+      this.pausedText.visible = false;
+      this.ticker.start();
+      this.spawner.start();
+    }
+  }
+
   spawnEnemy() {
     const enemy = Entity.ASTEROID();
     enemy.x = Math.random() * 1500;
@@ -185,6 +228,9 @@ export class CombatScene extends Container {
 
   update() {
     this.scoreText.text = `Score ${this.score}`;
+    this.selectedWeaponText.text = `Selected Weapon: [${
+      this.weapons[this.selectedWeapon].name
+    }]`;
 
     this.player.rotation = Math.atan2(
       this.crosshair.y - this.player.y,

@@ -3,6 +3,7 @@ import { normalizeVector } from "../util/math";
 
 export interface PhysicsObjectConfig {
   side: "player" | "enemy";
+  ticker?: Ticker;
 }
 
 /**
@@ -37,12 +38,14 @@ export abstract class PhysicsObject extends Graphics {
    */
   public abstract hp: number;
 
-  constructor({ side }: PhysicsObjectConfig) {
+  private updateFunc = this.update.bind(this);
+
+  constructor({ side, ticker = Ticker.shared }: PhysicsObjectConfig) {
     super();
 
     this.side = side;
 
-    this.ticker = new Ticker().add((delta: number) => this.update(delta));
+    this.ticker = ticker.add(this.updateFunc);
     this.ticker.start();
 
     this.id = `${Date.now()}${Math.random().toString(36).slice(2, 9)}`;
@@ -111,7 +114,7 @@ export abstract class PhysicsObject extends Graphics {
   }
 
   override destroy() {
-    this.ticker.stop();
+    this.ticker.remove(this.updateFunc);
     return super.destroy();
   }
 }
