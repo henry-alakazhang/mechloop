@@ -29,6 +29,8 @@ export class CombatScene extends Container {
   private ticker = Ticker.shared.add(() => this.update());
   private spawner: Ticker;
 
+  private activeCollisions: { [k: string]: { [k: string]: boolean } } = {};
+
   constructor() {
     super();
 
@@ -167,15 +169,23 @@ export class CombatScene extends Container {
 
     physicsObjects.forEach((child1) => {
       physicsObjects.forEach((child2) => {
-        // check collision between objects of different sides
-        if (
-          child1.side !== child2.side &&
-          child1.getBounds().intersects(child2.getBounds())
-        ) {
-          // TODO: make it so objects only collide once by default
+        if (child1.side === child2.side) {
+          // ignore collision between objects of the same side
+          return;
+        }
+
+        // whether the
+        const wasColliding = this.activeCollisions[child1.id][child2.id];
+        const isColliding = child1.getBounds().intersects(child2.getBounds());
+        this.activeCollisions[child1.id][child2.id] = isColliding;
+
+        if (isColliding && !wasColliding) {
+          // first time these objects are detected as colliding.
+          // trigger onCollide effects
           child1.onCollide(child2);
           child2.onCollide(child1);
         }
+        // cleaning up active collision is done automatically when they stop intersecting.
       });
 
       if (!this.background.getBounds().intersects(child1.getBounds())) {
@@ -206,5 +216,25 @@ export class CombatScene extends Container {
     cull.forEach((childToCull) => {
       childToCull.destroy();
     });
+  }
+
+  override addChild<U extends DisplayObject[]>(...children: U): U[0] {
+    // track collisions for added PhysicsObjects
+    children.forEach((child) => {
+      if (child instanceof PhysicsObject) {
+        this.activeCollisions[child.id] = {};
+      }
+    });
+    return super.addChild(...children);
+  }
+
+  override removeChild<U extends DisplayObject[]>(...children: U): U[0] {
+    // clean up collision tracking for removed PhysicsObjects
+    children.forEach((child) => {
+      if (child instanceof PhysicsObject) {
+        delete this.activeCollisions[child.id];
+      }
+    });
+    return super.removeChild(...children);
   }
 }

@@ -12,6 +12,9 @@ export abstract class PhysicsObject extends Graphics {
   /** Side for the purposes of collision detection */
   public side: "player" | "enemy";
 
+  /** Probably-unique ID for tracking collision and other state*/
+  public id: string;
+
   private velocityX = 0;
   private velocityY = 0;
   private accelX = 0;
@@ -41,6 +44,8 @@ export abstract class PhysicsObject extends Graphics {
 
     this.ticker = new Ticker().add((delta: number) => this.update(delta));
     this.ticker.start();
+
+    this.id = `${Date.now()}${Math.random().toString(36).slice(2, 9)}`;
   }
 
   /** Callback for when this physics object with something else */
