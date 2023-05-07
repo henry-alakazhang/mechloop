@@ -4,7 +4,6 @@ import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 export class Projectile extends PhysicsObject {
   /**
    * Literal hit points (how many times this projectile can hit before being destroyed).
-   * If unset, projectile has to be destroyed manually.
    */
   public hp = 1;
 

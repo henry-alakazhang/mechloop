@@ -8,7 +8,7 @@ import {
 import { WEAPONS } from "../data/weapons";
 import { Entity } from "../objects/entity";
 import { PhysicsObject } from "../objects/physics-object";
-import { Player } from "../objects/player-ship";
+import { Player } from "../objects/player";
 import { Projectile } from "../objects/projectile";
 
 export class CombatScene extends Container {
@@ -79,9 +79,15 @@ export class CombatScene extends Container {
         case "KeyD":
           this.player.setDirectionX(1);
           break;
-        case "Space":
+        case "Tab":
           // cycle weapons
           this.selectedWeapon = (this.selectedWeapon + 1) % this.weapons.length;
+          // prevent default behaviour of switching context
+          e.preventDefault();
+          break;
+        case "Space":
+          // toggle autofire
+          this.firing = !this.firing;
           break;
         default:
           break;
