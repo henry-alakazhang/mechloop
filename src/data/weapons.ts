@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js";
+import { Easing, Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
 import { Projectile } from "../objects/projectile";
 
@@ -49,29 +49,26 @@ export const WEAPONS: { [k: string]: Weapon } = {
         .drawCircle(6, 0, 2)
         .endFill(),
     onHit: (g: Projectile) => {
-      const parent = g.parent;
-      const aoe = parent.addChild(
-        new Graphics().beginFill(0xff0000).drawCircle(0, 0, 50).endFill()
-      );
-      aoe.x = g.x;
-      aoe.y = g.y;
-      g.parent.children
-        .filter((c): c is PhysicsObject => {
-          if (!(c instanceof PhysicsObject)) {
-            return false;
-          }
-          if (g.side === c.side) {
-            return false;
-          }
-          return c.getBounds().intersects(aoe.getBounds());
+      const explosion = new Projectile({ side: g.side })
+        .beginFill(0xff0000)
+        .drawCircle(0, 0, 10)
+        .endFill();
+      explosion.x = g.x;
+      explosion.y = g.y;
+      // can hit up to 10 targets
+      explosion.hp = 10;
+      // this weapon, except it doesn't trigger the onHit explosion again.
+      // fixme: probably a better way to do this.
+      explosion.source = { ...WEAPONS.missile, onHit: undefined };
+      explosion.scale;
+      g.parent.addChild(explosion);
+      new Tween(explosion)
+        .to({ scale: { x: 5, y: 5 }, alpha: 0.5 }, 250)
+        .easing(Easing.Exponential.Out)
+        .onComplete(() => {
+          explosion.destroy();
         })
-        .forEach((target: PhysicsObject) => {
-          if (g.source) {
-            target.hp -= g.source?.damage;
-          }
-        });
-      // TODO: figure out a better way of handling this
-      setTimeout(() => parent.removeChild(aoe), 100);
+        .start();
     },
   },
 };

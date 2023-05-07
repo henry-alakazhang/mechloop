@@ -6,6 +6,7 @@ import {
   Text,
   Ticker,
 } from "pixi.js";
+import { Group } from "tweedle.js";
 import { WEAPONS } from "../data/weapons";
 import { Entity } from "../objects/entity";
 import { PhysicsObject } from "../objects/physics-object";
@@ -265,6 +266,8 @@ export class CombatScene extends Container {
     cull.forEach((childToCull) => {
       childToCull.destroy();
     });
+
+    Group.shared.update();
   }
 
   override addChild<U extends DisplayObject[]>(...children: U): U[0] {
