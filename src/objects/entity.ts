@@ -1,9 +1,11 @@
 import { Graphics } from "pixi.js";
+import { StatAdjustments } from "../scenes/combat.model";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {
   maxHP: number;
   showHealthBar?: "never" | "damaged" | "always";
+  statAdjustments?: StatAdjustments;
 };
 
 /**
@@ -19,13 +21,15 @@ export class Entity extends PhysicsObject {
   public maxHP: number;
   public hp: number;
 
+  public statAdjustments: StatAdjustments;
+
   /** Whether to display the healthbar above the object */
   public showHealthBar: "never" | "damaged" | "always";
   private healthBar: Graphics;
 
   // TODO: move this to some kind of enemies.ts
-  public static ASTEROID(): Entity {
-    const size = Math.ceil(Math.random() * 20);
+  public static ASTEROID(scale: number): Entity {
+    const size = Math.ceil(Math.random() * 20) * scale;
     const asteroid = new Entity({ maxHP: size, side: "enemy" })
       .lineStyle(2, 0xaaaa00)
       .drawCircle(0, 0, size + 20);
@@ -36,7 +40,7 @@ export class Entity extends PhysicsObject {
   constructor(config: EntityConfig) {
     super(config);
 
-    const { maxHP, showHealthBar } = config;
+    const { maxHP, showHealthBar, statAdjustments } = config;
 
     this.maxHP = maxHP;
     this.hp = maxHP;
@@ -44,6 +48,7 @@ export class Entity extends PhysicsObject {
     // otherwise, default to damaged-only healthbars for enemies.
     this.showHealthBar =
       showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
+    this.statAdjustments = statAdjustments ?? {};
 
     this.healthBar = this.addChild(
       new Graphics().beginFill(0x00ff00).drawRect(0, 0, 10, 2).endFill()

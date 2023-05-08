@@ -1,6 +1,7 @@
 import { Easing, Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
 import { Projectile } from "../objects/projectile";
+import { Tag } from "../scenes/combat.model";
 
 export interface Weapon {
   /** Displayed name */
@@ -13,6 +14,8 @@ export interface Weapon {
   readonly damage: number;
   /** Damage type on hit */
   readonly damageType: "kinetic" | "energy" | "explosive";
+  /** Damage tags for calculating buffs */
+  readonly damageTags: Tag["damage"][];
   /** Projectile sped (if applicable) */
   readonly projectileSpeed?: number;
   /** Given a Graphics object, draws the projectile */
@@ -25,17 +28,19 @@ export const WEAPONS: { [k: string]: Weapon } = {
   cannon: {
     name: "TI-4-G Mounted Autocannon",
     rof: 360,
-    damage: 2,
+    damage: 3,
     damageType: "kinetic",
+    damageTags: ["kinetic", "projectile"],
     projectileSpeed: 10,
     drawProjectile: (g) =>
-      g.beginFill(0xffffff).drawRect(0, -1, 5, 1).endFill(),
+      g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill(),
   },
   missile: {
     name: "G-Class Missile Launcher",
     rof: 90,
-    damage: 5,
+    damage: 1, // explosion has separate damage
     damageType: "explosive",
+    damageTags: ["explosive", "projectile"],
     projectileSpeed: 6,
     drawProjectile: (g) =>
       g
@@ -49,7 +54,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
         .drawCircle(6, 0, 2)
         .endFill(),
     onHit: (g: Projectile) => {
-      const explosion = new Projectile({ side: g.side })
+      const explosion = new Projectile({ owner: g.owner, source: g.source })
         .beginFill(0xff0000)
         .drawCircle(0, 0, 10)
         .endFill();
@@ -57,9 +62,15 @@ export const WEAPONS: { [k: string]: Weapon } = {
       explosion.y = g.y;
       // can hit up to 10 targets
       explosion.hp = 10;
-      // this weapon, except it doesn't trigger the onHit explosion again.
+      // this weapon, except it doesn't trigger the onHit explosion again
+      // and is also no longer a projectile
       // fixme: probably a better way to do this.
-      explosion.source = { ...WEAPONS.missile, onHit: undefined };
+      explosion.source = {
+        ...WEAPONS.missile,
+        damage: 5,
+        onHit: undefined,
+        damageTags: ["explosive"],
+      };
       explosion.scale;
       g.parent.addChild(explosion);
       new Tween(explosion)

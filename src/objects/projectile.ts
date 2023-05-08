@@ -1,5 +1,12 @@
 import { Weapon } from "../data/weapons";
-import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
+import { calculateFinalStat } from "../scenes/combat.model";
+import { Entity } from "./entity";
+import { PhysicsObject } from "./physics-object";
+
+type ProjectileConfig = {
+  source: Weapon;
+  owner: Entity;
+};
 
 export class Projectile extends PhysicsObject {
   /**
@@ -7,10 +14,20 @@ export class Projectile extends PhysicsObject {
    */
   public hp = 1;
 
-  public source?: Weapon;
+  public source: Weapon;
+  public owner: Entity;
 
-  constructor(config: PhysicsObjectConfig) {
-    super(config);
+  constructor(config: ProjectileConfig) {
+    super({ side: config.owner.side });
+
+    this.owner = config.owner;
+    this.source = config.source;
+    this.hp = calculateFinalStat(
+      "projectileHP",
+      [],
+      1,
+      this.owner.statAdjustments
+    );
   }
 
   onCollide(other: PhysicsObject) {
@@ -23,7 +40,15 @@ export class Projectile extends PhysicsObject {
 
     // deal self damage to other object\
     if (this.source) {
-      other.hp -= this.source?.damage;
+      const finalDamage = calculateFinalStat(
+        "damage",
+        this.source.damageTags,
+        this.source.damage,
+        this.owner.statAdjustments
+      );
+      if (finalDamage > 0) {
+        other.hp -= finalDamage;
+      }
       this.source.onHit?.(this);
     }
 

@@ -12,6 +12,12 @@ import { Entity } from "../objects/entity";
 import { PhysicsObject } from "../objects/physics-object";
 import { Player } from "../objects/player";
 import { Projectile } from "../objects/projectile";
+import {
+  StatAdjustments,
+  calculateFinalStat,
+  flattenStatAdjustments,
+  getAdjustmentDescriptions,
+} from "./combat.model";
 
 export class CombatScene extends Container {
   private background: Graphics;
@@ -38,6 +44,51 @@ export class CombatScene extends Container {
   private spawner: Ticker;
 
   private activeCollisions: { [k: string]: { [k: string]: boolean } } = {};
+
+  private availableBuffs: {
+    description: string;
+    adjustments: StatAdjustments;
+  }[] = [
+    {
+      description: "+1 Global Base Damage",
+      adjustments: { damage: { global: { addition: 1, multiplier: 0 } } },
+    },
+    {
+      description: "+10% Kinetic Damage",
+      adjustments: { damage: { kinetic: { addition: 0, multiplier: 0.1 } } },
+    },
+    {
+      description: "+10% Explosive Damage",
+      adjustments: { damage: { explosive: { addition: 0, multiplier: 0.1 } } },
+    },
+    {
+      description: "+8% Global Rate of Fire",
+      adjustments: { rof: { global: { addition: 0, multiplier: 0.08 } } },
+    },
+    {
+      description: "-20% Projectile Damage\n+50% Explosive Damage",
+      adjustments: {
+        damage: {
+          projectile: { addition: 0, multiplier: -0.2 },
+          explosive: { addition: 0, multiplier: 0.5 },
+        },
+      },
+    },
+    {
+      description: "-10% Global Damage\n+25% Global Rate of Fire",
+      adjustments: {
+        damage: { global: { addition: 0, multiplier: -0.1 } },
+        rof: { global: { addition: 0, multiplier: 0.25 } },
+      },
+    },
+    {
+      description: "+1 Projectile HP (pierces)",
+      adjustments: { projectileHP: { global: { addition: 1, multiplier: 0 } } },
+    },
+  ];
+  private activeBuffs: { description: string; adjustments: StatAdjustments }[] =
+    [];
+  private buffText: Text;
 
   constructor() {
     super();
@@ -80,6 +131,15 @@ export class CombatScene extends Container {
     this.selectedWeaponText.x = 20;
     this.selectedWeaponText.y = 770;
     this.addChild(this.selectedWeaponText);
+
+    this.buffText = new Text(`Active Buffs:`, {
+      fill: 0xffffff,
+      fontFamily: "Courier New",
+      fontSize: 14,
+    });
+    this.buffText.x = 20;
+    this.buffText.y = 20;
+    this.addChild(this.buffText);
 
     this.pausedText = new Text("GAME PAUSED", {
       fill: 0xffffff,
@@ -214,17 +274,28 @@ export class CombatScene extends Container {
   }
 
   spawnEnemy() {
-    const enemy = Entity.ASTEROID();
+    const enemy = Entity.ASTEROID(this.spawner.speed);
     enemy.x = Math.random() * 1500;
     enemy.y = Math.random() * 800;
     enemy.setVelocityTo(
       this.player.x,
       this.player.y,
-      Math.ceil(3 / Math.ceil(Math.random() * enemy.maxHP + 1))
+      Math.ceil(3 / Math.ceil(Math.random() * enemy.maxHP + 1)) *
+        this.spawner.speed
     );
     enemy.on("destroyed", () => {
       if (enemy.hp <= 0) {
         this.score += 1;
+        if (this.score % 10 === 0) {
+          // add a random buff.
+          const newBuff =
+            this.availableBuffs[
+              Math.floor(Math.random() * this.availableBuffs.length)
+            ];
+          console.log(newBuff.description);
+          this.activeBuffs.push(newBuff);
+          this.spawner.speed += 0.1;
+        }
       }
     });
     this.addChild(enemy);
@@ -241,20 +312,36 @@ export class CombatScene extends Container {
       this.crosshair.x - this.player.x
     );
 
+    this.player.statAdjustments = flattenStatAdjustments(
+      this.activeBuffs.map((buff) => buff.adjustments)
+    );
+    this.buffText.text = `Active Buffs:\n${getAdjustmentDescriptions(
+      this.player.statAdjustments
+    )}`;
+
+    const weapon = this.weapons[this.selectedWeapon];
+    const finalRof = calculateFinalStat(
+      "rof",
+      weapon.damageTags,
+      weapon.rof,
+      this.player.statAdjustments
+    );
+
     // Fire if able
-    if (this.shootTime <= 60_000 / this.weapons[this.selectedWeapon].rof) {
+    if (this.shootTime <= 60_000 / finalRof) {
       this.shootTime += this.ticker.deltaMS;
     } else {
       if (this.firing) {
         this.shootTime = 0;
         const origin = this.player.shootBox.getGlobalPosition();
-        const projectile = new Projectile({ side: "player" }).setRotatable(
-          true
-        );
-        this.weapons[this.selectedWeapon].drawProjectile(projectile);
+        const projectile = new Projectile({
+          owner: this.player,
+          source: weapon,
+        }).setRotatable(true);
+        weapon.drawProjectile(projectile);
         projectile.x = origin.x;
         projectile.y = origin.y;
-        projectile.source = this.weapons[this.selectedWeapon];
+        projectile.source = weapon;
         projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
 
         this.addChild(projectile);
