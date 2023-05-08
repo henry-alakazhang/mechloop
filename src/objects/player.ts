@@ -20,10 +20,10 @@ export class Player extends Entity {
     super({ side: "player", maxHP: 20, showHealthBar: "always" });
 
     this.lineStyle(1, 0x00ff00).drawPolygon([
-      { x: 10, y: 0 },
-      { x: -5, y: -5 },
+      { x: 15, y: 0 },
+      { x: -8, y: -8 },
       { x: 0, y: 0 },
-      { x: -5, y: 5 },
+      { x: -8, y: 8 },
     ]);
 
     // shootbox where bullets spawn from
@@ -61,12 +61,12 @@ export class Player extends Entity {
   }
 
   public override onCollide(other: PhysicsObject) {
+    super.onCollide(other);
+
     if (this.iframes <= 0) {
       // take 10% of HP in damage
       this.hp -= Math.ceil(this.maxHP * 0.1);
       this.iframes = 10;
     }
-
-    // TODO: implement knockback and prevent objects from hitting each other
   }
 }

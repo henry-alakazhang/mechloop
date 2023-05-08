@@ -78,6 +78,6 @@ export class Entity extends PhysicsObject {
   }
 
   public onCollide(other: PhysicsObject) {
-    // does nothing
+    // TODO: implement momentum/knockback and prevent objects from sitting inside each other
   }
 }
