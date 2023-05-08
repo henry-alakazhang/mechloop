@@ -2,6 +2,7 @@ import { Easing, Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
 import { Projectile } from "../objects/projectile";
 import { Tag } from "../scenes/combat.model";
+import { CombatScene } from "../scenes/combat.scene";
 
 export interface Weapon {
   /** Displayed name */
@@ -80,6 +81,31 @@ export const WEAPONS: { [k: string]: Weapon } = {
           explosion.destroy();
         })
         .start();
+    },
+  },
+  arc: {
+    name: "High Impulse Arc Coil",
+    damage: 2,
+    rof: 120,
+    damageType: "energy",
+    damageTags: ["energy"],
+    projectileSpeed: 40,
+    drawProjectile: (g) => {
+      g.hp = 6;
+      return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
+    },
+    onHit: (g) => {
+      // chain towards a new target
+      // fixme: don't assume the projectile's parent is the combat scene...
+      let scene = g.parent as CombatScene;
+      const newTarget = scene.getNearbyObject(
+        g,
+        g.side === "player" ? "enemy" : "player",
+        100
+      );
+      if (newTarget) {
+        g.setVelocityTo(newTarget.x, newTarget.y, 40);
+      }
     },
   },
 };

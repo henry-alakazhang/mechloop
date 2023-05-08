@@ -11,8 +11,8 @@ export type Stat = "damage" | "rof" | "projectileHP";
  * "+10% Kinetic Damage" would be applied to the "kinetic" tag.
  */
 export type Tag = {
-  damage: "kinetic" | "projectile" | "explosive";
-  rof: "kinetic" | "projectile" | "explosive";
+  damage: "kinetic" | "projectile" | "explosive" | "energy";
+  rof: never;
   projectileHP: "kinetic" | "explosive";
 };
 
@@ -114,8 +114,9 @@ const displayText: {
 } = {
   global: "Global",
   kinetic: "Kinetic",
-  projectile: "Projectile",
   explosive: "Explosive",
+  energy: "Energy",
+  projectile: "Projectile",
   damage: "Damage",
   rof: "Rate of Fire",
   projectileHP: "Projectile HP (Pierces)",

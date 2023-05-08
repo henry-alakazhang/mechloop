@@ -322,7 +322,7 @@ export class CombatScene extends Container {
     const weapon = this.weapons[this.selectedWeapon];
     const finalRof = calculateFinalStat(
       "rof",
-      weapon.damageTags,
+      [],
       weapon.rof,
       this.player.statAdjustments
     );
@@ -342,7 +342,11 @@ export class CombatScene extends Container {
         projectile.x = origin.x;
         projectile.y = origin.y;
         projectile.source = weapon;
-        projectile.setVelocityTo(this.crosshair.x, this.crosshair.y, 10);
+        projectile.setVelocityTo(
+          this.crosshair.x,
+          this.crosshair.y,
+          weapon.projectileSpeed ?? 10
+        );
 
         this.addChild(projectile);
       }
@@ -404,6 +408,34 @@ export class CombatScene extends Container {
     });
 
     Group.shared.update();
+  }
+
+  // todo: move this somewhere else
+  getNearbyObject(
+    from: PhysicsObject,
+    side: "player" | "enemy",
+    distance: number
+  ) {
+    return this.children.find((child) => {
+      if (!(child instanceof PhysicsObject)) {
+        return false;
+      }
+      if (child.side !== side) {
+        return false;
+      }
+      if (child === from) {
+        return false;
+      }
+      const childBounds = child.getBounds();
+      const fromBounds = from.getBounds();
+      const dx =
+        (childBounds.top + childBounds.bottom) / 2 -
+        (fromBounds.top + fromBounds.bottom) / 2;
+      const dy =
+        (childBounds.left + childBounds.right) / 2 -
+        (fromBounds.left + fromBounds.right) / 2;
+      return dx * dx + dy * dy < distance * distance;
+    });
   }
 
   override addChild<U extends DisplayObject[]>(...children: U): U[0] {
