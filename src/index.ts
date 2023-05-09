@@ -1,5 +1,5 @@
 import { Application } from "pixi.js";
-import { CombatScene } from "./scenes/combat.scene";
+import { CombatScene } from "./scenes/combat/combat.scene";
 
 const app = new Application({
   view: document.getElementById("pixi-canvas") as HTMLCanvasElement,

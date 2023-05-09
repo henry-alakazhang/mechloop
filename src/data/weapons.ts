@@ -1,8 +1,8 @@
 import { Easing, Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
 import { Projectile } from "../objects/projectile";
-import { Tag } from "../scenes/combat.model";
-import { CombatScene } from "../scenes/combat.scene";
+import { Tag } from "../scenes/combat/combat.model";
+import { CombatScene } from "../scenes/combat/combat.scene";
 
 export interface Weapon {
   /** Displayed name */

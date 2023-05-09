@@ -7,11 +7,11 @@ import {
   Ticker,
 } from "pixi.js";
 import { Group } from "tweedle.js";
-import { WEAPONS } from "../data/weapons";
-import { Entity } from "../objects/entity";
-import { PhysicsObject } from "../objects/physics-object";
-import { Player } from "../objects/player";
-import { Projectile } from "../objects/projectile";
+import { WEAPONS } from "../../data/weapons";
+import { Entity } from "../../objects/entity";
+import { PhysicsObject } from "../../objects/physics-object";
+import { Player } from "../../objects/player";
+import { Projectile } from "../../objects/projectile";
 import {
   StatAdjustments,
   calculateFinalStat,

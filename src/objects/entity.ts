@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { StatAdjustments } from "../scenes/combat.model";
+import { StatAdjustments } from "../scenes/combat/combat.model";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {
