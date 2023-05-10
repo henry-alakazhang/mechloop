@@ -12,6 +12,7 @@ import { Entity } from "../../objects/entity";
 import { PhysicsObject } from "../../objects/physics-object";
 import { Player } from "../../objects/player";
 import { Projectile } from "../../objects/projectile";
+import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
 import {
   StatAdjustments,
   calculateFinalStat,
@@ -38,6 +39,7 @@ export class CombatScene extends Container {
   private selectedWeaponText: Text;
 
   private pausedText: Text;
+  private skillTreeScene: SkillTreeScene;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
@@ -150,6 +152,11 @@ export class CombatScene extends Container {
     this.pausedText.y = 400 - this.pausedText.height / 2;
     this.pausedText.visible = false;
     this.addChild(this.pausedText);
+    this.skillTreeScene = new SkillTreeScene();
+    this.skillTreeScene.x = 750;
+    this.skillTreeScene.y = 400;
+    this.skillTreeScene.visible = false;
+    this.addChild(this.skillTreeScene);
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;
@@ -264,10 +271,14 @@ export class CombatScene extends Container {
   togglePause() {
     if (this.ticker.started) {
       this.pausedText.visible = true;
+      this.skillTreeScene.visible = true;
+      this.skillTreeScene.interactive = true;
       this.ticker.stop();
       this.spawner.stop();
     } else {
       this.pausedText.visible = false;
+      this.skillTreeScene.visible = false;
+      this.skillTreeScene.interactive = false;
       this.ticker.start();
       this.spawner.start();
     }
