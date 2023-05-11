@@ -30,7 +30,7 @@ export interface BaseSkillTreeNode {
 
 export interface PassiveNode extends BaseSkillTreeNode {
   readonly type: "passive";
-  readonly statAdjustments?: StatAdjustments;
+  readonly statAdjustments: StatAdjustments;
 }
 
 export interface WeaponNode extends BaseSkillTreeNode {

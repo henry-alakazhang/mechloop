@@ -1,7 +1,12 @@
 /**
  * Names of stats in the game. These represent different modifiable... stats...
  */
-export type Stat = "damage" | "rof" | "projectileHP";
+export type Stat =
+  | "damage"
+  | "rof"
+  | "projectileHP"
+  | "critChance"
+  | "critDamage";
 
 /**
  * Tags for stat modifiers. Each stat has different available tags,
@@ -14,6 +19,8 @@ export type Tag = {
   damage: "kinetic" | "projectile" | "explosive" | "energy";
   rof: never;
   projectileHP: "kinetic" | "explosive";
+  critChance: never;
+  critDamage: never;
 };
 
 /**
@@ -120,6 +127,8 @@ const displayText: {
   damage: "Damage",
   rof: "Rate of Fire",
   projectileHP: "Projectile HP (Pierces)",
+  critChance: "Critical Strike Chance",
+  critDamage: "Critical Damage Multiplier",
 };
 
 export function getAdjustmentDescriptions(

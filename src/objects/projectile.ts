@@ -40,13 +40,30 @@ export class Projectile extends PhysicsObject {
 
     // deal self damage to other object\
     if (this.source) {
-      const finalDamage = calculateFinalStat(
+      // TODO: move this to some kind of helper file for calculating damage
+      let finalDamage = calculateFinalStat(
         "damage",
         this.source.damageTags,
         this.source.damage,
         this.owner.statAdjustments
       );
       if (finalDamage > 0) {
+        // TODO: make this visible
+        const finalCritChance = calculateFinalStat(
+          "critChance",
+          [],
+          this.owner.critChance,
+          this.owner.statAdjustments
+        );
+        const finalCritDamage = calculateFinalStat(
+          "critDamage",
+          [],
+          this.owner.critDamage,
+          this.owner.statAdjustments
+        );
+        if (Math.random() <= finalCritChance) {
+          finalDamage *= finalCritDamage;
+        }
         other.hp -= finalDamage;
       }
       this.source.onHit?.(this);

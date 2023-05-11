@@ -21,6 +21,9 @@ export class Entity extends PhysicsObject {
   public maxHP: number;
   public hp: number;
 
+  public critChance = 0.0;
+  public critDamage = 1.5;
+
   public statAdjustments: StatAdjustments;
 
   /** Whether to display the healthbar above the object */

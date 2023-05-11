@@ -38,6 +38,7 @@ export class SkillTreeScene extends Container {
         type: "passive",
         colour: "r",
         // TODO: implement
+        statAdjustments: {},
       },
       {
         id: "journeyman-red-2-offensive",
@@ -69,6 +70,9 @@ export class SkillTreeScene extends Container {
         name: "+10 Maximum HP; +10% Critical Strike Chance",
         type: "passive",
         colour: "g",
+        statAdjustments: {
+          critChance: { global: { addition: 0.1, multiplier: 0 } },
+        },
       },
       {
         id: "journeyman-green-2-defensive",
@@ -79,6 +83,7 @@ export class SkillTreeScene extends Container {
         type: "passive",
         colour: "g",
         // TODO: implement
+        statAdjustments: {},
       },
       {
         id: "journeyman-green-2-offensive",
@@ -114,6 +119,7 @@ export class SkillTreeScene extends Container {
         type: "passive",
         colour: "b",
         // TODO: implement
+        statAdjustments: {},
       },
       {
         id: "journeyman-blue-2-defensive",
@@ -124,6 +130,7 @@ export class SkillTreeScene extends Container {
         type: "passive",
         colour: "b",
         // TODO: implement
+        statAdjustments: {},
       },
       {
         id: "journeyman-blue-2-offensive",
@@ -134,6 +141,7 @@ export class SkillTreeScene extends Container {
         type: "passive",
         colour: "b",
         // TODO: implement
+        statAdjustments: {},
       },
       {
         id: "journeyman-blue-capstone",

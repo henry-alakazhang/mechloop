@@ -68,24 +68,20 @@ export class CombatScene extends Container {
       adjustments: { rof: { global: { addition: 0, multiplier: 0.08 } } },
     },
     {
-      description: "-20% Projectile Damage\n+50% Explosive Damage",
-      adjustments: {
-        damage: {
-          projectile: { addition: 0, multiplier: -0.2 },
-          explosive: { addition: 0, multiplier: 0.5 },
-        },
-      },
-    },
-    {
-      description: "-10% Global Damage\n+25% Global Rate of Fire",
-      adjustments: {
-        damage: { global: { addition: 0, multiplier: -0.1 } },
-        rof: { global: { addition: 0, multiplier: 0.25 } },
-      },
-    },
-    {
       description: "+1 Projectile HP (pierces)",
       adjustments: { projectileHP: { global: { addition: 1, multiplier: 0 } } },
+    },
+    {
+      description: "+25% Critical Chance",
+      adjustments: {
+        critChance: { global: { addition: 0.25, multiplier: 0 } },
+      },
+    },
+    {
+      description: "+25% Critical Damage",
+      adjustments: {
+        critDamage: { global: { addition: 0.25, multiplier: 0 } },
+      },
     },
   ];
   private activeBuffs: { description: string; adjustments: StatAdjustments }[] =
