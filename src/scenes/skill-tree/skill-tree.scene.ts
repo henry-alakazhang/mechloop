@@ -1,6 +1,16 @@
 import { Container, Graphics } from "pixi.js";
 import { SkillTree } from "./skill-tree.model";
 
+/**
+ * This offset is used to shift the entire graphic to the outside of the arc,
+ * making the whole shape a lot shallower, rather than being a semicircle.
+ */
+const TREE_OFFSET = 200;
+/**
+ * The height of each layer in the tree (each arc).
+ */
+const LAYER_HEIGHT = 80;
+
 export class SkillTreeScene extends Container {
   public tree: SkillTree;
   public selected: { [k: string]: boolean };
@@ -160,24 +170,14 @@ export class SkillTreeScene extends Container {
     this.treeGraphics = {};
     this.selected = {};
 
-    // Passive trees are drawn as an arc with a range of about 120 degrees.
-    // The layers of the tree are drawn for a bit of structure
-    const layerBorders = new Graphics()
-      .lineStyle(1, 0xffffff)
-      // 0.5 radians is 30 degrees off horizontal; ie. the full arc is 120 degrees
-      .arc(0, 0, 110, -0.5, Math.PI + 0.5, true)
-      // flip the arc around because the line continues between the arcs,
-      // and if we didn't do this it'd cut across the tree
-      // FIXME: don't do this; should be able to just draw arcs by themselves?
-      .arc(0, 0, 190, Math.PI + 0.5, -0.5, false)
-      .arc(0, 0, 270, -0.5, Math.PI + 0.5, true)
-      .arc(0, 0, 350, Math.PI + 0.5, -0.5, false)
-      .arc(0, 0, 430, -0.5, Math.PI + 0.5, true);
-    layerBorders.y = 150;
-    // layerBorders.visible = false;
-    this.addChild(layerBorders);
+    let maxDepth = 0;
 
+    // Passive trees are drawn as an arc with a range of about 120 degrees.
     this.tree.forEach((passive) => {
+      if (passive.depth > maxDepth) {
+        maxDepth = passive.depth;
+      }
+
       const colour =
         passive.colour === "r"
           ? 0x993366
@@ -196,13 +196,11 @@ export class SkillTreeScene extends Container {
           : 0xffffff;
       const node = new Graphics().lineStyle(3, colour).beginFill(fill);
 
-      // This offset is used to shift the entire graphic to the outside of the arc,
-      // making the whole shape a lot shallower, rather than being a semicircle.
-      node.y = 150;
+      node.y = TREE_OFFSET;
       // Nodes are pushed further back based on their depth; deeper nodes are further up.
       // the offset is subtracted here so that the nodes are still located
       // close to the middle of the skill tree container itself
-      const verticalPos = -passive.depth * 80 - node.y;
+      const verticalPos = -passive.depth * LAYER_HEIGHT - node.y;
       // Then nodes are rotated, around the original centerpoint
       // ie. this moves them left and righ across the arc.
       node.angle = passive.index * 12;
@@ -237,18 +235,18 @@ export class SkillTreeScene extends Container {
           .arc(
             0,
             0,
-            verticalPos + 80,
+            verticalPos + LAYER_HEIGHT,
             node.rotation + Math.PI / 2,
             connectedNode.rotation + Math.PI / 2,
             node.rotation > connectedNode.rotation
           );
-        arcedPath.y = 150;
+        arcedPath.y = TREE_OFFSET;
         const verticalPath = new Graphics()
           .lineStyle(3, 0xeeeeee)
           .moveTo(0, verticalPos)
           // TODO: don't hardcode the height here (it should be based off vertical position of other node)
-          .lineTo(0, verticalPos + 81);
-        verticalPath.y = 150;
+          .lineTo(0, verticalPos + LAYER_HEIGHT + 1);
+        verticalPath.y = TREE_OFFSET;
         verticalPath.rotation = node.rotation;
         // add to container at index 0 so these paths all go under the nodes themselves
         // note: if this ends up being unperformant, rearrange so the tree nodes get added after
@@ -256,5 +254,27 @@ export class SkillTreeScene extends Container {
         this.addChildAt(verticalPath, 0);
       });
     });
+
+    // Finally, draw in the background layers of the tree
+    const layerBorders = new Graphics();
+    for (let layer = 0; layer <= maxDepth; layer++) {
+      // we have to make a new arc each time because otherwise there's a line between the two
+      // TODO: figure out how to not do that lol?
+      layerBorders.addChild(
+        // each layer is an increasingly dark steel-grey-ish colour (lighter at the bottom)
+        new Graphics().lineStyle(LAYER_HEIGHT, 0xaabbcc - 0x111111 * layer).arc(
+          0,
+          0,
+          TREE_OFFSET + layer * LAYER_HEIGHT + 1,
+          // 0.5 radians is 30 degrees off horizontal; ie. the full arc is 120 degrees
+          Math.PI + 0.5,
+          -0.5,
+          false
+        )
+      );
+    }
+    layerBorders.y = TREE_OFFSET;
+    // layerBorders.visible = false;
+    this.addChildAt(layerBorders, 0);
   }
 }
