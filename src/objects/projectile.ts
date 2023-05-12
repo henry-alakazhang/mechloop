@@ -1,11 +1,11 @@
 import { Weapon } from "../data/weapons";
 import { calculateFinalStat } from "../scenes/combat/combat.model";
-import { Entity } from "./entity";
+import { CombatEntity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 
 type ProjectileConfig = {
   source: Weapon;
-  owner: Entity;
+  owner: CombatEntity;
 };
 
 export class Projectile extends PhysicsObject {
@@ -13,7 +13,7 @@ export class Projectile extends PhysicsObject {
    * Creates/fires a projectile of a given type towards a given target location
    */
   public static shoot(
-    owner: Entity,
+    owner: CombatEntity,
     source: Weapon,
     from: { x: number; y: number },
     to: { x: number; y: number },
@@ -37,7 +37,7 @@ export class Projectile extends PhysicsObject {
   public hp = 1;
 
   public source: Weapon;
-  public owner: Entity;
+  public owner: CombatEntity;
 
   constructor(config: ProjectileConfig) {
     super({ side: config.owner.side });
@@ -62,7 +62,7 @@ export class Projectile extends PhysicsObject {
 
     // deal self damage to other object
     // TODO: move this to some kind of helper file for calculating damage
-    if (other instanceof Entity) {
+    if (other instanceof CombatEntity) {
       let finalDamage = calculateFinalStat(
         "damage",
         this.source.damageTags,

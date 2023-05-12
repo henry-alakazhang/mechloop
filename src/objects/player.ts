@@ -1,8 +1,8 @@
 import { DisplayObject, Graphics } from "pixi.js";
-import { Entity } from "./entity";
+import { CombatEntity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 
-export class Player extends Entity {
+export class Player extends CombatEntity {
   /** Coordinates to fire bullets from */
   public shootBox: DisplayObject;
 
@@ -65,7 +65,7 @@ export class Player extends Entity {
 
     if (this.iframes <= 0) {
       // take 5% of each side's HP as damage
-      if (other instanceof Entity) {
+      if (other instanceof CombatEntity) {
         this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05));
         this.iframes = 10;
       }

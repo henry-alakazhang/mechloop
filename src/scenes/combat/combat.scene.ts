@@ -8,7 +8,7 @@ import {
 } from "pixi.js";
 import { Group } from "tweedle.js";
 import { WEAPONS } from "../../data/weapons";
-import { Entity } from "../../objects/entity";
+import { CombatEntity } from "../../objects/entity";
 import { PhysicsObject } from "../../objects/physics-object";
 import { Player } from "../../objects/player";
 import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
@@ -280,7 +280,7 @@ export class CombatScene extends Container {
   }
 
   spawnEnemy() {
-    const enemy = Entity.ASTEROID(this.spawner.speed);
+    const enemy = CombatEntity.ASTEROID(this.spawner.speed);
     enemy.x = Math.random() * 1500;
     enemy.y = Math.random() * 800;
     enemy.setVelocityTo(

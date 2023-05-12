@@ -16,8 +16,9 @@ export type EntityConfig = PhysicsObjectConfig & {
  * Base object for ships and other shootable/collideable entities.
  *
  * Tracks HP and displays it as a healthbar over the entity.
+ * Tracks all kinds of combat stats for damage calculation and so on.
  */
-export class Entity extends PhysicsObject {
+export class CombatEntity extends PhysicsObject {
   // =============
   // COMBAT STATS
   // =============
@@ -51,9 +52,9 @@ export class Entity extends PhysicsObject {
   private healthBar: Graphics;
 
   // TODO: move this to some kind of enemies.ts
-  public static ASTEROID(scale: number): Entity {
+  public static ASTEROID(scale: number): CombatEntity {
     const size = Math.ceil(Math.random() * 20) * scale;
-    const asteroid = new Entity({ maxHP: size, side: "enemy" })
+    const asteroid = new CombatEntity({ maxHP: size, side: "enemy" })
       .lineStyle(2, 0xaaaa00)
       .drawCircle(0, 0, size + 20);
     asteroid.moveHealthBar();
