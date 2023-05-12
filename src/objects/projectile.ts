@@ -38,9 +38,9 @@ export class Projectile extends PhysicsObject {
       this.hp -= 1;
     }
 
-    // deal self damage to other object\
-    if (this.source) {
-      // TODO: move this to some kind of helper file for calculating damage
+    // deal self damage to other object
+    // TODO: move this to some kind of helper file for calculating damage
+    if (other instanceof Entity) {
       let finalDamage = calculateFinalStat(
         "damage",
         this.source.damageTags,
@@ -64,7 +64,7 @@ export class Projectile extends PhysicsObject {
         if (Math.random() <= finalCritChance) {
           finalDamage *= finalCritDamage;
         }
-        other.hp -= finalDamage;
+        other.takeDamage(finalDamage);
       }
       this.source.onHit?.(this);
     }

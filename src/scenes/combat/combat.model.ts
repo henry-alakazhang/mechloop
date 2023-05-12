@@ -6,7 +6,12 @@ export type Stat =
   | "rof"
   | "projectileHP"
   | "critChance"
-  | "critDamage";
+  | "critDamage"
+  // TODO: this should probably be called "glance",
+  // because that's what it actually does (reduce damage)
+  // But "glance chance" just sounds way too cheesy lol.
+  | "evadeChance"
+  | "evadeEffect";
 
 /**
  * Tags for stat modifiers. Each stat has different available tags,
@@ -21,6 +26,8 @@ export type Tag = {
   projectileHP: "kinetic" | "explosive";
   critChance: never;
   critDamage: never;
+  evadeChance: never;
+  evadeEffect: never;
 };
 
 /**
@@ -129,6 +136,8 @@ const displayText: {
   projectileHP: "Projectile HP (Pierces)",
   critChance: "Critical Strike Chance",
   critDamage: "Critical Damage Multiplier",
+  evadeChance: "Evasion Chance",
+  evadeEffect: "Damage reduction from evaded attacks",
 };
 
 export function getAdjustmentDescriptions(

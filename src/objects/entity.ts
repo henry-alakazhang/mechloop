@@ -1,5 +1,9 @@
 import { Graphics } from "pixi.js";
-import { StatAdjustments } from "../scenes/combat/combat.model";
+import { Tween } from "tweedle.js";
+import {
+  StatAdjustments,
+  calculateFinalStat,
+} from "../scenes/combat/combat.model";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {
@@ -14,15 +18,31 @@ export type EntityConfig = PhysicsObjectConfig & {
  * Tracks HP and displays it as a healthbar over the entity.
  */
 export class Entity extends PhysicsObject {
+  // =============
+  // COMBAT STATS
+  // =============
+
   /**
-   * Hit points.
-   * When this reaches 0, the object is destroyed.
+   * Maximum HP of the entity
    */
   public maxHP: number;
   public hp: number;
 
+  /** Chance for damage dealt by the entity to be critical (max 1) */
   public critChance = 0.0;
+  /** Damage multiplier of critical hits */
   public critDamage = 1.5;
+
+  /**
+   * Chance to evade attacks (cause them to glance)
+   * Can scale past 1 and applies multiple times.
+   */
+  public evadeChance = 0.5;
+  /**
+   * Damage reduction for glancing hits.
+   * Subtracted from the hit damage.
+   */
+  public evadeEffect = 0.5;
 
   public statAdjustments: StatAdjustments;
 
@@ -87,5 +107,34 @@ export class Entity extends PhysicsObject {
 
   public onCollide(other: PhysicsObject) {
     // TODO: implement momentum/knockback and prevent objects from sitting inside each other
+  }
+
+  public takeDamage(damage: number) {
+    const finalEvadeChance = calculateFinalStat(
+      "evadeChance",
+      [],
+      this.evadeChance,
+      this.statAdjustments
+    );
+    const finalEvadeEffect = calculateFinalStat(
+      "evadeEffect",
+      [],
+      this.evadeEffect,
+      this.statAdjustments
+    );
+    // Evade chance stacks past 100%; each one applies multiple times.
+    const evasionStacks = Math.floor(finalEvadeChance);
+    let evadedDamageMult = (1 - finalEvadeEffect) ** evasionStacks;
+    // The ramining % is calculated randomly
+    if (Math.random() < finalEvadeChance - evasionStacks) {
+      evadedDamageMult *= 1 - finalEvadeEffect;
+    }
+
+    const finalDamage = damage * evadedDamageMult;
+
+    this.hp -= finalDamage;
+    // apply visual effect to denote damage taken
+    // fixme: this doesn't work
+    new Tween(this).to({ alpha: 0.5 }, 60).to({ alpha: 1 }, 60).start();
   }
 }

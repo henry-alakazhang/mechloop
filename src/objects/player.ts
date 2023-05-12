@@ -65,7 +65,7 @@ export class Player extends Entity {
 
     if (this.iframes <= 0) {
       // take 10% of HP in damage
-      this.hp -= Math.ceil(this.maxHP * 0.1);
+      this.takeDamage(Math.ceil(this.maxHP * 0.1));
       this.iframes = 10;
     }
   }
