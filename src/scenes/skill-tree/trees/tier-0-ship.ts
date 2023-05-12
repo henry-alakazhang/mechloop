@@ -28,8 +28,7 @@ export const tier0: SkillTree = [
     name: "+15 Armour",
     type: "passive",
     colour: "r",
-    // TODO: implement
-    statAdjustments: {},
+    statAdjustments: { armour: { global: { addition: 15, multiplier: 0 } } },
   },
   {
     id: "red-2-offensive",

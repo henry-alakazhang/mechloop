@@ -11,7 +11,8 @@ export type Stat =
   // because that's what it actually does (reduce damage)
   // But "glance chance" just sounds way too cheesy lol.
   | "evadeChance"
-  | "evadeEffect";
+  | "evadeEffect"
+  | "armour";
 
 /**
  * Tags for stat modifiers. Each stat has different available tags,
@@ -28,6 +29,7 @@ export type Tag = {
   critDamage: never;
   evadeChance: never;
   evadeEffect: never;
+  armour: never;
 };
 
 /**
@@ -138,6 +140,7 @@ const displayText: {
   critDamage: "Critical Damage Multiplier",
   evadeChance: "Evasion Chance",
   evadeEffect: "Damage reduction from evaded attacks",
+  armour: "Armour",
 };
 
 export function getAdjustmentDescriptions(

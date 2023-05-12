@@ -29,6 +29,21 @@ export class CombatEntity extends PhysicsObject {
   public maxHP: number;
   public hp: number;
 
+  /**
+   * Amount of HP protected by armour (cannot be higher than HP).
+   * While a unit has armour, all damage is reduced by 10% of the full armour value.
+   *
+   * Armour stops being effective when it breaks (ie. HP is below `maxHP - armour`).
+   */
+  public armour = 0;
+  /**
+   * Temporary armour.
+   * Acts like armour (using the base `armour` value), but depletes like HP.
+   * Used for when armour is broken (or partly broken) but is restored when not at max HP.
+   * It needs to be manually tracked.
+   */
+  public tempArmour = 0;
+
   /** Chance for damage dealt by the entity to be critical (max 1) */
   public critChance = 0.0;
   /** Damage multiplier of critical hits */
@@ -49,7 +64,10 @@ export class CombatEntity extends PhysicsObject {
 
   /** Whether to display the healthbar above the object */
   public showHealthBar: "never" | "damaged" | "always";
+
+  // todo: probably lump these all into a subcomponent
   private healthBar: Graphics;
+  private armourBar: Graphics;
 
   // TODO: move this to some kind of enemies.ts
   public static ASTEROID(scale: number): CombatEntity {
@@ -75,7 +93,10 @@ export class CombatEntity extends PhysicsObject {
     this.statAdjustments = statAdjustments ?? {};
 
     this.healthBar = this.addChild(
-      new Graphics().beginFill(0x00ff00).drawRect(0, 0, 10, 2).endFill()
+      new Graphics().beginFill(0x00ff00).drawRect(0, 0, 10, 3)
+    );
+    this.armourBar = this.addChild(
+      new Graphics().beginFill(0xaaaaaa).drawRect(0, 0, 10, 3)
     );
     this.healthBar.visible = this.showHealthBar === "always";
   }
@@ -89,6 +110,8 @@ export class CombatEntity extends PhysicsObject {
     if (this.healthBar.y !== bounds.top) {
       this.healthBar.x = bounds.left;
       this.healthBar.y = bounds.top - 5;
+      this.armourBar.x = bounds.left;
+      this.armourBar.y = bounds.top - 5;
     }
   }
 
@@ -98,12 +121,39 @@ export class CombatEntity extends PhysicsObject {
     // update health bar visibility and size
     if (this.showHealthBar === "always") {
       this.healthBar.visible = true;
+      this.armourBar.visible = true;
     } else if (this.showHealthBar === "damaged") {
       this.healthBar.visible = this.hp !== this.maxHP;
+      this.armourBar.visible = this.hp !== this.maxHP;
     } else {
       this.healthBar.visible = false;
+      this.armourBar.visible = false;
     }
-    this.healthBar.width = Math.max(0, (this.width * this.hp) / this.maxHP);
+
+    const finalArmour = Math.min(
+      calculateFinalStat("armour", [], this.armour, this.statAdjustments),
+      this.maxHP
+    );
+    const displayedArmour = Math.max(
+      // temp armour
+      this.tempArmour,
+      // remaining armour after lost HP
+      finalArmour - (this.maxHP - this.hp)
+    );
+    // threshold for armour being broken
+    const armourThreshold = this.maxHP - finalArmour;
+
+    this.healthBar.width = Math.max(
+      0,
+      // if hp is below armour threshold, show entire HP
+      // if above, cut it off as the rest is displayed by the armour bar
+      (this.width * Math.min(this.hp, armourThreshold)) / this.maxHP
+    );
+    this.armourBar.x = this.healthBar.x + this.healthBar.width;
+    this.armourBar.width = Math.max(
+      0,
+      (this.width * displayedArmour) / this.maxHP
+    );
   }
 
   public onCollide(other: PhysicsObject) {
@@ -111,6 +161,10 @@ export class CombatEntity extends PhysicsObject {
   }
 
   public takeDamage(damage: number) {
+    // Step 1: Apply general damage reductions
+
+    // Step 2: Calculate and apply defenses:
+    // Evasion:
     const finalEvadeChance = calculateFinalStat(
       "evadeChance",
       [],
@@ -131,9 +185,25 @@ export class CombatEntity extends PhysicsObject {
       evadedDamageMult *= 1 - finalEvadeEffect;
     }
 
-    const finalDamage = damage * evadedDamageMult;
+    // Armour:
+    const finalArmour = Math.min(
+      calculateFinalStat("armour", [], this.armour, this.statAdjustments),
+      this.maxHP
+    );
+    let armourDamageReduction = 0;
+    if (this.hp > this.maxHP - finalArmour || this.tempArmour > 0) {
+      armourDamageReduction = finalArmour / 10;
+    }
 
-    this.hp -= finalDamage;
+    // Step 3: Calculate final damage and apply
+    const finalDamage = damage * evadedDamageMult - armourDamageReduction;
+
+    this.hp -= Math.round(finalDamage);
+    if (this.tempArmour > 0) {
+      // reduce temporary armour if applicable
+      this.tempArmour = Math.max(0, this.tempArmour - finalDamage);
+    }
+
     // apply visual effect to denote damage taken
     // fixme: this doesn't work
     new Tween(this).to({ alpha: 0.5 }, 60).to({ alpha: 1 }, 60).start();
