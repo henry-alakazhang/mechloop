@@ -64,9 +64,11 @@ export class Player extends Entity {
     super.onCollide(other);
 
     if (this.iframes <= 0) {
-      // take 10% of HP in damage
-      this.takeDamage(Math.ceil(this.maxHP * 0.1));
-      this.iframes = 10;
+      // take 5% of each side's HP as damage
+      if (other instanceof Entity) {
+        this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05));
+        this.iframes = 10;
+      }
     }
   }
 }
