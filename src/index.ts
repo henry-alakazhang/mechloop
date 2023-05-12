@@ -8,6 +8,7 @@ const app = new Application({
   backgroundColor: 0x6495ed,
   width: 1500,
   height: 800,
+  antialias: true,
 });
 
 const combatScene = new CombatScene();
