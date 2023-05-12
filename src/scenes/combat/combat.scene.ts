@@ -11,7 +11,6 @@ import { WEAPONS } from "../../data/weapons";
 import { Entity } from "../../objects/entity";
 import { PhysicsObject } from "../../objects/physics-object";
 import { Player } from "../../objects/player";
-import { Projectile } from "../../objects/projectile";
 import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
 import {
   StatAdjustments,
@@ -340,22 +339,8 @@ export class CombatScene extends Container {
     } else {
       if (this.firing) {
         this.shootTime = 0;
-        const origin = this.player.shootBox.getGlobalPosition();
-        const projectile = new Projectile({
-          owner: this.player,
-          source: weapon,
-        }).setRotatable(true);
-        weapon.drawProjectile(projectile);
-        projectile.x = origin.x;
-        projectile.y = origin.y;
-        projectile.source = weapon;
-        projectile.setVelocityTo(
-          this.crosshair.x,
-          this.crosshair.y,
-          weapon.projectileSpeed ?? 10
-        );
-
-        this.addChild(projectile);
+        const projectiles = weapon.shoot(this.player, this.crosshair);
+        this.addChild(...projectiles);
       }
     }
 

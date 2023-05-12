@@ -1,5 +1,6 @@
 import { Easing, Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
+import { Player } from "../objects/player";
 import { Projectile } from "../objects/projectile";
 import { Tag } from "../scenes/combat/combat.model";
 import { CombatScene } from "../scenes/combat/combat.scene";
@@ -19,22 +20,39 @@ export interface Weapon {
   readonly damageTags: Tag["damage"][];
   /** Projectile sped (if applicable) */
   readonly projectileSpeed?: number;
-  /** Given a Graphics object, draws the projectile */
-  readonly drawProjectile: (g: Projectile) => PhysicsObject;
+  /**
+   * Fire/activate the weapon.
+   * Returns any created projectiles and entities.
+   *
+   * TODO: Move shootbox to Entity so enemies can fire bullets too.
+   */
+  readonly shoot: (
+    shooter: Player,
+    to: { x: number; y: number }
+  ) => PhysicsObject[];
   /** Callback for when object is hit */
   readonly onHit?: (g: Projectile) => void;
 }
 
 export const WEAPONS: { [k: string]: Weapon } = {
   cannon: {
-    name: "TI-4-G Mounted Autocannon",
+    name: "TI-4-G Twin-Mounted Autocannon",
     rof: 360,
     damage: 3,
     damageType: "kinetic",
     damageTags: ["kinetic", "projectile"],
     projectileSpeed: 10,
-    drawProjectile: (g) =>
-      g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill(),
+    shoot(shooter: Player, to: { x: number; y: number }) {
+      return [
+        Projectile.shoot(
+          shooter,
+          this,
+          shooter.shootBox.getGlobalPosition(),
+          to,
+          (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
+        ),
+      ];
+    },
   },
   missile: {
     name: "G-Class Missile Launcher",
@@ -43,17 +61,28 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damageType: "explosive",
     damageTags: ["explosive", "projectile"],
     projectileSpeed: 6,
-    drawProjectile: (g) =>
-      g
-        .beginFill(0xffffff)
-        .drawPolygon([
-          { x: 6, y: 2 },
-          { x: 6, y: -1 },
-          { x: 0, y: -4 },
-          { x: 0, y: 4 },
-        ])
-        .drawCircle(6, 0, 2)
-        .endFill(),
+    shoot(shooter: Player, to: { x: number; y: number }) {
+      return [
+        Projectile.shoot(
+          shooter,
+          this,
+          shooter.shootBox.getGlobalPosition(),
+          to,
+          (g) =>
+            g
+              // vaguely resembles a rocket shape
+              .beginFill(0xffffff)
+              .drawPolygon([
+                { x: 6, y: 2 },
+                { x: 6, y: -1 },
+                { x: 0, y: -4 },
+                { x: 0, y: 4 },
+              ])
+              .drawCircle(6, 0, 2)
+              .endFill()
+        ),
+      ];
+    },
     onHit: (g: Projectile) => {
       const explosion = new Projectile({ owner: g.owner, source: g.source })
         .beginFill(0xff0000)
@@ -90,9 +119,19 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damageType: "energy",
     damageTags: ["energy"],
     projectileSpeed: 40,
-    drawProjectile: (g) => {
-      g.hp = 6;
-      return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
+    shoot(shooter: Player, to: { x: number; y: number }) {
+      return [
+        Projectile.shoot(
+          shooter,
+          this,
+          shooter.shootBox.getGlobalPosition(),
+          to,
+          (g) => {
+            g.hp = 6;
+            return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
+          }
+        ),
+      ];
     },
     onHit: (g) => {
       // chain towards a new target

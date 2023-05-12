@@ -18,8 +18,6 @@ export interface BaseSkillTreeNode {
   readonly depth: number;
   /** Horizontal index for display. 0 is vertical, negative goes left and positive goes right. */
   readonly index: number;
-  /** Display name */
-  readonly name: string;
   /** Display icon */
   readonly iconUrl?: string;
   /** Colour of border. */
@@ -30,6 +28,8 @@ export interface BaseSkillTreeNode {
 
 export interface PassiveNode extends BaseSkillTreeNode {
   readonly type: "passive";
+  /** Display name */
+  readonly name: string;
   readonly statAdjustments: StatAdjustments;
 }
 

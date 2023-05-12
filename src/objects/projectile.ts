@@ -10,6 +10,28 @@ type ProjectileConfig = {
 
 export class Projectile extends PhysicsObject {
   /**
+   * Creates/fires a projectile of a given type towards a given target location
+   */
+  public static shoot(
+    owner: Entity,
+    source: Weapon,
+    from: { x: number; y: number },
+    to: { x: number; y: number },
+    drawProjectile: (g: Projectile) => Projectile
+  ): Projectile {
+    const projectile = new Projectile({
+      owner,
+      source,
+    }).setRotatable(true);
+    drawProjectile(projectile);
+    projectile.x = from.x;
+    projectile.y = from.y;
+    projectile.setVelocityTo(to.x, to.y, source.projectileSpeed ?? 10);
+
+    return projectile;
+  }
+
+  /**
    * Literal hit points (how many times this projectile can hit before being destroyed).
    */
   public hp = 1;

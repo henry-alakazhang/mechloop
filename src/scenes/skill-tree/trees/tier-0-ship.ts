@@ -1,3 +1,4 @@
+import { WEAPONS } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
 export const tier0: SkillTree = [
@@ -6,8 +7,8 @@ export const tier0: SkillTree = [
     connected: [],
     depth: 0,
     index: 0,
-    name: "JOURNEYMAN-class Frigate",
-    type: "class",
+    type: "weapon",
+    weapon: WEAPONS.cannon,
   },
   {
     id: "red-1",
@@ -47,9 +48,10 @@ export const tier0: SkillTree = [
     connected: ["red-2-defensive", "red-2-offensive"],
     depth: 3,
     index: -3,
-    name: "Rapid Armour Calibration",
     type: "tech",
     colour: "r",
+    // Rapid Armour Calibration
+    // Recovers some % of broken armour.
     // TODO: implement
   },
   {
@@ -92,9 +94,10 @@ export const tier0: SkillTree = [
     connected: ["green-2-defensive", "green-2-offensive"],
     depth: 3,
     index: 0,
-    name: "Phase Shift",
     type: "tech",
     colour: "g",
+    // Phase Shift
+    // Blinks, or becomes invulnerable or gains phasing or something
     // TODO: implement
   },
   {
@@ -135,9 +138,10 @@ export const tier0: SkillTree = [
     connected: ["blue-2-defensive", "blue-2-offensive"],
     depth: 3,
     index: 3,
-    name: "Short-Range Electomagnetic Pulse",
     type: "tech",
     colour: "b",
+    // Short-Range Electromagnetic Pulse
+    // Pushes back nearby enemies and destroys projectiles
     // TODO: implement
   },
 ];
