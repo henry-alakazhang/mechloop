@@ -167,6 +167,10 @@ export class CombatEntity extends PhysicsObject {
   protected override update(delta: number) {
     super.update(delta);
 
+    // a few assertions to help catch random bugs caused by not properly capping values.
+    console.assert(this.hp <= this.maxHP);
+    console.assert(this.shields <= this.maxShields);
+
     // increment all timers
     this.timeSinceLastHit += this.ticker.deltaMS;
 
@@ -276,7 +280,10 @@ export class CombatEntity extends PhysicsObject {
     }
 
     // Step 3: Calculate final damage and apply
-    const finalDamage = damage * evadedDamageMult - armourDamageReduction;
+    const finalDamage = Math.max(
+      0,
+      damage * evadedDamageMult - armourDamageReduction
+    );
 
     // If shields are up, damage them instead
     if (this.shields > 0) {

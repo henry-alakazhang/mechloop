@@ -29,6 +29,8 @@ export class SkillTreeScene extends Container {
 
   public tooltip: NodeTooltip;
 
+  treeUpdateListener?: (selectedNodes: SkillTree) => void;
+
   constructor() {
     super();
 
@@ -36,7 +38,7 @@ export class SkillTreeScene extends Container {
     this.treeGraphics = {};
     this.connectionGraphics = {};
     this.selected = {
-      [tier0[0].id]: true,
+      ship: true,
     };
 
     let maxDepth = 0;
@@ -180,5 +182,22 @@ export class SkillTreeScene extends Container {
       // can only unallocate if all of the connected nodes are still attached to the tree
       // TODO: kind of complicated. unsupported until then.
     }
+
+    // update any listeners with all allocated skill nodes
+    this.treeUpdateListener?.(
+      this.tree.filter((node) => this.selected[node.id])
+    );
+  }
+
+  /**
+   * Add an event listener for updates to the tree and selected nodes
+   */
+  onTreeUpdate(listener: (selectedNodes: SkillTree) => void): this {
+    this.treeUpdateListener = listener;
+
+    // immediately call it to update with the initial state.
+    // fixme: shouldn't need this; the tree state should be handled at a higher level.
+    listener(this.tree.filter((node) => this.selected[node.id]));
+    return this;
   }
 }

@@ -11,9 +11,13 @@ import { WEAPONS } from "../../data/weapons";
 import { CombatEntity } from "../../objects/entity";
 import { PhysicsObject } from "../../objects/physics-object";
 import { Player } from "../../objects/player";
+import {
+  PassiveNode,
+  SkillTree,
+  WeaponNode,
+} from "../skill-tree/skill-tree.model";
 import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
 import {
-  StatAdjustments,
   calculateFinalStat,
   flattenStatAdjustments,
   getAdjustmentDescriptions,
@@ -46,46 +50,7 @@ export class CombatScene extends Container {
 
   private activeCollisions: { [k: string]: { [k: string]: boolean } } = {};
 
-  private availableBuffs: {
-    description: string;
-    adjustments: StatAdjustments;
-  }[] = [
-    {
-      description: "+1 Global Base Damage",
-      adjustments: { damage: { global: { addition: 1, multiplier: 0 } } },
-    },
-    {
-      description: "+10% Kinetic Damage",
-      adjustments: { damage: { kinetic: { addition: 0, multiplier: 0.1 } } },
-    },
-    {
-      description: "+10% Explosive Damage",
-      adjustments: { damage: { explosive: { addition: 0, multiplier: 0.1 } } },
-    },
-    {
-      description: "+8% Global Rate of Fire",
-      adjustments: { rof: { global: { addition: 0, multiplier: 0.08 } } },
-    },
-    {
-      description: "+1 Projectile HP (pierces)",
-      adjustments: { projectileHP: { global: { addition: 1, multiplier: 0 } } },
-    },
-    {
-      description: "+25% Critical Chance",
-      adjustments: {
-        critChance: { global: { addition: 0.25, multiplier: 0 } },
-      },
-    },
-    {
-      description: "+25% Critical Damage",
-      adjustments: {
-        critDamage: { global: { addition: 0.25, multiplier: 0 } },
-      },
-    },
-  ];
-  private activeBuffs: { description: string; adjustments: StatAdjustments }[] =
-    [];
-  private buffText: Text;
+  private skillTreeText: Text;
 
   constructor() {
     super();
@@ -129,14 +94,14 @@ export class CombatScene extends Container {
     this.selectedWeaponText.y = 770;
     this.addChild(this.selectedWeaponText);
 
-    this.buffText = new Text(`Active Buffs:`, {
+    this.skillTreeText = new Text(`Skill Tree:`, {
       fill: 0xffffff,
       fontFamily: "Courier New",
       fontSize: 14,
     });
-    this.buffText.x = 20;
-    this.buffText.y = 20;
-    this.addChild(this.buffText);
+    this.skillTreeText.x = 20;
+    this.skillTreeText.y = 20;
+    this.addChild(this.skillTreeText);
 
     this.pausedText = new Text("GAME PAUSED", {
       fill: 0xffffff,
@@ -152,7 +117,8 @@ export class CombatScene extends Container {
     this.skillTreeScene.x = 750;
     this.skillTreeScene.y = 400;
     this.skillTreeScene.interactive = true;
-    // don't add the skill tree; it gets added and removed when the game is paused
+    this.skillTreeScene.onTreeUpdate(this.handleSkillTreeUpdate.bind(this));
+    // don't add the skill tree as a child; it gets added and removed when the game is paused
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;
@@ -240,6 +206,20 @@ export class CombatScene extends Container {
     this.firing = false;
   }
 
+  handleSkillTreeUpdate(tree: SkillTree) {
+    // set all weapons
+    this.weapons = tree
+      .filter((node): node is WeaponNode => node.type === "weapon")
+      .map((node) => node.weapon);
+    this.selectedWeapon = 0;
+    this.player.statAdjustments = flattenStatAdjustments(
+      tree
+        .filter((node): node is PassiveNode => node.type === "passive")
+        .map((node) => node.statAdjustments)
+    );
+    // todo: add techs
+  }
+
   handleGameEnd() {
     const gameEndBox = this.addChild(
       new Graphics().beginFill(0x111111).drawRect(0, 0, 800, 200).endFill()
@@ -292,16 +272,6 @@ export class CombatScene extends Container {
     enemy.on("destroyed", () => {
       if (enemy.hp <= 0) {
         this.score += 1;
-        if (this.score % 10 === 0) {
-          // add a random buff.
-          const newBuff =
-            this.availableBuffs[
-              Math.floor(Math.random() * this.availableBuffs.length)
-            ];
-          console.log(newBuff.description);
-          this.activeBuffs.push(newBuff);
-          this.spawner.speed += 0.1;
-        }
       }
     });
     this.addChild(enemy);
@@ -318,10 +288,7 @@ export class CombatScene extends Container {
       this.crosshair.x - this.player.x
     );
 
-    this.player.statAdjustments = flattenStatAdjustments(
-      this.activeBuffs.map((buff) => buff.adjustments)
-    );
-    this.buffText.text = `Active Buffs:\n${getAdjustmentDescriptions(
+    this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
       this.player.statAdjustments
     )}`;
 
