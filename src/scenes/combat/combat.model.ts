@@ -7,6 +7,7 @@ export type Stat =
   | "projectileHP"
   | "critChance"
   | "critDamage"
+  | "maxHP"
   // TODO: this should probably be called "glance",
   // because that's what it actually does (reduce damage)
   // But "glance chance" just sounds way too cheesy lol.
@@ -27,6 +28,7 @@ export type Tag = {
   projectileHP: "kinetic" | "explosive";
   critChance: never;
   critDamage: never;
+  maxHP: never;
   evadeChance: never;
   evadeEffect: never;
   armour: never;
@@ -138,6 +140,7 @@ const displayText: {
   projectileHP: "Projectile HP (Pierces)",
   critChance: "Critical Strike Chance",
   critDamage: "Critical Damage Multiplier",
+  maxHP: "Max HP",
   evadeChance: "Evasion Chance",
   evadeEffect: "Damage reduction from evaded attacks",
   armour: "Armour",

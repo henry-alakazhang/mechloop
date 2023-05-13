@@ -82,15 +82,15 @@ export class CombatEntity extends PhysicsObject {
   constructor(config: EntityConfig) {
     super(config);
 
-    const { maxHP, showHealthBar, statAdjustments } = config;
+    const { maxHP, showHealthBar, statAdjustments = {} } = config;
 
-    this.maxHP = maxHP;
-    this.hp = maxHP;
+    this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
+    this.hp = this.maxHP;
     // if `showHealthBar` is set, use it.
     // otherwise, default to damaged-only healthbars for enemies.
     this.showHealthBar =
       showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
-    this.statAdjustments = statAdjustments ?? {};
+    this.statAdjustments = statAdjustments;
 
     this.healthBar = this.addChild(
       new Graphics().beginFill(0x00ff00).drawRect(0, 0, 10, 3)

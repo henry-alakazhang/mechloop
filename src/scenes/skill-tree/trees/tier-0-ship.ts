@@ -18,7 +18,10 @@ export const tier0: SkillTree = [
     name: "+10 Maximum HP; +2 Global Damage",
     type: "passive",
     colour: "r",
-    statAdjustments: { damage: { global: { addition: 2, multiplier: 0 } } },
+    statAdjustments: {
+      maxHP: { global: { addition: 10, multiplier: 0 } },
+      damage: { global: { addition: 2, multiplier: 0 } },
+    },
   },
   {
     id: "red-2-defensive",
@@ -62,6 +65,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "g",
     statAdjustments: {
+      maxHP: { global: { addition: 10, multiplier: 0 } },
       critChance: { global: { addition: 0.1, multiplier: 0 } },
     },
   },
@@ -108,7 +112,9 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "b",
     // TODO: implement
-    statAdjustments: {},
+    statAdjustments: {
+      maxHP: { global: { addition: 10, multiplier: 0 } },
+    },
   },
   {
     id: "blue-2-defensive",
