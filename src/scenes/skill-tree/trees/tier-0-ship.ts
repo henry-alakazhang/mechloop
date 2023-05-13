@@ -122,11 +122,12 @@ export const tier0: SkillTree = [
     connected: ["blue-1"],
     depth: 2,
     index: 2,
-    name: "+15 Shields",
+    name: "+10 Shields",
     type: "passive",
     colour: "b",
-    // TODO: implement
-    statAdjustments: {},
+    statAdjustments: {
+      maxShields: { global: { addition: 10, multiplier: 0 } },
+    },
   },
   {
     id: "blue-2-offensive",

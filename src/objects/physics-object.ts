@@ -27,7 +27,7 @@ export abstract class PhysicsObject extends Graphics {
   /** Whether the object should rotate in the direction it's going */
   private shouldRotate = false;
 
-  private ticker: Ticker;
+  protected ticker: Ticker;
 
   /**
    * Hit points / survivability of the object.

@@ -13,11 +13,13 @@ export class Player extends CombatEntity {
 
   public maxSpeed = 5;
 
-  /** Amount of frames where the player is invincible */
-  private iframes = 0;
-
   constructor() {
-    super({ side: "player", maxHP: 20, showHealthBar: "always" });
+    super({
+      side: "player",
+      maxHP: 20,
+      maxShields: 5,
+      showHealthBar: "always",
+    });
 
     this.lineStyle(1, 0x00ff00).drawPolygon([
       { x: 15, y: 0 },
@@ -55,19 +57,16 @@ export class Player extends CombatEntity {
 
   protected override update(delta: number) {
     super.update(delta);
-    if (this.iframes > 0) {
-      this.iframes = Math.max(0, this.iframes - delta);
-    }
   }
 
   public override onCollide(other: PhysicsObject) {
     super.onCollide(other);
 
-    if (this.iframes <= 0) {
-      // take 5% of each side's HP as damage
+    // 250ms of invulnerability after collision
+    if (this.timeSinceLastHit >= 250) {
+      // take 5% of each side'sdw HP as damage
       if (other instanceof CombatEntity) {
         this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05));
-        this.iframes = 10;
       }
     }
   }
