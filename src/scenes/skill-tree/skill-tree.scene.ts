@@ -11,19 +11,38 @@ const TREE_OFFSET = 200;
  * The height of each layer in the tree (each arc).
  */
 const LAYER_HEIGHT = 80;
+/**
+ * Radius of an individual tree node (half of the height for non-circle nodes)
+ */
+const NODE_RADIUS = 20;
+/**
+ * Radius of the unselected grey-out overlay node.
+ *
+ * Ideally I could just draw the same circle with the same border,
+ * but having alpha on both `line` and `fill` causes their overlap
+ * to be extra dark, which looks weird.
+ */
+const BG_NODE_RADIUS = NODE_RADIUS + 2;
 
 export class SkillTreeScene extends Container {
   public tree: SkillTree;
   public selected: { [k: string]: boolean };
 
-  public treeGraphics: { [k: string]: Graphics };
+  public treeGraphics: {
+    [k: string]: { node: Graphics; unselectedBG: Graphics };
+  };
 
   constructor() {
     super();
 
     this.tree = tier0;
     this.treeGraphics = {};
-    this.selected = {};
+    this.selected = {
+      ship: true,
+      "red-1": true,
+      "green-1": true,
+      "blue-1": true,
+    };
 
     let maxDepth = 0;
 
@@ -33,23 +52,29 @@ export class SkillTreeScene extends Container {
         maxDepth = passive.depth;
       }
 
-      const colour =
+      const border =
         passive.colour === "r"
           ? 0x993366
           : passive.colour === "g"
-          ? 0x669933
+          ? // use a darker green because the same shade as red/blue seems weirdly lighter
+            0x558822
           : passive.colour === "b"
           ? 0x336699
-          : 0xffffff;
+          : 0xaaaaaa;
       const fill =
         passive.colour === "r"
-          ? 0xd05090
+          ? 0xe070b0
           : passive.colour === "g"
-          ? 0x90d050
+          ? 0xa0d060
           : passive.colour === "b"
-          ? 0x5090d0
+          ? 0x70b0e0
           : 0xffffff;
-      const node = new Graphics().lineStyle(3, colour).beginFill(fill);
+      const node = new Graphics().lineStyle(4, border).beginFill(fill);
+      let unselectedBG = node.addChild(new Graphics().beginFill(0x777777));
+      unselectedBG.alpha = 0.5;
+      if (this.selected[passive.id]) {
+        unselectedBG.visible = false;
+      }
 
       node.y = TREE_OFFSET;
       // Nodes are pushed further back based on their depth; deeper nodes are further up.
@@ -62,14 +87,29 @@ export class SkillTreeScene extends Container {
       // Now draw the element at the appropriate position
       switch (passive.type) {
         case "passive":
-          node.drawCircle(0, verticalPos, 20);
+          node.drawCircle(0, verticalPos, NODE_RADIUS);
+          unselectedBG?.drawCircle(0, verticalPos, BG_NODE_RADIUS);
           break;
         case "class":
-          node.drawCircle(0, verticalPos, 30);
+          node.drawCircle(0, verticalPos, NODE_RADIUS + 5);
+          unselectedBG?.drawCircle(0, verticalPos, BG_NODE_RADIUS + 5);
           break;
         case "weapon":
         case "tech":
-          node.drawRoundedRect(-20, -20 + verticalPos, 40, 40, 2);
+          node.drawRoundedRect(
+            -NODE_RADIUS,
+            -NODE_RADIUS + verticalPos,
+            NODE_RADIUS * 2,
+            NODE_RADIUS * 2,
+            2
+          );
+          unselectedBG?.drawRoundedRect(
+            -BG_NODE_RADIUS,
+            -BG_NODE_RADIUS + verticalPos,
+            BG_NODE_RADIUS * 2,
+            BG_NODE_RADIUS * 2,
+            2
+          );
           break;
       }
       // TODO: display tooltip with name/description
@@ -77,16 +117,23 @@ export class SkillTreeScene extends Container {
       // TODO: activate node
       node.on("pointerdown", () => {});
       this.addChild(node);
-      this.treeGraphics[passive.id] = node;
+      this.treeGraphics[passive.id] = { node, unselectedBG };
 
-      passive.connected.forEach((connected) => {
-        const connectedNode = this.treeGraphics[connected];
+      passive.connected.forEach((connectionId) => {
+        const connectedNode = this.treeGraphics[connectionId].node;
         if (!connectedNode) {
           return;
         }
 
+        // if either node is selected, path should be full brightness
+        // otherwise it should be a bit faded.
+        // todo: maybe do this with a dotted line instead
+        // but there's no builtin pixi support and i'm lazy
+        const pathAlpha =
+          this.selected[connectionId] || this.selected[passive.id] ? 1 : 0.33;
+
         const arcedPath = new Graphics()
-          .lineStyle(3, 0xeeeeee)
+          .lineStyle(3, 0xeeeeee, pathAlpha)
           .arc(
             0,
             0,
@@ -97,7 +144,7 @@ export class SkillTreeScene extends Container {
           );
         arcedPath.y = TREE_OFFSET;
         const verticalPath = new Graphics()
-          .lineStyle(3, 0xeeeeee)
+          .lineStyle(3, 0xeeeeee, pathAlpha)
           .moveTo(0, verticalPos)
           // TODO: don't hardcode the height here (it should be based off vertical position of other node)
           .lineTo(0, verticalPos + LAYER_HEIGHT + 1);
