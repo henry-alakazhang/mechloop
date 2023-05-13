@@ -21,17 +21,26 @@ const NODE_RADIUS = 20;
 const BG_NODE_RADIUS = NODE_RADIUS + 2;
 
 export class TreeNodeGraphic extends Graphics {
-  public graphic: Graphics;
+  private graphic: Graphics;
+  private unselectedBG: Graphics;
   public skillTreeNode: SkillTreeNode;
-  public selected: boolean;
 
   public verticalPos: number;
+
+  set selected(value: boolean) {
+    this._selected = value;
+    this.unselectedBG.visible = !value;
+  }
+  get selected() {
+    return this._selected;
+  }
+  private _selected: boolean;
 
   constructor({ node, selected }: TreeNodeConfig) {
     super();
 
     this.skillTreeNode = node;
-    this.selected = selected;
+    this._selected = selected;
 
     const border =
       node.colour === "r"
@@ -53,12 +62,12 @@ export class TreeNodeGraphic extends Graphics {
     this.graphic = this.addChild(
       new Graphics().lineStyle(4, border).beginFill(fill)
     );
-    let unselectedBG = this.graphic.addChild(
+    this.unselectedBG = this.graphic.addChild(
       new Graphics().beginFill(0x777777)
     );
-    unselectedBG.alpha = 0.5;
+    this.unselectedBG.alpha = 0.5;
     if (selected) {
-      unselectedBG.visible = false;
+      this.unselectedBG.visible = false;
     }
 
     // node: the following values/transforms are applied to this TreeNodeGraphic object itself
@@ -75,11 +84,11 @@ export class TreeNodeGraphic extends Graphics {
     switch (node.type) {
       case "passive":
         this.graphic.drawCircle(0, this.verticalPos, NODE_RADIUS);
-        unselectedBG?.drawCircle(0, this.verticalPos, BG_NODE_RADIUS);
+        this.unselectedBG?.drawCircle(0, this.verticalPos, BG_NODE_RADIUS);
         break;
       case "class":
         this.graphic.drawCircle(0, this.verticalPos, NODE_RADIUS + 5);
-        unselectedBG?.drawCircle(0, this.verticalPos, BG_NODE_RADIUS + 5);
+        this.unselectedBG?.drawCircle(0, this.verticalPos, BG_NODE_RADIUS + 5);
         break;
       case "weapon":
       case "tech":
@@ -90,7 +99,7 @@ export class TreeNodeGraphic extends Graphics {
           NODE_RADIUS * 2,
           2
         );
-        unselectedBG?.drawRoundedRect(
+        this.unselectedBG?.drawRoundedRect(
           -BG_NODE_RADIUS,
           -BG_NODE_RADIUS + this.verticalPos,
           BG_NODE_RADIUS * 2,

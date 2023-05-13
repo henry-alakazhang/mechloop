@@ -21,6 +21,11 @@ export class SkillTreeScene extends Container {
   public treeGraphics: {
     [k: string]: TreeNodeGraphic;
   };
+  public connectionGraphics: {
+    // for each node, an array of connections
+    // each connection consists of two Graphics Objects (both parts of the line)
+    [k: string]: [Graphics, Graphics][];
+  };
 
   public tooltip: NodeTooltip;
 
@@ -29,11 +34,9 @@ export class SkillTreeScene extends Container {
 
     this.tree = tier0;
     this.treeGraphics = {};
+    this.connectionGraphics = {};
     this.selected = {
-      ship: true,
-      "red-1": true,
-      "green-1": true,
-      "blue-1": true,
+      [tier0[0].id]: true,
     };
 
     let maxDepth = 0;
@@ -62,8 +65,11 @@ export class SkillTreeScene extends Container {
         this.removeChild(this.tooltip);
       });
       // TODO: activate node
-      currentNode.on("pointerdown", () => {});
+      currentNode.on("pointerdown", () => {
+        this.toggleAllocation(currentNode);
+      });
       this.treeGraphics[passive.id] = currentNode;
+      this.connectionGraphics[passive.id] = [];
 
       // draw connections to connected nodes
       passive.connected.forEach((connectionId) => {
@@ -84,17 +90,18 @@ export class SkillTreeScene extends Container {
 
         // draw the vertical connector
         const verticalPath = new Graphics()
-          .lineStyle(3, 0xeeeeee, pathAlpha)
+          .lineStyle(3, 0xeeeeee)
           // from the bottom of this node
           .moveTo(0, currentNode.verticalPos)
           // to the vertical level of the connected one
           .lineTo(0, connectedNode.verticalPos);
         verticalPath.y = TREE_OFFSET;
+        verticalPath.alpha = pathAlpha;
         // rotate to the correct angle
         verticalPath.rotation = currentNode.rotation;
 
         // then draw an arc
-        const arcedPath = new Graphics().lineStyle(3, 0xeeeeee, pathAlpha).arc(
+        const arcedPath = new Graphics().lineStyle(3, 0xeeeeee).arc(
           0,
           0,
           // at the height of the other node
@@ -106,11 +113,15 @@ export class SkillTreeScene extends Container {
           currentNode.rotation > connectedNode.rotation
         );
         arcedPath.y = TREE_OFFSET;
+        arcedPath.alpha = pathAlpha;
 
         // add to container at index 0 so these paths all go under the nodes themselves
         // note: if this ends up being unperformant, rearrange so the tree nodes get added after
         this.addChildAt(arcedPath, 0);
         this.addChildAt(verticalPath, 0);
+
+        this.connectionGraphics[passive.id].push([verticalPath, arcedPath]);
+        this.connectionGraphics[connectionId].push([verticalPath, arcedPath]);
       });
     });
 
@@ -146,5 +157,28 @@ export class SkillTreeScene extends Container {
     this.tooltip.setNode(node.skillTreeNode);
 
     this.addChild(this.tooltip);
+  }
+
+  toggleAllocation(node: TreeNodeGraphic) {
+    if (!node.selected) {
+      // can only allocate if one of the connected nodes is allocated
+      // or if there are no prerequisites / connected nodes
+      if (
+        node.skillTreeNode.connected.length === 0 ||
+        node.skillTreeNode.connected.some(
+          (connectedNode) => this.selected[connectedNode]
+        )
+      ) {
+        node.selected = true;
+        this.selected[node.skillTreeNode.id] = true;
+        this.connectionGraphics[node.skillTreeNode.id].forEach((connection) => {
+          connection[0].alpha = 1;
+          connection[1].alpha = 1;
+        });
+      }
+    } else {
+      // can only unallocate if all of the connected nodes are still attached to the tree
+      // TODO: kind of complicated. unsupported until then.
+    }
   }
 }
