@@ -147,9 +147,12 @@ export class CombatScene extends Container {
     this.pausedText.y = 400 - this.pausedText.height / 2;
     this.pausedText.visible = false;
     this.addChild(this.pausedText);
+
     this.skillTreeScene = new SkillTreeScene();
     this.skillTreeScene.x = 750;
     this.skillTreeScene.y = 400;
+    this.skillTreeScene.interactive = true;
+    // don't add the skill tree; it gets added and removed when the game is paused
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;

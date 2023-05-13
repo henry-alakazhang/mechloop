@@ -1,4 +1,5 @@
 import { Container, Graphics } from "pixi.js";
+import { NodeTooltip } from "./objects/node-tooltip";
 import { TreeNodeGraphic } from "./objects/tree-node";
 import { SkillTree } from "./skill-tree.model";
 import { tier0 } from "./trees/tier-0-ship";
@@ -21,6 +22,8 @@ export class SkillTreeScene extends Container {
     [k: string]: TreeNodeGraphic;
   };
 
+  public tooltip: NodeTooltip;
+
   constructor() {
     super();
 
@@ -34,6 +37,8 @@ export class SkillTreeScene extends Container {
     };
 
     let maxDepth = 0;
+
+    this.tooltip = new NodeTooltip();
 
     // Passive trees are drawn as an arc with a range of about 120 degrees.
     // Each node on the tree is a `TreeNodeGraphic` object,
@@ -49,8 +54,13 @@ export class SkillTreeScene extends Container {
           selected: this.selected[passive.id],
         })
       );
-      // TODO: display tooltip with name/description
-      currentNode.on("pointerover", () => {});
+      currentNode.interactive = true;
+      currentNode.on("pointerover", () => {
+        this.showTooltip(currentNode);
+      });
+      currentNode.on("pointerout", () => {
+        this.removeChild(this.tooltip);
+      });
       // TODO: activate node
       currentNode.on("pointerdown", () => {});
       this.treeGraphics[passive.id] = currentNode;
@@ -126,5 +136,15 @@ export class SkillTreeScene extends Container {
     layerBorders.y = TREE_OFFSET;
     // layerBorders.visible = false;
     this.addChildAt(layerBorders, 0);
+  }
+
+  showTooltip(node: TreeNodeGraphic) {
+    const position = node.getBounds();
+    this.tooltip.x = position.right - this.x;
+    this.tooltip.y = position.bottom - this.y;
+
+    this.tooltip.setNode(node.skillTreeNode);
+
+    this.addChild(this.tooltip);
   }
 }

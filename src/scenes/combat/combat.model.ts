@@ -132,7 +132,7 @@ const displayText: {
 } & {
   [s in Stat]: string;
 } = {
-  global: "Global",
+  global: "", // global is just the default display (eg. "% increased damage")
   kinetic: "Kinetic",
   explosive: "Explosive",
   energy: "Energy",
@@ -157,8 +157,15 @@ export function getAdjustmentDescriptions(
     for (let tag in adjustments[stat]) {
       const adjustment = adjustments[stat]![tag]!;
       if (adjustment.addition !== 0) {
+        // add + sign for positive numbers (negative sign is added automatically);
         const additionSign = adjustment.addition > 0 ? "+" : "";
-        text += `${additionSign}${adjustment.addition} to ${
+        // add % sign for % values (< 1);
+        // fixme: doesn't work if it's > 100%.
+        const valueDisplay =
+          adjustment.addition < 1
+            ? `${adjustment.addition * 100}%`
+            : adjustment.addition;
+        text += `${additionSign}${valueDisplay} to ${
           displayText[tag as Tag[Stat]]
         } ${displayText[stat as Stat]}\n`;
       }

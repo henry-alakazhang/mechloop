@@ -22,6 +22,7 @@ const BG_NODE_RADIUS = NODE_RADIUS + 2;
 
 export class TreeNodeGraphic extends Graphics {
   public graphic: Graphics;
+  public skillTreeNode: SkillTreeNode;
   public selected: boolean;
 
   public verticalPos: number;
@@ -29,6 +30,7 @@ export class TreeNodeGraphic extends Graphics {
   constructor({ node, selected }: TreeNodeConfig) {
     super();
 
+    this.skillTreeNode = node;
     this.selected = selected;
 
     const border =

@@ -15,7 +15,7 @@ export const tier0: SkillTree = [
     connected: ["ship"],
     depth: 1,
     index: -3,
-    name: "+10 Maximum HP; +2 Global Damage",
+    name: "Ship Rating +",
     type: "passive",
     colour: "r",
     statAdjustments: {
@@ -28,7 +28,7 @@ export const tier0: SkillTree = [
     connected: ["red-1"],
     depth: 2,
     index: -4,
-    name: "+15 Armour",
+    name: "Armour",
     type: "passive",
     colour: "r",
     statAdjustments: { armour: { global: { addition: 15, multiplier: 0 } } },
@@ -38,7 +38,7 @@ export const tier0: SkillTree = [
     connected: ["red-1"],
     depth: 2,
     index: -2,
-    name: "+15% Global Damage",
+    name: "Firepower",
     type: "passive",
     colour: "r",
     statAdjustments: {
@@ -61,7 +61,7 @@ export const tier0: SkillTree = [
     connected: ["ship"],
     depth: 1,
     index: 0,
-    name: "+10 Maximum HP; +10% Critical Strike Chance",
+    name: "Pilot Rating +",
     type: "passive",
     colour: "g",
     statAdjustments: {
@@ -74,7 +74,7 @@ export const tier0: SkillTree = [
     connected: ["green-1"],
     depth: 2,
     index: -1,
-    name: "+15% Evade Chance",
+    name: "Evasion",
     type: "passive",
     colour: "g",
     statAdjustments: {
@@ -86,7 +86,7 @@ export const tier0: SkillTree = [
     connected: ["green-1"],
     depth: 2,
     index: 1,
-    name: "+15% Rate of Fire",
+    name: "Rate of Fire",
     type: "passive",
     colour: "g",
     statAdjustments: {
@@ -109,7 +109,7 @@ export const tier0: SkillTree = [
     connected: ["ship"],
     depth: 1,
     index: 3,
-    name: "+10 Maximum HP; +10% Area of Effect",
+    name: "Tech Rating +",
     type: "passive",
     colour: "b",
     // TODO: implement
@@ -122,7 +122,7 @@ export const tier0: SkillTree = [
     connected: ["blue-1"],
     depth: 2,
     index: 2,
-    name: "+10 Shields",
+    name: "Energy Shields",
     type: "passive",
     colour: "b",
     statAdjustments: {
@@ -134,7 +134,7 @@ export const tier0: SkillTree = [
     connected: ["blue-1"],
     depth: 2,
     index: 4,
-    name: "+15% Tech Recovery",
+    name: "Tech Recovery",
     type: "passive",
     colour: "b",
     // TODO: implement
