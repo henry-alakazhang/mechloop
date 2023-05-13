@@ -77,8 +77,9 @@ export const tier0: SkillTree = [
     name: "+15% Evade Chance",
     type: "passive",
     colour: "g",
-    // TODO: implement
-    statAdjustments: {},
+    statAdjustments: {
+      evadeChance: { global: { addition: 0.15, multiplier: 0 } },
+    },
   },
   {
     id: "green-2-offensive",
