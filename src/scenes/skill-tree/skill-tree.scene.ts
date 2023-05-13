@@ -43,18 +43,18 @@ export class SkillTreeScene extends Container {
 
     this.tooltip = new NodeTooltip();
 
-    // Passive trees are drawn as an arc with a range of about 120 degrees.
+    // Skill trees are drawn as an arc with a range of about 120 degrees.
     // Each node on the tree is a `TreeNodeGraphic` object,
     // while the connectors are just haphazardly drawn on later lol.
-    this.tree.forEach((passive) => {
-      if (passive.depth > maxDepth) {
-        maxDepth = passive.depth;
+    this.tree.forEach((skill) => {
+      if (skill.depth > maxDepth) {
+        maxDepth = skill.depth;
       }
 
       const currentNode = this.addChild(
         new TreeNodeGraphic({
-          node: passive,
-          selected: this.selected[passive.id],
+          node: skill,
+          selected: this.selected[skill.id],
         })
       );
       currentNode.interactive = true;
@@ -68,11 +68,11 @@ export class SkillTreeScene extends Container {
       currentNode.on("pointerdown", () => {
         this.toggleAllocation(currentNode);
       });
-      this.treeGraphics[passive.id] = currentNode;
-      this.connectionGraphics[passive.id] = [];
+      this.treeGraphics[skill.id] = currentNode;
+      this.connectionGraphics[skill.id] = [];
 
       // draw connections to connected nodes
-      passive.connected.forEach((connectionId) => {
+      skill.connected.forEach((connectionId) => {
         // draw if we've already created the connected node.
         // this guarantees ordering (always draws from the higher node)
         // and it guarantees each connection is only drawn once.
@@ -86,7 +86,7 @@ export class SkillTreeScene extends Container {
         // todo: maybe do this with a dotted line instead
         // but there's no builtin pixi support and i'm lazy
         const pathAlpha =
-          this.selected[connectionId] || this.selected[passive.id] ? 1 : 0.33;
+          this.selected[connectionId] || this.selected[skill.id] ? 1 : 0.33;
 
         // draw the vertical connector
         const verticalPath = new Graphics()
@@ -120,7 +120,7 @@ export class SkillTreeScene extends Container {
         this.addChildAt(arcedPath, 0);
         this.addChildAt(verticalPath, 0);
 
-        this.connectionGraphics[passive.id].push([verticalPath, arcedPath]);
+        this.connectionGraphics[skill.id].push([verticalPath, arcedPath]);
         this.connectionGraphics[connectionId].push([verticalPath, arcedPath]);
       });
     });

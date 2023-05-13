@@ -2,17 +2,17 @@ import { Weapon } from "../../data/weapons";
 import { StatAdjustments } from "../combat/combat.model";
 
 /**
- * A passive node on a skill tree.
+ * A node on a skill tree.
  *
  * Trees are displayed in an arc shape, with a root node at the bottom
  * and branches extendout outwards horizontally and upwards vertically.
  *
- * A passive node can be activated if any of its connected nodes are activated
+ * A node can be activated if any of its connected nodes are activated
  */
 export interface BaseSkillTreeNode {
-  /** Unique identifier for the passive node */
+  /** Unique identifier for the node */
   readonly id: string;
-  /** Connected passive nodes on the skill tree */
+  /** Connected (prerequisite) nodes on the skill tree */
   readonly connected: string[];
   /** Vertical depth for display. Starts at 0 and goes up. */
   readonly depth: number;
@@ -22,7 +22,7 @@ export interface BaseSkillTreeNode {
   readonly iconUrl?: string;
   /** Colour of border. */
   readonly colour?: "r" | "g" | "b";
-  /** Type of passive - changes size and shape. */
+  /** Type of node - changes size, shape and functionality. */
   readonly type: "passive" | "weapon" | "tech" | "class";
 }
 
