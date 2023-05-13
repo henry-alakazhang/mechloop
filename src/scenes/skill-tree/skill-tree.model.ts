@@ -48,4 +48,6 @@ export interface ClassNode extends BaseSkillTreeNode {
   // TODO: implement
 }
 
-export type SkillTree = (PassiveNode | WeaponNode | TechNode | ClassNode)[];
+export type SkillTreeNode = PassiveNode | WeaponNode | TechNode | ClassNode;
+
+export type SkillTree = SkillTreeNode[];

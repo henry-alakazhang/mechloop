@@ -150,8 +150,6 @@ export class CombatScene extends Container {
     this.skillTreeScene = new SkillTreeScene();
     this.skillTreeScene.x = 750;
     this.skillTreeScene.y = 400;
-    this.skillTreeScene.visible = false;
-    this.addChild(this.skillTreeScene);
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
     this.spawner.minFPS = 2;
@@ -266,14 +264,13 @@ export class CombatScene extends Container {
   togglePause() {
     if (this.ticker.started) {
       this.pausedText.visible = true;
-      this.skillTreeScene.visible = true;
-      this.skillTreeScene.interactive = true;
+      // remove and readd so it always sits on top
+      this.addChild(this.skillTreeScene);
       this.ticker.stop();
       this.spawner.stop();
     } else {
       this.pausedText.visible = false;
-      this.skillTreeScene.visible = false;
-      this.skillTreeScene.interactive = false;
+      this.removeChild(this.skillTreeScene);
       this.ticker.start();
       this.spawner.start();
     }
