@@ -66,7 +66,9 @@ export class Player extends CombatEntity {
     if (this.timeSinceLastHit >= 250) {
       // take 5% of each side'sdw HP as damage
       if (other instanceof CombatEntity) {
-        this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05));
+        this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05), [
+          "collision",
+        ]);
       }
     }
   }

@@ -3,6 +3,7 @@ import { Tween } from "tweedle.js";
 import {
   StatAdjustments,
   calculateFinalStat,
+  flattenStatAdjustments,
 } from "../scenes/combat/combat.model";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
@@ -82,7 +83,31 @@ export class CombatEntity extends PhysicsObject {
   /** Damage multiplier of critical hits */
   public critDamage = 1.5;
 
-  public statAdjustments: StatAdjustments;
+  /** Permanent modifications to stats */
+  private baseStatAdjustments: StatAdjustments;
+  /** Temporary buffs or debuffs to stats */
+  public temporaryStatAdjustments: {
+    stats: StatAdjustments;
+    remaining: number;
+  }[];
+  /** Combined stat adjustments. Recalculated regularly */
+  private _allStatAdjustments: StatAdjustments = {};
+
+  // public interface:
+  /**
+   * GET stat adjustments for this entity.
+   * Combines permanent base stats and buffs/debuffs.
+   *
+   * SET modifies the BASE stats only and doesn't affect buffs or debuffs.
+   */
+  public get statAdjustments(): StatAdjustments {
+    return this._allStatAdjustments;
+  }
+
+  public set statAdjustments(newAdjustments: StatAdjustments) {
+    // only change the base stat adjustments.
+    this.baseStatAdjustments = newAdjustments;
+  }
 
   /** Whether to display the healthbar above the object */
   public showHealthBar: "never" | "damaged" | "always";
@@ -117,6 +142,8 @@ export class CombatEntity extends PhysicsObject {
     this.showHealthBar =
       showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
     this.statAdjustments = statAdjustments;
+    this.baseStatAdjustments = statAdjustments;
+    this.temporaryStatAdjustments = [];
 
     this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
     this.hp = this.maxHP;
@@ -173,6 +200,18 @@ export class CombatEntity extends PhysicsObject {
 
     // increment all timers
     this.timeSinceLastHit += this.ticker.deltaMS;
+    this.temporaryStatAdjustments = this.temporaryStatAdjustments
+      .map((buff) => ({
+        ...buff,
+        remaining: buff.remaining - this.ticker.deltaMS,
+      }))
+      .filter((buff) => buff.remaining > 0);
+
+    // then recalculate combined stat adjustments
+    this._allStatAdjustments = flattenStatAdjustments([
+      this.baseStatAdjustments,
+      ...this.temporaryStatAdjustments.map(({ stats }) => stats),
+    ]);
 
     // update health bar visibility and size
     // fixme: less duplication or whatever
@@ -244,7 +283,19 @@ export class CombatEntity extends PhysicsObject {
     // TODO: implement momentum/knockback and prevent objects from sitting inside each other
   }
 
-  public takeDamage(damage: number) {
+  public takeDamage(damage: number, tags: string[] = []) {
+    // Step 0: Apply avoidances
+    const finalAvoidance = calculateFinalStat(
+      "avoidance",
+      tags as any, // fixme: type this properly
+      0,
+      this.statAdjustments
+    );
+    if (Math.random() < finalAvoidance) {
+      // do nothing; take no damage; show no effects
+      return;
+    }
+
     // Step 1: Apply general damage reductions
 
     // Step 2: Calculate and apply defenses:

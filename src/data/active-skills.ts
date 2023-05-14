@@ -43,9 +43,17 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
       "Take evasive action, increasing movement speed and avoiding damage from the next 4 collisions or projectiles within 3 seconds.",
     cooldown: 10000,
     tags: ["defensive", "movement"],
-    use: () => {
-      console.log("Evasive Maneuvers");
-      // todo: implement
+    use: (user: Player, { x, y }: { x: number; y: number }) => {
+      user.temporaryStatAdjustments.push({
+        stats: {
+          // todo: also increase movement speed
+          avoidance: {
+            projectile: { addition: 1, multiplier: 0 },
+            collision: { addition: 1, multiplier: 0 },
+          },
+        },
+        remaining: 3000,
+      });
       return [];
     },
   },

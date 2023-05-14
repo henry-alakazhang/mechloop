@@ -14,6 +14,7 @@ export type Stat =
   // But "glance chance" just sounds way too cheesy lol.
   | "evadeChance"
   | "evadeEffect"
+  | "avoidance"
   | "armour";
 
 /**
@@ -24,7 +25,7 @@ export type Stat =
  * "+10% Kinetic Damage" would be applied to the "kinetic" tag.
  */
 export type Tag = {
-  damage: "kinetic" | "projectile" | "explosive" | "energy";
+  damage: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
   rof: never;
   projectileHP: "kinetic" | "explosive";
   critChance: never;
@@ -33,6 +34,7 @@ export type Tag = {
   maxShields: never;
   evadeChance: never;
   evadeEffect: never;
+  avoidance: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
   armour: never;
 };
 
@@ -137,6 +139,7 @@ const displayText: {
   explosive: "Explosive",
   energy: "Energy",
   projectile: "Projectile",
+  collision: "Collision",
   damage: "Damage",
   rof: "Rate of Fire",
   projectileHP: "Projectile HP (Pierces)",
@@ -146,6 +149,7 @@ const displayText: {
   maxShields: "Shields",
   evadeChance: "Evasion Chance",
   evadeEffect: "Damage reduction from evaded attacks",
+  avoidance: "Chance to completely avoid damage",
   armour: "Armour",
 };
 

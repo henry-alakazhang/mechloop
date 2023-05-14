@@ -86,7 +86,7 @@ export class Projectile extends PhysicsObject {
         if (Math.random() <= finalCritChance) {
           finalDamage *= finalCritDamage;
         }
-        other.takeDamage(finalDamage);
+        other.takeDamage(finalDamage, this.source.damageTags);
       }
       this.source.onHit?.(this);
     }
