@@ -1,3 +1,4 @@
+import { Tween } from "tweedle.js";
 import { PhysicsObject } from "../objects/physics-object";
 import { Player } from "../objects/player";
 
@@ -52,11 +53,27 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
     name: "Portable Wormhole",
     description:
       "Open a wormhole to a location within 500 units, teleporting you there after a brief delay.",
-    cooldown: 9000,
+    cooldown: 6000,
     tags: ["movement"],
-    use: () => {
-      console.log("Portable Wormhole");
-      // todo: implement
+    use: (user: Player, { x, y }: { x: number; y: number }) => {
+      // stop movement
+      user.setVelocity(0, 0);
+      new Tween(user)
+        // Shrink to nothing
+        .to({ scale: { x: 0, y: 0 } }, 150)
+        .start()
+        .onComplete(() => {
+          // move
+          user.x = x;
+          user.y = y;
+        })
+        .chain(
+          // then expand back out
+          new Tween(user).to({ scale: { x: 1, y: 1 } }, 150).onComplete(() => {
+            // use `setDirectionX` to re-update movement speed based on user input
+            user.setDirectionX(user.directionX);
+          })
+        );
       return [];
     },
   },
