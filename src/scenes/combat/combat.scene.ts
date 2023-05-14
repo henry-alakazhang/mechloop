@@ -7,13 +7,15 @@ import {
   Ticker,
 } from "pixi.js";
 import { Group } from "tweedle.js";
-import { WEAPONS } from "../../data/weapons";
+import { ActiveSkill } from "../../data/active-skills";
+import { Weapon } from "../../data/weapons";
 import { CombatEntity } from "../../objects/entity";
 import { PhysicsObject } from "../../objects/physics-object";
 import { Player } from "../../objects/player";
 import {
   PassiveNode,
   SkillTree,
+  TechNode,
   WeaponNode,
 } from "../skill-tree/skill-tree.model";
 import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
@@ -37,9 +39,13 @@ export class CombatScene extends Container {
 
   private player: Player;
 
-  private weapons = Object.values(WEAPONS);
+  private weapons: Weapon[] = [];
   private selectedWeapon = 0;
   private selectedWeaponText: Text;
+
+  private activeSkills: ActiveSkill[] = [];
+  private activeSkillCooldowns: number[] = [];
+  private activeSkillsText: Text;
 
   private pausedText: Text;
   private skillTreeScene: SkillTreeScene;
@@ -83,16 +89,30 @@ export class CombatScene extends Container {
     this.addChild(this.scoreText);
 
     this.selectedWeaponText = new Text(
-      `Selected Weapon: [${this.weapons[this.selectedWeapon].name}]`,
+      `Selected Weapon: [${this.weapons[this.selectedWeapon]?.name ?? "None"}]`,
       {
         fill: 0x00ffff,
         fontFamily: "Courier New",
-        fontSize: 18,
+        fontSize: 17,
       }
     );
     this.selectedWeaponText.x = 20;
-    this.selectedWeaponText.y = 770;
+    this.selectedWeaponText.y = 725;
     this.addChild(this.selectedWeaponText);
+
+    this.activeSkillsText = new Text(
+      `Active Skill Q: [${
+        this.activeSkills[0]?.name ?? "None"
+      }]\nActive Skill E: [${this.activeSkills[1]?.name ?? "None"}]`,
+      {
+        fill: 0x00ffff,
+        fontFamily: "Courier New",
+        fontSize: 17,
+      }
+    );
+    this.activeSkillsText.x = 20;
+    this.activeSkillsText.y = 750;
+    this.addChild(this.activeSkillsText);
 
     this.skillTreeText = new Text(`Skill Tree:`, {
       fill: 0xffffff,
@@ -143,8 +163,8 @@ export class CombatScene extends Container {
       if (!this.ticker.started) {
         return;
       }
-      // set speed based on direction
       switch (e.code) {
+        // set speed based on direction
         case "KeyW":
           this.player.setDirectionY(-1);
           break;
@@ -156,6 +176,13 @@ export class CombatScene extends Container {
           break;
         case "KeyD":
           this.player.setDirectionX(1);
+          break;
+        // use active skills
+        case "KeyQ":
+          this.useSkill(0);
+          break;
+        case "KeyE":
+          this.useSkill(1);
           break;
         case "Tab":
           // cycle weapons
@@ -217,7 +244,10 @@ export class CombatScene extends Container {
         .filter((node): node is PassiveNode => node.type === "passive")
         .map((node) => node.statAdjustments)
     );
-    // todo: add techs
+    this.activeSkills = tree
+      .filter((node): node is TechNode => node.type === "tech")
+      .map((node) => node.tech);
+    this.activeSkillCooldowns = this.activeSkills.map((skill) => 0);
   }
 
   handleGameEnd() {
@@ -277,20 +307,44 @@ export class CombatScene extends Container {
     this.addChild(enemy);
   }
 
+  useSkill(index: number) {
+    const skill = this.activeSkills[index];
+    if (skill && this.activeSkillCooldowns[index] <= 0) {
+      const objects = skill.use(this.player, this.crosshair);
+      if (objects && objects.length > 0) {
+        this.addChild(...objects);
+      }
+      this.activeSkillCooldowns[index] = skill.cooldown;
+    }
+  }
+
   update() {
+    // Update all status texts
     this.scoreText.text = `Score ${this.score}`;
     this.selectedWeaponText.text = `Selected Weapon: [${
       this.weapons[this.selectedWeapon].name
     }]`;
+    // todo: change text color to signify when a skill is on cooldown
+    this.activeSkillsText.text = `Active Skill Q: [${
+      this.activeSkills[0]?.name ?? "None"
+    } - ${(this.activeSkillCooldowns[0] / 1000).toFixed(
+      1
+    )}s]\nActive Skill E: [${this.activeSkills[1]?.name ?? "None"} - ${(
+      this.activeSkillCooldowns[1] / 1000
+    ).toFixed(1)}s]`;
+    this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
+      this.player.statAdjustments
+    )}`;
+
+    // Reduce all cooldowns by elapsed time
+    this.activeSkillCooldowns = this.activeSkillCooldowns.map((x) =>
+      Math.max(0, x - this.ticker.deltaMS)
+    );
 
     this.player.rotation = Math.atan2(
       this.crosshair.y - this.player.y,
       this.crosshair.x - this.player.x
     );
-
-    this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
-      this.player.statAdjustments
-    )}`;
 
     const weapon = this.weapons[this.selectedWeapon];
     const finalRof = calculateFinalStat(

@@ -38,7 +38,7 @@ export class SkillTreeScene extends Container {
     this.treeGraphics = {};
     this.connectionGraphics = {};
     this.selected = {
-      ship: true,
+      base: true,
     };
 
     let maxDepth = 0;
@@ -153,8 +153,9 @@ export class SkillTreeScene extends Container {
 
   showTooltip(node: TreeNodeGraphic) {
     const position = node.getBounds();
-    this.tooltip.x = position.right - this.x;
-    this.tooltip.y = position.bottom - this.y;
+    // Round so the tooltip text isn't blurred by antialiasing
+    this.tooltip.x = Math.round(position.right - this.x);
+    this.tooltip.y = Math.round(position.bottom - this.y);
 
     this.tooltip.setNode(node.skillTreeNode);
 

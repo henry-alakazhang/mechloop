@@ -1,3 +1,4 @@
+import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
 import { StatAdjustments } from "../combat/combat.model";
 
@@ -40,7 +41,7 @@ export interface WeaponNode extends BaseSkillTreeNode {
 
 export interface TechNode extends BaseSkillTreeNode {
   readonly type: "tech";
-  // TODO: implement
+  readonly tech: ActiveSkill;
 }
 
 export interface ClassNode extends BaseSkillTreeNode {

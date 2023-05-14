@@ -1,9 +1,10 @@
+import { ACTIVE_SKILLS } from "../../../data/active-skills";
 import { WEAPONS } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
 export const tier0: SkillTree = [
   {
-    id: "ship",
+    id: "base",
     connected: [],
     depth: 0,
     index: 0,
@@ -12,7 +13,7 @@ export const tier0: SkillTree = [
   },
   {
     id: "red-1",
-    connected: ["ship"],
+    connected: ["base"],
     depth: 1,
     index: -3,
     name: "Ship Rating +",
@@ -52,13 +53,11 @@ export const tier0: SkillTree = [
     index: -3,
     type: "tech",
     colour: "r",
-    // Rapid Armour Calibration
-    // Recovers some % of broken armour.
-    // TODO: implement
+    tech: ACTIVE_SKILLS.reinforce,
   },
   {
     id: "green-1",
-    connected: ["ship"],
+    connected: ["base"],
     depth: 1,
     index: 0,
     name: "Pilot Rating +",
@@ -100,13 +99,11 @@ export const tier0: SkillTree = [
     index: 0,
     type: "tech",
     colour: "g",
-    // Phase Shift
-    // Blinks, or becomes invulnerable or gains phasing or something
-    // TODO: implement
+    tech: ACTIVE_SKILLS.evasiveManeuvers,
   },
   {
     id: "blue-1",
-    connected: ["ship"],
+    connected: ["base"],
     depth: 1,
     index: 3,
     name: "Tech Rating +",
@@ -147,8 +144,6 @@ export const tier0: SkillTree = [
     index: 3,
     type: "tech",
     colour: "b",
-    // Short-Range Electromagnetic Pulse
-    // Pushes back nearby enemies and destroys projectiles
-    // TODO: implement
+    tech: ACTIVE_SKILLS.portableWormhole,
   },
 ];
