@@ -1,6 +1,8 @@
 import { Tween } from "tweedle.js";
+import { CombatEntity } from "../objects/entity";
 import { PhysicsObject } from "../objects/physics-object";
 import { Player } from "../objects/player";
+import { calculateFinalStat } from "../scenes/combat/combat.model";
 
 /**
  * Techs, ie. active skills
@@ -28,12 +30,27 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
     name: "Armour Reinforcement",
     // todo: make values display dynamically based on changes
     description:
-      "Engage armour reserves, restoring all armour for 4 seconds. For the duration, also increase armour effect by 50%",
-    cooldown: 15000,
+      "Engage armour reserves, gaining temporary armour up to your maximum armour for 6 seconds",
+    cooldown: 24000,
     tags: ["defensive"],
-    use: () => {
-      console.log("Armour Reinforcement");
-      // todo: implement
+    use: (user: Player) => {
+      // set armour to current max armour
+      user.tempArmour = calculateFinalStat(
+        "armour",
+        [],
+        user.armour,
+        user.statAdjustments
+      );
+      // add a buff to clean up after 6s
+      user.buffs.push({
+        name: "Armour Reinforcement",
+        remaining: 6000,
+        expire: (u: CombatEntity) => {
+          // fixme: this shouldn't delete temp armour from other sources
+          // temp armour should just be a stat adjustment?
+          u.tempArmour = 0;
+        },
+      });
       return [];
     },
   },
@@ -43,8 +60,9 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
       "Take evasive action, increasing movement speed and avoiding damage from the next 4 collisions or projectiles within 3 seconds.",
     cooldown: 10000,
     tags: ["defensive", "movement"],
-    use: (user: Player, { x, y }: { x: number; y: number }) => {
-      user.temporaryStatAdjustments.push({
+    use: (user: Player) => {
+      user.buffs.push({
+        name: "Evasive Maneuvers",
         stats: {
           // todo: also increase movement speed
           avoidance: {

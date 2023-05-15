@@ -5,6 +5,7 @@ import {
   calculateFinalStat,
   flattenStatAdjustments,
 } from "../scenes/combat/combat.model";
+import { isDefined } from "../util";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {
@@ -13,6 +14,27 @@ export type EntityConfig = PhysicsObjectConfig & {
   showHealthBar?: "never" | "damaged" | "always";
   statAdjustments?: StatAdjustments;
 };
+
+/**
+ * Temporary buffs and debuffs
+ *
+ * todo: make this a proper union type so some fields are always needed.
+ */
+interface Buff {
+  /** Name of the buff. Can be left blank if stat adjustments are set. */
+  name?: string;
+  // icon?: string;
+  /** Any stat adjustments applied by the buff */
+  stats?: StatAdjustments;
+  /**
+   * Custom expiry function (to clean up any custom state added)
+   *
+   * Custom state can be applied manually before adding the buff, probably.
+   */
+  expire?: (user: CombatEntity) => void;
+  /** Remaining duration */
+  remaining: number;
+}
 
 /**
  * Base object for ships and other shootable/collideable entities.
@@ -36,6 +58,10 @@ export class CombatEntity extends PhysicsObject {
    * While a unit has armour, all damage is reduced by 10% of the full armour value.
    *
    * Armour stops being effective when it breaks (ie. HP is below `maxHP - armour`).
+   *
+   * TODO: armour doesn't actually go down, which is kind of convoluted and unintuitive.
+   * Should just make it like HP/Shields with an `armour` and `maxArmour` value.
+   * Temp armour is already tracked like that anyway...
    */
   public armour = 0;
   /**
@@ -85,11 +111,6 @@ export class CombatEntity extends PhysicsObject {
 
   /** Permanent modifications to stats */
   private baseStatAdjustments: StatAdjustments;
-  /** Temporary buffs or debuffs to stats */
-  public temporaryStatAdjustments: {
-    stats: StatAdjustments;
-    remaining: number;
-  }[];
   /** Combined stat adjustments. Recalculated regularly */
   private _allStatAdjustments: StatAdjustments = {};
 
@@ -108,6 +129,12 @@ export class CombatEntity extends PhysicsObject {
     // only change the base stat adjustments.
     this.baseStatAdjustments = newAdjustments;
   }
+
+  /**
+   * Temporary buffs or debuffs to stats.
+   * Push to this array to add buffs or debuffs.
+   */
+  public buffs: Buff[];
 
   /** Whether to display the healthbar above the object */
   public showHealthBar: "never" | "damaged" | "always";
@@ -143,7 +170,7 @@ export class CombatEntity extends PhysicsObject {
       showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
     this.statAdjustments = statAdjustments;
     this.baseStatAdjustments = statAdjustments;
-    this.temporaryStatAdjustments = [];
+    this.buffs = [];
 
     this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
     this.hp = this.maxHP;
@@ -200,17 +227,24 @@ export class CombatEntity extends PhysicsObject {
 
     // increment all timers
     this.timeSinceLastHit += this.ticker.deltaMS;
-    this.temporaryStatAdjustments = this.temporaryStatAdjustments
-      .map((buff) => ({
-        ...buff,
-        remaining: buff.remaining - this.ticker.deltaMS,
-      }))
+    this.buffs = this.buffs
+      .map((buff) => {
+        const remaining = buff.remaining - this.ticker.deltaMS;
+        if (remaining <= 0) {
+          // fixme: this function should probably be pure?
+          buff.expire?.(this);
+        }
+        return {
+          ...buff,
+          remaining,
+        };
+      })
       .filter((buff) => buff.remaining > 0);
 
     // then recalculate combined stat adjustments
     this._allStatAdjustments = flattenStatAdjustments([
       this.baseStatAdjustments,
-      ...this.temporaryStatAdjustments.map(({ stats }) => stats),
+      ...this.buffs.map(({ stats }) => stats).filter(isDefined),
     ]);
 
     // update health bar visibility and size
@@ -243,8 +277,6 @@ export class CombatEntity extends PhysicsObject {
       // remaining armour after lost HP
       finalArmour - (this.maxHP - this.hp)
     );
-    // threshold for armour being broken
-    const armourThreshold = this.maxHP - finalArmour;
 
     this.shieldBar.width = Math.max(
       0,
@@ -253,15 +285,19 @@ export class CombatEntity extends PhysicsObject {
     );
     this.healthBar.width = Math.max(
       0,
-      // if hp is below armour threshold, show entire HP
-      // if above, cut it off as the rest is displayed by the armour bar
-      (this.width * Math.min(this.hp, armourThreshold)) / this.maxHP
+      // the hp bar is always up to full width as well.
+      // the armour bar is applied on top.
+      (this.width * this.hp) / this.maxHP
     );
-    this.armourBar.x = this.healthBar.x + this.healthBar.width;
     this.armourBar.width = Math.max(
       0,
-      (this.width * displayedArmour) / this.maxHP
+      // the armour bar covers the HP bar based on how much armour you have
+      // but it caps out at your actual HP.
+      (this.width * Math.min(displayedArmour, this.hp)) / this.maxHP
     );
+    // set the armour bar so it's always covering the right side of the HP bar
+    this.armourBar.x =
+      this.healthBar.x + this.healthBar.width - this.armourBar.width;
 
     // update shield recharge
     if (
