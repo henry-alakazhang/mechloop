@@ -16,8 +16,7 @@ export class Player extends CombatEntity {
   constructor() {
     super({
       side: "player",
-      maxHP: 20,
-      maxShields: 5,
+      maxHP: 30,
       showHealthBar: "always",
     });
 

@@ -37,8 +37,8 @@ export interface Weapon {
 export const WEAPONS: { [k: string]: Weapon } = {
   cannon: {
     name: "TI-4-G Twin-Mounted Autocannon",
-    rof: 360,
-    damage: 3,
+    rof: 270,
+    damage: 6,
     damageType: "kinetic",
     damageTags: ["kinetic", "projectile"],
     projectileSpeed: 10,
@@ -97,7 +97,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
       // fixme: probably a better way to do this.
       explosion.source = {
         ...WEAPONS.missile,
-        damage: 5,
+        damage: 10,
         onHit: undefined,
         damageTags: ["explosive"],
       };
@@ -114,8 +114,8 @@ export const WEAPONS: { [k: string]: Weapon } = {
   },
   arc: {
     name: "High Impulse Arc Coil",
-    damage: 2,
-    rof: 120,
+    damage: 4,
+    rof: 150,
     damageType: "energy",
     damageTags: ["energy"],
     projectileSpeed: 40,

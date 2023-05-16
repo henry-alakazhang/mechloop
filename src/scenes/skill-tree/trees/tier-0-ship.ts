@@ -21,7 +21,7 @@ export const tier0: SkillTree = [
     colour: "r",
     statAdjustments: {
       maxHP: { global: { addition: 10, multiplier: 0 } },
-      damage: { global: { addition: 2, multiplier: 0 } },
+      damage: { global: { addition: 1, multiplier: 0 } },
     },
   },
   {
@@ -32,7 +32,7 @@ export const tier0: SkillTree = [
     name: "Armour",
     type: "passive",
     colour: "r",
-    statAdjustments: { armour: { global: { addition: 15, multiplier: 0 } } },
+    statAdjustments: { armour: { global: { addition: 10, multiplier: 0 } } },
   },
   {
     id: "red-2-offensive",

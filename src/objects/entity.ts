@@ -146,10 +146,10 @@ export class CombatEntity extends PhysicsObject {
 
   // TODO: move this to some kind of enemies.ts
   public static ASTEROID(scale: number): CombatEntity {
-    const size = Math.ceil(Math.random() * 20) * scale;
+    const size = Math.ceil(Math.random() * 20 + 10) * scale;
     const asteroid = new CombatEntity({ maxHP: size, side: "enemy" })
       .lineStyle(2, 0xaaaa00)
-      .drawCircle(0, 0, size + 20);
+      .drawCircle(0, 0, size + 10);
     asteroid.moveHealthBar();
     return asteroid;
   }
