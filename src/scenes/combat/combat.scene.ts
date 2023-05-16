@@ -9,9 +9,6 @@ import {
 import { Group } from "tweedle.js";
 import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
-import { CombatEntity } from "../../objects/entity";
-import { PhysicsObject } from "../../objects/physics-object";
-import { Player } from "../../objects/player";
 import {
   PassiveNode,
   SkillTree,
@@ -24,6 +21,9 @@ import {
   flattenStatAdjustments,
   getAdjustmentDescriptions,
 } from "./combat.model";
+import { CombatEntity } from "./objects/entity";
+import { PhysicsObject } from "./objects/physics-object";
+import { Player } from "./objects/player";
 
 export class CombatScene extends Container {
   private background: Graphics;

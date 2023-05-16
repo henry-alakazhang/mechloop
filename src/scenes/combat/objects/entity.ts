@@ -1,11 +1,11 @@
 import { Graphics } from "pixi.js";
 import { Tween } from "tweedle.js";
+import { isDefined } from "../../../util";
 import {
   StatAdjustments,
   calculateFinalStat,
   flattenStatAdjustments,
-} from "../scenes/combat/combat.model";
-import { isDefined } from "../util";
+} from "../combat.model";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {

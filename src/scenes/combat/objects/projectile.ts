@@ -1,5 +1,5 @@
-import { Weapon } from "../data/weapons";
-import { calculateFinalStat } from "../scenes/combat/combat.model";
+import { Weapon } from "../../../data/weapons";
+import { calculateFinalStat } from "../combat.model";
 import { CombatEntity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 

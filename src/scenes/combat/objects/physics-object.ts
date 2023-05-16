@@ -1,5 +1,5 @@
 import { Graphics, Ticker } from "pixi.js";
-import { normalizeVector } from "../util/math";
+import { normalizeVector } from "../../../util/math";
 
 export interface PhysicsObjectConfig {
   side: "player" | "enemy";

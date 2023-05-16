@@ -1,8 +1,8 @@
 import { Tween } from "tweedle.js";
-import { CombatEntity } from "../objects/entity";
-import { PhysicsObject } from "../objects/physics-object";
-import { Player } from "../objects/player";
 import { calculateFinalStat } from "../scenes/combat/combat.model";
+import { CombatEntity } from "../scenes/combat/objects/entity";
+import { PhysicsObject } from "../scenes/combat/objects/physics-object";
+import { Player } from "../scenes/combat/objects/player";
 
 /**
  * Techs, ie. active skills
