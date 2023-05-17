@@ -22,7 +22,7 @@ const BG_NODE_RADIUS = NODE_RADIUS + 2;
 
 export class TreeNodeGraphic extends Graphics {
   private graphic: Graphics;
-  private unselectedBG: Graphics;
+  public unselectedBG: Graphics;
   public skillTreeNode: SkillTreeNode;
 
   public verticalPos: number;

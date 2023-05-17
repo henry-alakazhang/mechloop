@@ -68,7 +68,8 @@ export class CombatScene extends Container {
       .beginFill(0x000000)
       .drawRect(1, 1, 1498, 798)
       .endFill();
-    this.cursor = "crosshair";
+    this.background.interactive = true;
+    this.background.cursor = "crosshair";
     this.addChild(this.background);
 
     // todo: add some helpers which make adding/setting location of these elements nicer.

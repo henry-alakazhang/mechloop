@@ -1,7 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { NodeTooltip } from "./objects/node-tooltip";
 import { TreeNodeGraphic } from "./objects/tree-node";
-import { SkillTree } from "./skill-tree.model";
+import { SkillTree, SkillTreeNode } from "./skill-tree.model";
 import { tier0 } from "./trees/tier-0-ship";
 
 /**
@@ -41,8 +41,18 @@ export class SkillTreeScene extends Container {
       base: true,
     };
 
-    let maxDepth = 0;
+    // Draw background - this is needed so there's a clickable area
+    // Otherwise this will inherit the crosshair pointer from the combat scene below.
+    const background = this.addChild(
+      new Graphics()
+        .beginFill(0x000000)
+        .drawRoundedRect(-450, -350, 900, 600, 5)
+    );
+    background.cursor = "default";
+    // addChild at the end so it goes into index 0.
 
+    // track max depth so we know how many background layers to draw
+    let maxDepth = 0;
     this.tooltip = new NodeTooltip();
 
     // Skill trees are drawn as an arc with a range of about 120 degrees.
@@ -60,11 +70,12 @@ export class SkillTreeScene extends Container {
         })
       );
       currentNode.interactive = true;
+      currentNode.cursor = this.selected[skill.id] ? "default" : "pointer";
       currentNode.on("pointerover", () => {
         this.showTooltip(currentNode);
       });
       currentNode.on("pointerout", () => {
-        this.removeChild(this.tooltip);
+        this.hideTooltip(currentNode);
       });
       // TODO: activate node
       currentNode.on("pointerdown", () => {
@@ -149,6 +160,7 @@ export class SkillTreeScene extends Container {
     layerBorders.y = TREE_OFFSET;
     // layerBorders.visible = false;
     this.addChildAt(layerBorders, 0);
+    this.addChildAt(background, 0);
   }
 
   showTooltip(node: TreeNodeGraphic) {
@@ -160,19 +172,31 @@ export class SkillTreeScene extends Container {
     this.tooltip.setNode(node.skillTreeNode);
 
     this.addChild(this.tooltip);
+
+    if (this.canAllocate(node.skillTreeNode)) {
+      // lighten the node a little bit to highlight selectability
+      node.cursor = "pointer";
+      node.unselectedBG.alpha = 0.2;
+    } else {
+      node.cursor = "default";
+    }
+  }
+
+  hideTooltip(node: TreeNodeGraphic) {
+    if (this.canAllocate(node.skillTreeNode)) {
+      node.unselectedBG.alpha = 0.5;
+    }
+
+    this.removeChild(this.tooltip);
   }
 
   toggleAllocation(node: TreeNodeGraphic) {
     if (!node.selected) {
       // can only allocate if one of the connected nodes is allocated
       // or if there are no prerequisites / connected nodes
-      if (
-        node.skillTreeNode.connected.length === 0 ||
-        node.skillTreeNode.connected.some(
-          (connectedNode) => this.selected[connectedNode]
-        )
-      ) {
+      if (this.canAllocate(node.skillTreeNode)) {
         node.selected = true;
+        node.cursor = "default";
         this.selected[node.skillTreeNode.id] = true;
         this.connectionGraphics[node.skillTreeNode.id].forEach((connection) => {
           connection[0].alpha = 1;
@@ -187,6 +211,16 @@ export class SkillTreeScene extends Container {
     // update any listeners with all allocated skill nodes
     this.treeUpdateListener?.(
       this.tree.filter((node) => this.selected[node.id])
+    );
+  }
+
+  canAllocate(skillTreeNode: SkillTreeNode): boolean {
+    return (
+      (!this.selected[skillTreeNode.id] &&
+        skillTreeNode.connected.length === 0) ||
+      skillTreeNode.connected.some(
+        (connectedNode) => this.selected[connectedNode]
+      )
     );
   }
 
