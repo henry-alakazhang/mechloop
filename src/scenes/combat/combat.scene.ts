@@ -9,7 +9,7 @@ import {
 import { Group } from "tweedle.js";
 import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
-import { PlayerService } from "../../services/player";
+import { PlayerService } from "../../services/player.service";
 import {
   PassiveNode,
   SkillTree,
