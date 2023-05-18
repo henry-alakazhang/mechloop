@@ -9,6 +9,7 @@ import {
 import { Group } from "tweedle.js";
 import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
+import { PlayerService } from "../../services/player";
 import {
   PassiveNode,
   SkillTree,
@@ -303,6 +304,9 @@ export class CombatScene extends Container {
     enemy.on("destroyed", () => {
       if (enemy.hp <= 0) {
         this.score += 1;
+        if (this.score % 20 === 0) {
+          PlayerService.skillPoints += 1;
+        }
       }
     });
     this.addChild(enemy);
@@ -335,7 +339,7 @@ export class CombatScene extends Container {
     ).toFixed(1)}s]`;
     this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
       this.player.statAdjustments
-    )}`;
+    )}\n\nUnspent Skill Points: ${PlayerService.skillPoints}`;
 
     // Reduce all cooldowns by elapsed time
     this.activeSkillCooldowns = this.activeSkillCooldowns.map((x) =>
