@@ -2,7 +2,7 @@ import { Tween } from "tweedle.js";
 import { calculateFinalStat } from "../scenes/combat/combat.model";
 import { CombatEntity } from "../scenes/combat/objects/entity";
 import { PhysicsObject } from "../scenes/combat/objects/physics-object";
-import { Player } from "../scenes/combat/objects/player";
+import { PlayerShip } from "../scenes/combat/objects/player-ship";
 
 /**
  * Techs, ie. active skills
@@ -22,7 +22,10 @@ export interface ActiveSkill {
    * Use the skill.
    * Returns any created projectiles or entities.
    */
-  readonly use: (user: Player, to: { x: number; y: number }) => PhysicsObject[];
+  readonly use: (
+    user: PlayerShip,
+    to: { x: number; y: number }
+  ) => PhysicsObject[];
 }
 
 export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
@@ -33,7 +36,7 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
       "Engage armour reserves, gaining temporary armour up to your maximum armour for 6 seconds",
     cooldown: 24000,
     tags: ["defensive"],
-    use: (user: Player) => {
+    use: (user: PlayerShip) => {
       // set armour to current max armour
       user.tempArmour = calculateFinalStat(
         "armour",
@@ -60,7 +63,7 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
       "Take evasive action, increasing movement speed and avoiding damage from the next 4 collisions or projectiles within 3 seconds.",
     cooldown: 10000,
     tags: ["defensive", "movement"],
-    use: (user: Player) => {
+    use: (user: PlayerShip) => {
       user.buffs.push({
         name: "Evasive Maneuvers",
         stats: {
@@ -81,7 +84,7 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
       "Open a wormhole to a location within 500 units, teleporting you there after a brief delay.",
     cooldown: 6000,
     tags: ["movement"],
-    use: (user: Player, { x, y }: { x: number; y: number }) => {
+    use: (user: PlayerShip, { x, y }: { x: number; y: number }) => {
       // stop movement
       user.setVelocity(0, 0);
       new Tween(user)

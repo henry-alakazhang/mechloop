@@ -2,7 +2,7 @@ import { Easing, Tween } from "tweedle.js";
 import { Tag } from "../scenes/combat/combat.model";
 import { CombatScene } from "../scenes/combat/combat.scene";
 import { PhysicsObject } from "../scenes/combat/objects/physics-object";
-import { Player } from "../scenes/combat/objects/player";
+import { PlayerShip } from "../scenes/combat/objects/player-ship";
 import { Projectile } from "../scenes/combat/objects/projectile";
 
 export interface Weapon {
@@ -27,7 +27,7 @@ export interface Weapon {
    * TODO: Move shootbox to Entity so enemies can fire bullets too.
    */
   readonly shoot: (
-    shooter: Player,
+    shooter: PlayerShip,
     to: { x: number; y: number }
   ) => PhysicsObject[];
   /** Callback for when object is hit */
@@ -42,7 +42,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damageType: "kinetic",
     damageTags: ["kinetic", "projectile"],
     projectileSpeed: 10,
-    shoot(shooter: Player, to: { x: number; y: number }) {
+    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [
         Projectile.shoot(
           shooter,
@@ -61,7 +61,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damageType: "explosive",
     damageTags: ["explosive", "projectile"],
     projectileSpeed: 6,
-    shoot(shooter: Player, to: { x: number; y: number }) {
+    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [
         Projectile.shoot(
           shooter,
@@ -119,7 +119,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damageType: "energy",
     damageTags: ["energy"],
     projectileSpeed: 40,
-    shoot(shooter: Player, to: { x: number; y: number }) {
+    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [
         Projectile.shoot(
           shooter,

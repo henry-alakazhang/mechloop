@@ -23,7 +23,7 @@ import {
 } from "./combat.model";
 import { CombatEntity } from "./objects/entity";
 import { PhysicsObject } from "./objects/physics-object";
-import { Player } from "./objects/player";
+import { PlayerShip } from "./objects/player-ship";
 
 export class CombatScene extends Container {
   private background: Graphics;
@@ -37,7 +37,7 @@ export class CombatScene extends Container {
   private crosshair = { x: 0, y: 0 };
   private firing = false;
 
-  private player: Player;
+  private player: PlayerShip;
 
   private weapons: Weapon[] = [];
   private selectedWeapon = 0;
@@ -74,7 +74,7 @@ export class CombatScene extends Container {
 
     // todo: add some helpers which make adding/setting location of these elements nicer.
 
-    this.player = new Player();
+    this.player = new PlayerShip();
     this.player.x = 750;
     this.player.y = 400;
     this.addChild(this.player);

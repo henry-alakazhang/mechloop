@@ -2,7 +2,7 @@ import { DisplayObject, Graphics } from "pixi.js";
 import { CombatEntity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 
-export class Player extends CombatEntity {
+export class PlayerShip extends CombatEntity {
   /** Coordinates to fire bullets from */
   public shootBox: DisplayObject;
 
