@@ -26,6 +26,11 @@ import { CombatEntity } from "./objects/entity";
 import { PhysicsObject } from "./objects/physics-object";
 import { PlayerShip } from "./objects/player-ship";
 
+/**
+ * Scene for the actual combat gameplay.
+ *
+ * Origin (0,0) is the top-left corner.
+ */
 export class CombatScene extends Container {
   private background: Graphics;
 
@@ -61,6 +66,10 @@ export class CombatScene extends Container {
 
   constructor() {
     super();
+
+    // TODO: SO MANY heights and positions are hardcoded
+    // currently very hard to adjust game area size.
+    // fix at some point
 
     this.background = new Graphics()
       .beginFill(0x6495ed)

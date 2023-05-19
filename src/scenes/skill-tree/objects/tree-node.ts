@@ -20,6 +20,12 @@ const NODE_RADIUS = 20;
  */
 const BG_NODE_RADIUS = NODE_RADIUS + 2;
 
+/**
+ * Graphical representation of a skill tree node in a tree.
+ * Handles visual display, but not interactivity (hover, click)
+ *
+ * Origin (0,0) is in the center of the node
+ */
 export class TreeNodeGraphic extends Graphics {
   private graphic: Graphics;
   public unselectedBG: Graphics;

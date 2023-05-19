@@ -2,6 +2,11 @@ import { DisplayObject, Graphics } from "pixi.js";
 import { CombatEntity } from "./entity";
 import { PhysicsObject } from "./physics-object";
 
+/**
+ * The player-controlled ship. Tracks player movement.
+ *
+ * Origin (0,0) is in the middle of the ship, as it needs to rotate around it.
+ */
 export class PlayerShip extends CombatEntity {
   /** Coordinates to fire bullets from */
   public shootBox: DisplayObject;

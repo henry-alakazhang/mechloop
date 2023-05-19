@@ -8,6 +8,10 @@ import { SkillTreeNode } from "../skill-tree.model";
  * This should usually be a singleton for performance reasons;
  * just move it around to wherever it needs to be.
  *
+ * Origin (0,0) is the top-left of the tooltip.
+ * As such, best usage is usually to move it to the bottom-right of whatever
+ * you want to have the tooltip placed over.
+ *
  * TODO: switch this over to a HTML-based tooltip?
  * it's currently ugly as sin and I don't really want to
  * design a nice text-based interface using Pixi objects...

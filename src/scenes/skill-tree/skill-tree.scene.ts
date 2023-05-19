@@ -15,6 +15,11 @@ export const TREE_OFFSET = 200;
  */
 export const LAYER_HEIGHT = 80;
 
+/**
+ * Scene for displaying skill tree(s) and allocating skill points.
+ *
+ * Origin (0,0) is in the center of the skill tree area
+ */
 export class SkillTreeScene extends Container {
   public tree: SkillTree;
   public selected: { [k: string]: boolean };
@@ -53,7 +58,7 @@ export class SkillTreeScene extends Container {
         fontSize: 15,
       }
     );
-    this.skillPointText.x = -this.skillPointText.width / 2;
+    this.skillPointText.x = Math.round(-this.skillPointText.width / 2);
     this.skillPointText.y = 100;
     this.addChild(this.skillPointText);
     PlayerService.skillPoints.subscribe(
