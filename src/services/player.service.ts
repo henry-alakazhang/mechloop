@@ -1,3 +1,5 @@
+import { Observable } from "../util/observable";
+
 /**
  * Global singleton service for tracking and maintaining player state,
  * shared across all the game's scenes.
@@ -11,17 +13,12 @@ export class PlayerService {
   /**
    * The amount of unallocated skill points the player has.
    */
-  public static skillPoints = 0;
+  public static skillPoints = new Observable(0);
 
   // todo: some skill tree state (tree id -> allocated passives?)
 
   /**
-   * Add a listener for when the player's skill tree is updated
+   * Allocated skill tree nodes
    */
-  // public static onTreeUpdate(???) {}
-
-  /**
-   * Update skill tree and notify all listeners
-   */
-  // public static updateTree(???) {}
+  // public static selectedNodes = new Observable(???);
 }

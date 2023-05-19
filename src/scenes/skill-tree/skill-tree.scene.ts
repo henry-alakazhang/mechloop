@@ -1,4 +1,5 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Text } from "pixi.js";
+import { PlayerService } from "../../services/player.service";
 import { NodeTooltip } from "./objects/node-tooltip";
 import { TreeNodeGraphic } from "./objects/tree-node";
 import { SkillTree, SkillTreeNode } from "./skill-tree.model";
@@ -29,6 +30,8 @@ export class SkillTreeScene extends Container {
 
   public tooltip: NodeTooltip;
 
+  public skillPointText: Text;
+
   treeUpdateListener?: (selectedNodes: SkillTree) => void;
 
   constructor() {
@@ -40,6 +43,22 @@ export class SkillTreeScene extends Container {
     this.selected = {
       base: true,
     };
+
+    this.tooltip = new NodeTooltip();
+    this.skillPointText = new Text(
+      `Skill Points: ${PlayerService.skillPoints.currentValue}`,
+      {
+        fill: 0xffffff,
+        fontFamily: "Courier New",
+        fontSize: 15,
+      }
+    );
+    this.skillPointText.x = -this.skillPointText.width / 2;
+    this.skillPointText.y = 100;
+    this.addChild(this.skillPointText);
+    PlayerService.skillPoints.subscribe(
+      (points) => (this.skillPointText.text = `Skill Points: ${points}`)
+    );
 
     // Draw background - this is needed so there's a clickable area
     // Otherwise this will inherit the crosshair pointer from the combat scene below.
@@ -53,7 +72,6 @@ export class SkillTreeScene extends Container {
 
     // track max depth so we know how many background layers to draw
     let maxDepth = 0;
-    this.tooltip = new NodeTooltip();
 
     // Skill trees are drawn as an arc with a range of about 120 degrees.
     // Each node on the tree is a `TreeNodeGraphic` object,
@@ -202,6 +220,7 @@ export class SkillTreeScene extends Container {
           connection[0].alpha = 1;
           connection[1].alpha = 1;
         });
+        PlayerService.skillPoints.update((p) => p - 1);
       }
     } else {
       // can only unallocate if all of the connected nodes are still attached to the tree
@@ -216,11 +235,15 @@ export class SkillTreeScene extends Container {
 
   canAllocate(skillTreeNode: SkillTreeNode): boolean {
     return (
-      (!this.selected[skillTreeNode.id] &&
-        skillTreeNode.connected.length === 0) ||
-      skillTreeNode.connected.some(
-        (connectedNode) => this.selected[connectedNode]
-      )
+      // have skill points
+      PlayerService.skillPoints.currentValue > 0 &&
+      // node isn't allocated
+      !this.selected[skillTreeNode.id] &&
+      // node either has no prerequisites, or its prerequisites are allocated
+      (skillTreeNode.connected.length === 0 ||
+        skillTreeNode.connected.some(
+          (connectedNode) => this.selected[connectedNode]
+        ))
     );
   }
 

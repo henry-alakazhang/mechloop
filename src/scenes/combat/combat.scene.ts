@@ -304,8 +304,8 @@ export class CombatScene extends Container {
     enemy.on("destroyed", () => {
       if (enemy.hp <= 0) {
         this.score += 1;
-        if (this.score % 20 === 0) {
-          PlayerService.skillPoints += 1;
+        if (this.score % 10 === 0) {
+          PlayerService.skillPoints.update((p) => p + 1);
         }
       }
     });
@@ -339,7 +339,7 @@ export class CombatScene extends Container {
     ).toFixed(1)}s]`;
     this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
       this.player.statAdjustments
-    )}\n\nUnspent Skill Points: ${PlayerService.skillPoints}`;
+    )}\n\nUnspent Skill Points: ${PlayerService.skillPoints.currentValue}`;
 
     // Reduce all cooldowns by elapsed time
     this.activeSkillCooldowns = this.activeSkillCooldowns.map((x) =>
