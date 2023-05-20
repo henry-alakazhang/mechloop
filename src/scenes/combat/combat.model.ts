@@ -15,7 +15,8 @@ export type Stat =
   | "evadeChance"
   | "evadeEffect"
   | "avoidance"
-  | "armour";
+  | "armour"
+  | "rechargeSpeed";
 
 /**
  * Tags for stat modifiers. Each stat has different available tags,
@@ -36,6 +37,7 @@ export type Tag = {
   evadeEffect: never;
   avoidance: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
   armour: never;
+  rechargeSpeed: "movement" | "defensive";
 };
 
 /**
@@ -151,6 +153,9 @@ const displayText: {
   evadeEffect: "Damage reduction from evaded attacks",
   avoidance: "Chance to completely avoid damage",
   armour: "Armour",
+  rechargeSpeed: "Tech Recharge Speed",
+  defensive: "Defensive",
+  movement: "Movement",
 };
 
 export function getAdjustmentDescriptions(

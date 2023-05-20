@@ -17,7 +17,7 @@ export interface ActiveSkill {
   /** Base time between usages (ms) */
   readonly cooldown: number;
   /** Tags for calculating buffs (to damage, cooldown, etc) */
-  readonly tags: string[];
+  readonly tags: ("movement" | "defensive")[];
   /**
    * Use the skill.
    * Returns any created projectiles or entities.

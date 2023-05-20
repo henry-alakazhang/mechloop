@@ -109,9 +109,9 @@ export const tier0: SkillTree = [
     name: "Tech Rating +",
     type: "passive",
     colour: "b",
-    // TODO: implement
     statAdjustments: {
       maxHP: { global: { addition: 10, multiplier: 0 } },
+      // TODO figure out stat here. area of effect?
     },
   },
   {
@@ -134,8 +134,9 @@ export const tier0: SkillTree = [
     name: "Tech Recovery",
     type: "passive",
     colour: "b",
-    // TODO: implement
-    statAdjustments: {},
+    statAdjustments: {
+      rechargeSpeed: { global: { addition: 0, multiplier: 0.15 } },
+    },
   },
   {
     id: "blue-capstone",
