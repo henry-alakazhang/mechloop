@@ -1,4 +1,3 @@
-import { Graphics } from "pixi.js";
 import { Tween } from "tweedle.js";
 import { isDefined } from "../../../util";
 import {
@@ -6,6 +5,7 @@ import {
   calculateFinalStat,
   flattenStatAdjustments,
 } from "../combat.model";
+import { HpBar } from "./hp-bar";
 import { PhysicsObject, PhysicsObjectConfig } from "./physics-object";
 
 export type EntityConfig = PhysicsObjectConfig & {
@@ -139,13 +139,7 @@ export class CombatEntity extends PhysicsObject {
    */
   public buffs: Buff[];
 
-  /** Whether to display the healthbar above the object */
-  public showHealthBar: "never" | "damaged" | "always";
-
-  // todo: probably lump these all into a subcomponent
-  private healthBar: Graphics;
-  private armourBar: Graphics;
-  private shieldBar: Graphics;
+  private hpBar: HpBar;
 
   // TODO: move this to some kind of enemies.ts
   public static ASTEROID(scale: number): CombatEntity {
@@ -160,17 +154,8 @@ export class CombatEntity extends PhysicsObject {
   constructor(config: EntityConfig) {
     super(config);
 
-    const {
-      maxHP,
-      maxShields = 0,
-      showHealthBar,
-      statAdjustments = {},
-    } = config;
+    const { maxHP, maxShields = 10, statAdjustments = {} } = config;
 
-    // if `showHealthBar` is set, use it.
-    // otherwise, default to damaged-only healthbars for enemies.
-    this.showHealthBar =
-      showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
     this.statAdjustments = statAdjustments;
     this.baseStatAdjustments = statAdjustments;
     this.buffs = [];
@@ -186,22 +171,7 @@ export class CombatEntity extends PhysicsObject {
     );
     this.shields = this.maxShields;
 
-    this.healthBar = this.addChild(
-      // green bar (TODO change color)?
-      new Graphics().beginFill(0x00bb00).drawRect(0, 0, 10, 3)
-    );
-    this.armourBar = this.addChild(
-      // yellowish brownish bar
-      new Graphics().beginFill(0xbbbb55).drawRect(0, 0, 10, 3)
-    );
-    this.shieldBar = this.addChild(
-      // transparent cyan bar drawn over the top of the others
-      // slightly taller to wrap the other bars
-      new Graphics().beginFill(0x88ffff, 0.5).drawRect(0, 0, 10, 5)
-    );
-    this.healthBar.visible = this.showHealthBar === "always";
-    this.armourBar.visible = this.showHealthBar === "always";
-    this.shieldBar.visible = this.showHealthBar === "always";
+    this.hpBar = this.addChild(new HpBar(config));
   }
 
   /**
@@ -210,15 +180,9 @@ export class CombatEntity extends PhysicsObject {
    */
   protected moveHealthBar() {
     const bounds = this.getLocalBounds();
-    // the shield bar is the highest y position bar.
-    if (this.shieldBar.y !== bounds.top) {
-      this.healthBar.x = bounds.left;
-      this.healthBar.y = bounds.top - 5;
-      this.armourBar.x = bounds.left;
-      this.armourBar.y = bounds.top - 5;
-      // is higher by one, so it fully wraps the hp bars above and below
-      this.shieldBar.x = bounds.left;
-      this.shieldBar.y = bounds.top - 6;
+    if (this.hpBar.y !== bounds.top) {
+      this.hpBar.x = bounds.left;
+      this.hpBar.y = bounds.top - 5;
     }
   }
 
@@ -265,58 +229,6 @@ export class CombatEntity extends PhysicsObject {
       this.hp = this.maxHP * currentPercentage;
     }
 
-    // update health bar visibility and size
-    // fixme: less duplication or whatever
-    if (this.showHealthBar === "always") {
-      this.healthBar.visible = true;
-      this.armourBar.visible = true;
-      this.shieldBar.visible = true;
-    } else if (this.showHealthBar === "damaged") {
-      this.healthBar.visible =
-        this.hp !== this.maxHP || this.shields !== this.maxShields;
-      this.armourBar.visible =
-        this.hp !== this.maxHP || this.shields !== this.maxShields;
-      this.shieldBar.visible =
-        this.hp !== this.maxHP || this.shields !== this.maxShields;
-    } else {
-      this.healthBar.visible = false;
-      this.armourBar.visible = false;
-      this.shieldBar.visible = false;
-    }
-
-    // display armour and healthbar
-    const finalArmour = Math.min(
-      calculateFinalStat("armour", [], this.armour, this.statAdjustments),
-      this.maxHP
-    );
-    const displayedArmour = Math.max(
-      // temp armour
-      this.tempArmour,
-      // remaining armour after lost HP
-      finalArmour - (this.maxHP - this.hp)
-    );
-
-    this.shieldBar.width = Math.max(
-      0,
-      // the shield bar is always up to full width (it's rendered over the other bars)
-      (this.width * this.shields) / this.maxShields
-    );
-    this.healthBar.width = Math.max(
-      0,
-      // the hp bar is always up to full width as well.
-      // the armour bar is applied on top.
-      (this.width * this.hp) / this.maxHP
-    );
-    this.armourBar.width = Math.max(
-      0,
-      // the armour bar covers the HP bar based on how much armour you have
-      // but it caps out at your actual HP.
-      (this.width * Math.min(displayedArmour, this.hp)) / this.maxHP
-    );
-    // set the armour bar so it's always covering the right side of the HP bar
-    this.armourBar.x =
-      this.healthBar.x + this.healthBar.width - this.armourBar.width;
-
     // update shield recharge
     if (
       this.shields !== this.maxShields &&
@@ -331,6 +243,18 @@ export class CombatEntity extends PhysicsObject {
             (this.ticker.deltaMS / 1000)
       );
     }
+
+    // redraw HP bar
+    this.hpBar.redraw({
+      hp: this.hp,
+      maxHP: this.maxHP,
+      shields: this.shields,
+      maxShields: this.maxShields,
+      armour: this.armour,
+      tempArmour: this.tempArmour,
+      statAdjustments: this.statAdjustments,
+      width: this.width,
+    });
   }
 
   public onCollide(other: PhysicsObject) {
