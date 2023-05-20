@@ -154,7 +154,7 @@ export class CombatEntity extends PhysicsObject {
   constructor(config: EntityConfig) {
     super(config);
 
-    const { maxHP, maxShields = 10, statAdjustments = {} } = config;
+    const { maxHP, maxShields = 0, statAdjustments = {} } = config;
 
     this.statAdjustments = statAdjustments;
     this.baseStatAdjustments = statAdjustments;
@@ -171,7 +171,12 @@ export class CombatEntity extends PhysicsObject {
     );
     this.shields = this.maxShields;
 
-    this.hpBar = this.addChild(new HpBar(config));
+    // if `showHealthBar` is set, use it.
+    // otherwise, default to damaged-only healthbars for enemies.
+    const showHealthBar =
+      config.showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
+
+    this.hpBar = this.addChild(new HpBar({ showHealthBar }));
   }
 
   /**
@@ -245,16 +250,8 @@ export class CombatEntity extends PhysicsObject {
     }
 
     // redraw HP bar
-    this.hpBar.redraw({
-      hp: this.hp,
-      maxHP: this.maxHP,
-      shields: this.shields,
-      maxShields: this.maxShields,
-      armour: this.armour,
-      tempArmour: this.tempArmour,
-      statAdjustments: this.statAdjustments,
-      width: this.width,
-    });
+    // all the fields needed for HP calculation are on this self class
+    this.hpBar.redraw(this);
   }
 
   public onCollide(other: PhysicsObject) {

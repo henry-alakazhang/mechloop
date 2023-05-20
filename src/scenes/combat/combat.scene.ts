@@ -24,6 +24,7 @@ import {
   getAdjustmentDescriptions,
 } from "./combat.model";
 import { CombatEntity } from "./objects/entity";
+import { HpBar } from "./objects/hp-bar";
 import { PhysicsObject } from "./objects/physics-object";
 import { PlayerShip } from "./objects/player-ship";
 
@@ -45,6 +46,7 @@ export class CombatScene extends Container {
   private firing = false;
 
   private player: PlayerShip;
+  private playerHPBar: HpBar;
 
   private weapons: Weapon[] = [];
   private selectedWeapon = 0;
@@ -90,6 +92,11 @@ export class CombatScene extends Container {
     this.player.y = 400;
     this.addChild(this.player);
     this.player.on("destroyed", () => this.handleGameEnd());
+
+    this.playerHPBar = this.addChild(new HpBar({ showHealthBar: "always" }));
+    this.playerHPBar.x = 500;
+    this.playerHPBar.y = 770;
+    this.playerHPBar.height = 15;
 
     this.scoreText = new Text(`Score ${this.score}`, {
       fill: 0x00ff00,
@@ -369,6 +376,13 @@ export class CombatScene extends Container {
     this.skillTreeText.text = `Skill Tree:\n${getAdjustmentDescriptions(
       this.player.statAdjustments
     )}\n\nUnspent Skill Points: ${PlayerService.skillPoints.currentValue}`;
+
+    this.playerHPBar.redraw({
+      // copy all HP/maxHP etc values from the player
+      ...this.player,
+      width: 500,
+      statAdjustments: this.player.statAdjustments,
+    });
 
     // Reduce all cooldowns by elapsed time
     this.activeSkillCooldowns = this.activeSkillCooldowns.map((cd) =>

@@ -1,6 +1,9 @@
 import { Graphics } from "pixi.js";
 import { StatAdjustments, calculateFinalStat } from "../combat.model";
-import { EntityConfig } from "./entity";
+
+interface HpBarConfig {
+  showHealthBar: "never" | "damaged" | "always";
+}
 
 export class HpBar extends Graphics {
   private showHealthBar: "always" | "damaged" | "never";
@@ -9,13 +12,10 @@ export class HpBar extends Graphics {
   private armourBar: Graphics;
   private shieldBar: Graphics;
 
-  constructor(config: EntityConfig) {
+  constructor(config: HpBarConfig) {
     super();
 
-    // if `showHealthBar` is set, use it.
-    // otherwise, default to damaged-only healthbars for enemies.
-    this.showHealthBar =
-      config.showHealthBar ?? (config.side === "enemy" ? "damaged" : "never");
+    this.showHealthBar = config.showHealthBar;
 
     this.healthBar = this.addChild(
       // green bar (TODO change color)?

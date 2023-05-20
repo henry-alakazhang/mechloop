@@ -22,7 +22,8 @@ export class PlayerShip extends CombatEntity {
     super({
       side: "player",
       maxHP: 30,
-      showHealthBar: "always",
+      // player healthbar is displayed separately in the combat scene.
+      showHealthBar: "never",
     });
 
     this.lineStyle(1, 0x00ff00).drawPolygon([
