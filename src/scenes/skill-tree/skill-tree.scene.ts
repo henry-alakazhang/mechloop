@@ -2,7 +2,7 @@ import { Container, Graphics, Text } from "pixi.js";
 import { PlayerService } from "../../services/player.service";
 import { NodeTooltip } from "./objects/node-tooltip";
 import { TreeNodeGraphic } from "./objects/tree-node";
-import { SkillTree, SkillTreeNode } from "./skill-tree.model";
+import { SkillTree } from "./skill-tree.model";
 import { tier0 } from "./trees/tier-0-ship";
 
 /**
@@ -22,7 +22,6 @@ export const LAYER_HEIGHT = 80;
  */
 export class SkillTreeScene extends Container {
   public tree: SkillTree;
-  public selected: { [k: string]: boolean };
 
   public treeGraphics: {
     [k: string]: TreeNodeGraphic;
@@ -45,9 +44,6 @@ export class SkillTreeScene extends Container {
     this.tree = tier0;
     this.treeGraphics = {};
     this.connectionGraphics = {};
-    this.selected = {
-      base: true,
-    };
 
     this.tooltip = new NodeTooltip();
     this.skillPointText = new Text(
@@ -64,6 +60,17 @@ export class SkillTreeScene extends Container {
     PlayerService.skillPoints.subscribe(
       (points) => (this.skillPointText.text = `Skill Points: ${points}`)
     );
+    // update various visual states on node selection
+    PlayerService.allocatedNodes.subscribe((nodes) => {
+      Object.keys(nodes).forEach((id) => {
+        this.treeGraphics[id].selected = true;
+        this.treeGraphics[id].cursor = "default";
+        this.connectionGraphics[id].forEach((connection) => {
+          connection[0].alpha = 1;
+          connection[1].alpha = 1;
+        });
+      });
+    });
 
     // Draw background - this is needed so there's a clickable area
     // Otherwise this will inherit the crosshair pointer from the combat scene below.
@@ -77,6 +84,7 @@ export class SkillTreeScene extends Container {
 
     // track max depth so we know how many background layers to draw
     let maxDepth = 0;
+    const selected = PlayerService.allocatedNodes.currentValue;
 
     // Skill trees are drawn as an arc with a range of about 120 degrees.
     // Each node on the tree is a `TreeNodeGraphic` object,
@@ -89,11 +97,11 @@ export class SkillTreeScene extends Container {
       const currentNode = this.addChild(
         new TreeNodeGraphic({
           node: skill,
-          selected: this.selected[skill.id],
+          selected: selected[skill.id],
         })
       );
       currentNode.interactive = true;
-      currentNode.cursor = this.selected[skill.id] ? "default" : "pointer";
+      currentNode.cursor = selected[skill.id] ? "default" : "pointer";
       currentNode.on("pointerover", () => {
         this.showTooltip(currentNode);
       });
@@ -122,7 +130,7 @@ export class SkillTreeScene extends Container {
         // todo: maybe do this with a dotted line instead
         // but there's no builtin pixi support and i'm lazy
         const pathAlpha =
-          this.selected[connectionId] || this.selected[skill.id] ? 1 : 0.33;
+          selected[connectionId] || selected[skill.id] ? 1 : 0.33;
 
         // draw the vertical connector
         const verticalPath = new Graphics()
@@ -196,7 +204,7 @@ export class SkillTreeScene extends Container {
 
     this.addChild(this.tooltip);
 
-    if (this.canAllocate(node.skillTreeNode)) {
+    if (PlayerService.canAllocate(node.skillTreeNode)) {
       // lighten the node a little bit to highlight selectability
       node.cursor = "pointer";
       node.unselectedBG.alpha = 0.2;
@@ -206,7 +214,7 @@ export class SkillTreeScene extends Container {
   }
 
   hideTooltip(node: TreeNodeGraphic) {
-    if (this.canAllocate(node.skillTreeNode)) {
+    if (PlayerService.canAllocate(node.skillTreeNode)) {
       node.unselectedBG.alpha = 0.5;
     }
 
@@ -215,52 +223,12 @@ export class SkillTreeScene extends Container {
 
   toggleAllocation(node: TreeNodeGraphic) {
     if (!node.selected) {
-      // can only allocate if one of the connected nodes is allocated
-      // or if there are no prerequisites / connected nodes
-      if (this.canAllocate(node.skillTreeNode)) {
-        node.selected = true;
-        node.cursor = "default";
-        this.selected[node.skillTreeNode.id] = true;
-        this.connectionGraphics[node.skillTreeNode.id].forEach((connection) => {
-          connection[0].alpha = 1;
-          connection[1].alpha = 1;
-        });
-        PlayerService.skillPoints.update((p) => p - 1);
+      if (PlayerService.canAllocate(node.skillTreeNode)) {
+        PlayerService.allocateNode(node.skillTreeNode.id);
       }
     } else {
       // can only unallocate if all of the connected nodes are still attached to the tree
       // TODO: kind of complicated. unsupported until then.
     }
-
-    // update any listeners with all allocated skill nodes
-    this.treeUpdateListener?.(
-      this.tree.filter((node) => this.selected[node.id])
-    );
-  }
-
-  canAllocate(skillTreeNode: SkillTreeNode): boolean {
-    return (
-      // have skill points
-      PlayerService.skillPoints.currentValue > 0 &&
-      // node isn't allocated
-      !this.selected[skillTreeNode.id] &&
-      // node either has no prerequisites, or its prerequisites are allocated
-      (skillTreeNode.connected.length === 0 ||
-        skillTreeNode.connected.some(
-          (connectedNode) => this.selected[connectedNode]
-        ))
-    );
-  }
-
-  /**
-   * Add an event listener for updates to the tree and selected nodes
-   */
-  onTreeUpdate(listener: (selectedNodes: SkillTree) => void): this {
-    this.treeUpdateListener = listener;
-
-    // immediately call it to update with the initial state.
-    // fixme: shouldn't need this; the tree state should be handled at a higher level.
-    listener(this.tree.filter((node) => this.selected[node.id]));
-    return this;
   }
 }

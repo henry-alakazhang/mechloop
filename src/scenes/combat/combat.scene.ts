@@ -17,6 +17,7 @@ import {
   WeaponNode,
 } from "../skill-tree/skill-tree.model";
 import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
+import { tier0 } from "../skill-tree/trees/tier-0-ship";
 import {
   calculateFinalStat,
   flattenStatAdjustments,
@@ -148,7 +149,6 @@ export class CombatScene extends Container {
     this.skillTreeScene.x = 750;
     this.skillTreeScene.y = 400;
     this.skillTreeScene.interactive = true;
-    this.skillTreeScene.onTreeUpdate(this.handleSkillTreeUpdate.bind(this));
     // don't add the skill tree as a child; it gets added and removed when the game is paused
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
@@ -228,6 +228,14 @@ export class CombatScene extends Container {
           break;
       }
     });
+
+    PlayerService.allocatedNodes.subscribe(
+      (selected) => {
+        const tree = tier0;
+        this.handleSkillTreeUpdate(tree.filter((node) => selected[node.id]));
+      },
+      { emitImmediately: true }
+    );
   }
 
   handleMouseMove(e: FederatedPointerEvent): void {
