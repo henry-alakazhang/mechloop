@@ -3,9 +3,9 @@
   "scripts": {
     "start": "webpack serve --mode=development",
     "build": "run-s clean build-only",
-    "build-only": "webpack --mode=production",
+    "build-only": "webpack --mode=production && cp CNAME dist/CNAME",
     "clean": "rimraf dist",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "pixi.js": "^7.1.2",
