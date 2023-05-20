@@ -51,7 +51,10 @@ export class CombatEntity extends PhysicsObject {
    * Maximum HP of the entity
    */
   public maxHP: number;
+  /** Current HP */
   public hp: number;
+  /** Base HP, used to calculate maximum with stat adjustments */
+  protected readonly baseHP: number;
 
   /**
    * Amount of HP protected by armour (cannot be higher than HP).
@@ -110,9 +113,9 @@ export class CombatEntity extends PhysicsObject {
   public critDamage = 1.5;
 
   /** Permanent modifications to stats */
-  private baseStatAdjustments: StatAdjustments;
+  protected baseStatAdjustments: StatAdjustments;
   /** Combined stat adjustments. Recalculated regularly */
-  private _allStatAdjustments: StatAdjustments = {};
+  protected _allStatAdjustments: StatAdjustments = {};
 
   // public interface:
   /**
@@ -172,6 +175,7 @@ export class CombatEntity extends PhysicsObject {
     this.baseStatAdjustments = statAdjustments;
     this.buffs = [];
 
+    this.baseHP = maxHP;
     this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
     this.hp = this.maxHP;
     this.maxShields = calculateFinalStat(
@@ -246,6 +250,20 @@ export class CombatEntity extends PhysicsObject {
       this.baseStatAdjustments,
       ...this.buffs.map(({ stats }) => stats).filter(isDefined),
     ]);
+
+    // recalculate max HP
+    const newMaxHP = calculateFinalStat(
+      "maxHP",
+      [],
+      this.baseHP,
+      this.statAdjustments
+    );
+    if (newMaxHP !== this.maxHP) {
+      // keep current HP at the same percentage
+      const currentPercentage = this.hp / this.maxHP;
+      this.maxHP = newMaxHP;
+      this.hp = this.maxHP * currentPercentage;
+    }
 
     // update health bar visibility and size
     // fixme: less duplication or whatever
