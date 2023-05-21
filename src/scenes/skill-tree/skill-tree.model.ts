@@ -52,3 +52,15 @@ export interface ClassNode extends BaseSkillTreeNode {
 export type SkillTreeNode = PassiveNode | WeaponNode | TechNode | ClassNode;
 
 export type SkillTree = SkillTreeNode[];
+
+export interface Class {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly skillTree: SkillTree;
+  readonly prerequisites?: {
+    readonly red?: number;
+    readonly green?: number;
+    readonly blue?: number;
+  };
+}

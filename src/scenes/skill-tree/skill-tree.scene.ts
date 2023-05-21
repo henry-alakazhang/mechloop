@@ -3,7 +3,10 @@ import { PlayerService } from "../../services/player.service";
 import { NodeTooltip } from "./objects/node-tooltip";
 import { TreeNodeGraphic } from "./objects/tree-node";
 import { SkillTree } from "./skill-tree.model";
-import { tier0 } from "./trees/tier-0-ship";
+
+interface SkillTreeSceneConfig {
+  tree: SkillTree;
+}
 
 /**
  * This offset is used to shift the entire graphic to the outside of the arc,
@@ -14,6 +17,9 @@ export const TREE_OFFSET = 200;
  * The height of each layer in the tree (each arc).
  */
 export const LAYER_HEIGHT = 80;
+
+export const TREE_WIDTH = 900;
+export const TREE_HEIGHT = 600;
 
 /**
  * Scene for displaying skill tree(s) and allocating skill points.
@@ -38,10 +44,10 @@ export class SkillTreeScene extends Container {
 
   treeUpdateListener?: (selectedNodes: SkillTree) => void;
 
-  constructor() {
+  constructor({ tree }: SkillTreeSceneConfig) {
     super();
 
-    this.tree = tier0;
+    this.tree = tree;
     this.treeGraphics = {};
     this.connectionGraphics = {};
 
@@ -77,7 +83,13 @@ export class SkillTreeScene extends Container {
     const background = this.addChild(
       new Graphics()
         .beginFill(0x000000)
-        .drawRoundedRect(-450, -350, 900, 600, 5)
+        .drawRoundedRect(
+          -TREE_WIDTH / 2,
+          -TREE_HEIGHT / 2,
+          TREE_WIDTH,
+          TREE_HEIGHT,
+          5
+        )
     );
     background.cursor = "default";
     // addChild at the end so it goes into index 0.
@@ -195,10 +207,13 @@ export class SkillTreeScene extends Container {
   }
 
   showTooltip(node: TreeNodeGraphic) {
-    const position = node.getBounds();
-    // Round so the tooltip text isn't blurred by antialiasing
-    this.tooltip.x = Math.round(position.right - this.x);
-    this.tooltip.y = Math.round(position.bottom - this.y);
+    // the tree nodes are rotated and shifted, so their `position` isn't where they're displayed.
+    // we need to calculate relative location based off their global bounds and this scene's location.
+    const nodePos = node.getBounds();
+    const thisPos = this.getGlobalPosition();
+    // global node position - global scene position = relative node position
+    this.tooltip.x = Math.round(nodePos.right - thisPos.x);
+    this.tooltip.y = Math.round(nodePos.bottom - thisPos.y);
 
     this.tooltip.setNode(node.skillTreeNode);
 

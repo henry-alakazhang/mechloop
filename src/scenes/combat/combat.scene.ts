@@ -10,13 +10,13 @@ import { Group } from "tweedle.js";
 import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
 import { PlayerService } from "../../services/player.service";
+import { SkillMenuScene } from "../skill-tree/skill-menu.scene";
 import {
   PassiveNode,
   SkillTree,
   TechNode,
   WeaponNode,
 } from "../skill-tree/skill-tree.model";
-import { SkillTreeScene } from "../skill-tree/skill-tree.scene";
 import { tier0 } from "../skill-tree/trees/tier-0-ship";
 import {
   calculateFinalStat,
@@ -57,7 +57,7 @@ export class CombatScene extends Container {
   private activeSkillsText: Text;
 
   private pausedText: Text;
-  private skillTreeScene: SkillTreeScene;
+  private skillTreeScene: SkillMenuScene;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
@@ -152,9 +152,9 @@ export class CombatScene extends Container {
     this.pausedText.visible = false;
     this.addChild(this.pausedText);
 
-    this.skillTreeScene = new SkillTreeScene();
-    this.skillTreeScene.x = 750;
-    this.skillTreeScene.y = 400;
+    this.skillTreeScene = new SkillMenuScene();
+    this.skillTreeScene.x = 300;
+    this.skillTreeScene.y = 100;
     this.skillTreeScene.interactive = true;
     // don't add the skill tree as a child; it gets added and removed when the game is paused
 
