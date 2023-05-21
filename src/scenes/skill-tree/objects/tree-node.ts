@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import { SkillTreeNode } from "../skill-tree.model";
-import { LAYER_HEIGHT, TREE_OFFSET } from "../skill-tree.scene";
+import { LAYER_HEIGHT, TREE_OFFSET } from "./skill-tree";
 
 interface TreeNodeConfig {
   readonly node: SkillTreeNode;

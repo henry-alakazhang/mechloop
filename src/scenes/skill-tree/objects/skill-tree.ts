@@ -1,8 +1,8 @@
 import { Container, Graphics, Text } from "pixi.js";
-import { PlayerService } from "../../services/player.service";
-import { NodeTooltip } from "./objects/node-tooltip";
-import { TreeNodeGraphic } from "./objects/tree-node";
-import { SkillTree } from "./skill-tree.model";
+import { PlayerService } from "../../../services/player.service";
+import { SkillTree } from "../skill-tree.model";
+import { NodeTooltip } from "./node-tooltip";
+import { TreeNodeGraphic } from "./tree-node";
 
 interface SkillTreeSceneConfig {
   tree: SkillTree;
@@ -26,7 +26,7 @@ export const TREE_HEIGHT = 600;
  *
  * Origin (0,0) is in the center of the skill tree area
  */
-export class SkillTreeScene extends Container {
+export class SkillTreeObject extends Container {
   public tree: SkillTree;
 
   public treeGraphics: {

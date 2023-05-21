@@ -1,7 +1,7 @@
 import { Container, Graphics, Ticker } from "pixi.js";
 import { Easing, Group, Tween } from "tweedle.js";
+import { SkillTreeObject, TREE_HEIGHT, TREE_WIDTH } from "./objects/skill-tree";
 import { Class } from "./skill-tree.model";
-import { SkillTreeScene, TREE_HEIGHT, TREE_WIDTH } from "./skill-tree.scene";
 import { tier0 } from "./trees/tier-0-ship";
 
 /**
@@ -20,7 +20,7 @@ export class SkillMenuScene extends Container {
   ];
 
   private grid: Container;
-  private trees: { [k: string]: SkillTreeScene };
+  private trees: { [k: string]: SkillTreeObject };
 
   private animationGroup: Group;
 
@@ -37,7 +37,7 @@ export class SkillMenuScene extends Container {
     this.grid = this.addChild(new Container());
     this.classes.forEach((c, idx) => {
       const tree = this.grid.addChild(
-        new SkillTreeScene({ tree: c.skillTree })
+        new SkillTreeObject({ tree: c.skillTree })
       );
       tree.width = 300;
       tree.height = 200;
@@ -75,7 +75,7 @@ export class SkillMenuScene extends Container {
     });
   }
 
-  switchToTree(tree: SkillTreeScene) {
+  switchToTree(tree: SkillTreeObject) {
     this.grid.visible = false;
     // explicitly add the tree as a child to the main scene so it can be "scene" hehehoohoo
     this.addChild(tree);
