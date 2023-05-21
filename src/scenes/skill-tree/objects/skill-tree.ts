@@ -22,7 +22,7 @@ export const TREE_WIDTH = 900;
 export const TREE_HEIGHT = 600;
 
 /**
- * Scene for displaying skill tree(s) and allocating skill points.
+ * Representation of a skill tree which can be used to allocate skill points.
  *
  * Origin (0,0) is in the center of the skill tree area
  */

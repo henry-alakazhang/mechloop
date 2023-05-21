@@ -5,7 +5,7 @@ import { Class } from "./skill-tree.model";
 import { tier0 } from "./trees/tier-0-ship";
 
 /**
- * Scene for displaying available skill trees to choose from
+ * Scene for displaying available skill trees to choose from.
  *
  * Origin (0,0) is in the top left corner.
  */

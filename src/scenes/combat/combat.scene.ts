@@ -57,7 +57,7 @@ export class CombatScene extends Container {
   private activeSkillsText: Text;
 
   private pausedText: Text;
-  private skillTreeScene: SkillMenuScene;
+  private skillMenuScene: SkillMenuScene;
 
   private shootTime = 0;
   private ticker = Ticker.shared.add(() => this.update());
@@ -152,10 +152,10 @@ export class CombatScene extends Container {
     this.pausedText.visible = false;
     this.addChild(this.pausedText);
 
-    this.skillTreeScene = new SkillMenuScene();
-    this.skillTreeScene.x = 300;
-    this.skillTreeScene.y = 100;
-    this.skillTreeScene.interactive = true;
+    this.skillMenuScene = new SkillMenuScene();
+    this.skillMenuScene.x = 300;
+    this.skillMenuScene.y = 100;
+    this.skillMenuScene.interactive = true;
     // don't add the skill tree as a child; it gets added and removed when the game is paused
 
     this.spawner = new Ticker().add(() => this.spawnEnemy());
@@ -304,12 +304,12 @@ export class CombatScene extends Container {
     if (this.ticker.started) {
       this.pausedText.visible = true;
       // remove and readd so it always sits on top
-      this.addChild(this.skillTreeScene);
+      this.addChild(this.skillMenuScene);
       this.ticker.stop();
       this.spawner.stop();
     } else {
       this.pausedText.visible = false;
-      this.removeChild(this.skillTreeScene);
+      this.removeChild(this.skillMenuScene);
       this.ticker.start();
       this.spawner.start();
     }
