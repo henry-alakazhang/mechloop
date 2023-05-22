@@ -82,14 +82,17 @@ export class CombatEntity extends PhysicsObject {
   public maxShields = 0;
   /** Current shield value */
   public shields = 0;
+  /** Base shields, used to calculate max shields with stat adjustments */
+  private readonly baseShields;
+
   /**
    * Time after taking damage before shields start recharging. (ms)
    */
-  public shieldRechargeThreshold = 2000;
+  public shieldRechargeThreshold = 4000;
   /**
    * Percentage of max shields recharged per second.
    */
-  public shieldRechargeRate = 0.5;
+  public shieldRechargeRate = 0.25;
   /**
    * Amount of time since the entity last took damage.
    * Used for shield recharge and probably other things.
@@ -163,6 +166,7 @@ export class CombatEntity extends PhysicsObject {
     this.baseHP = maxHP;
     this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
     this.hp = this.maxHP;
+    this.baseShields = maxShields;
     this.maxShields = calculateFinalStat(
       "maxShields",
       [],
@@ -233,6 +237,16 @@ export class CombatEntity extends PhysicsObject {
       this.maxHP = newMaxHP;
       this.hp = this.maxHP * currentPercentage;
     }
+
+    // recalculate max shields
+    const newMaxShields = calculateFinalStat(
+      "maxShields",
+      [],
+      this.baseShields,
+      this.statAdjustments
+    );
+    // shields can regenerate, so we don't need to adjust current value.
+    this.maxShields = newMaxShields;
 
     // update shield recharge
     if (
