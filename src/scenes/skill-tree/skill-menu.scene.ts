@@ -73,6 +73,8 @@ export class SkillMenuScene extends Container {
         this.switchToTree(tree);
       });
     });
+
+    this.switchToTree(this.trees[this.classes[0].id]);
   }
 
   switchToTree(tree: SkillTreeObject) {
