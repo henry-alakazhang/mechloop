@@ -2,6 +2,11 @@ import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
 import { StatAdjustments } from "../combat/combat.model";
 
+/** Class IDs. Need to be `tN-<identifier>` */
+export type ClassId = `t${number}-${string}`;
+/** Skill IDs. Need to be <classId>|<identifier> */
+export type SkillId = `${ClassId}|${string}`;
+
 /**
  * A node on a skill tree.
  *
@@ -11,10 +16,10 @@ import { StatAdjustments } from "../combat/combat.model";
  * A node can be activated if any of its connected nodes are activated
  */
 export interface BaseSkillTreeNode {
-  /** Unique identifier for the node */
-  readonly id: string;
+  /** Identifier for the node. Prepended with class ID and has to be unique across all skill trees. */
+  readonly id: SkillId;
   /** Connected (prerequisite) nodes on the skill tree */
-  readonly connected: string[];
+  readonly connected: SkillId[];
   /** Vertical depth for display. Starts at 0 and goes up. */
   readonly depth: number;
   /** Horizontal index for display. 0 is vertical, negative goes left and positive goes right. */
@@ -54,7 +59,7 @@ export type SkillTreeNode = PassiveNode | WeaponNode | TechNode | ClassNode;
 export type SkillTree = SkillTreeNode[];
 
 export interface Class {
-  readonly id: string;
+  readonly id: ClassId;
   readonly name: string;
   readonly description: string;
   readonly skillTree: SkillTree;

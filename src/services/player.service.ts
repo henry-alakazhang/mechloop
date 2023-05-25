@@ -1,4 +1,5 @@
-import { SkillTreeNode } from "../scenes/skill-tree/skill-tree.model";
+import { SkillId, SkillTreeNode } from "../scenes/skill-tree/skill-tree.model";
+import { tier0 } from "../scenes/skill-tree/trees";
 import { Observable } from "../util/observable";
 
 /**
@@ -15,19 +16,22 @@ export class PlayerService {
   public static skillPoints = new Observable(0);
 
   /**
-   * A map of allocated nodes in all skill trees.
-   * Will only ever have allocated nodes as keys, so is safe to iterate over.
+   * A map of allocated nodes in all skill trees, mapping ID to the node itself.
+   * Will only ever have allocated nodes as keys/values, so is safe to iterate over.
    */
-  public static allocatedNodes = new Observable<{ [k: string]: true }>({
-    base: true,
+  public static allocatedNodes = new Observable<{
+    [k: SkillId]: SkillTreeNode;
+  }>({
+    // first node of tier 0 always allocated
+    [tier0[0].id]: tier0[0],
   });
   public static activatedTrees = new Observable<{ [k: string]: true }>({});
 
-  public static allocateNode(nodeId: string) {
+  public static allocateNode(node: SkillTreeNode) {
     if (this.skillPoints.currentValue >= 0) {
       this.skillPoints.update((p) => p - 1);
       this.allocatedNodes.update((state) => {
-        state[nodeId] = true;
+        state[node.id] = node;
         return state;
       });
     }

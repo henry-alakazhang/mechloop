@@ -28,7 +28,7 @@ export type Stat =
 export type Tag = {
   damage: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
   rof: never;
-  projectileHP: "kinetic" | "explosive";
+  projectileHP: "kinetic" | "explosive" | "energy";
   critChance: never;
   critDamage: never;
   maxHP: never;

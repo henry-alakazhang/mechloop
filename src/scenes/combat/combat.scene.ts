@@ -17,7 +17,6 @@ import {
   TechNode,
   WeaponNode,
 } from "../skill-tree/skill-tree.model";
-import { tier0 } from "../skill-tree/trees/tier-0-ship";
 import {
   calculateFinalStat,
   flattenStatAdjustments,
@@ -238,8 +237,7 @@ export class CombatScene extends Container {
 
     PlayerService.allocatedNodes.subscribe(
       (selected) => {
-        const tree = tier0;
-        this.handleSkillTreeUpdate(tree.filter((node) => selected[node.id]));
+        this.handleSkillTreeUpdate(Object.values(selected));
       },
       { emitImmediately: true }
     );

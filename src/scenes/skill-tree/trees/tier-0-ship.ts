@@ -4,7 +4,7 @@ import { SkillTree } from "../skill-tree.model";
 
 export const tier0: SkillTree = [
   {
-    id: "base",
+    id: "t0-ship|base",
     connected: [],
     depth: 0,
     index: 0,
@@ -12,8 +12,8 @@ export const tier0: SkillTree = [
     weapon: WEAPONS.cannon,
   },
   {
-    id: "red-1",
-    connected: ["base"],
+    id: "t0-ship|red-1",
+    connected: ["t0-ship|base"],
     depth: 1,
     index: -3,
     name: "Ship Rating +",
@@ -25,8 +25,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "red-2-defensive",
-    connected: ["red-1"],
+    id: "t0-ship|red-2-defensive",
+    connected: ["t0-ship|red-1"],
     depth: 2,
     index: -4,
     name: "Armour",
@@ -35,8 +35,8 @@ export const tier0: SkillTree = [
     statAdjustments: { armour: { global: { addition: 10, multiplier: 0 } } },
   },
   {
-    id: "red-2-offensive",
-    connected: ["red-1"],
+    id: "t0-ship|red-2-offensive",
+    connected: ["t0-ship|red-1"],
     depth: 2,
     index: -2,
     name: "Firepower",
@@ -47,8 +47,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "red-capstone",
-    connected: ["red-2-defensive", "red-2-offensive"],
+    id: "t0-ship|red-capstone",
+    connected: ["t0-ship|red-2-defensive", "t0-ship|red-2-offensive"],
     depth: 3,
     index: -3,
     type: "tech",
@@ -56,8 +56,8 @@ export const tier0: SkillTree = [
     tech: ACTIVE_SKILLS.reinforce,
   },
   {
-    id: "green-1",
-    connected: ["base"],
+    id: "t0-ship|green-1",
+    connected: ["t0-ship|base"],
     depth: 1,
     index: 0,
     name: "Pilot Rating +",
@@ -69,8 +69,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "green-2-defensive",
-    connected: ["green-1"],
+    id: "t0-ship|green-2-defensive",
+    connected: ["t0-ship|green-1"],
     depth: 2,
     index: -1,
     name: "Evasion",
@@ -81,8 +81,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "green-2-offensive",
-    connected: ["green-1"],
+    id: "t0-ship|green-2-offensive",
+    connected: ["t0-ship|green-1"],
     depth: 2,
     index: 1,
     name: "Rate of Fire",
@@ -93,8 +93,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "green-capstone",
-    connected: ["green-2-defensive", "green-2-offensive"],
+    id: "t0-ship|green-capstone",
+    connected: ["t0-ship|green-2-defensive", "t0-ship|green-2-offensive"],
     depth: 3,
     index: 0,
     type: "tech",
@@ -102,8 +102,8 @@ export const tier0: SkillTree = [
     tech: ACTIVE_SKILLS.evasiveManeuvers,
   },
   {
-    id: "blue-1",
-    connected: ["base"],
+    id: "t0-ship|blue-1",
+    connected: ["t0-ship|base"],
     depth: 1,
     index: 3,
     name: "Tech Rating +",
@@ -115,8 +115,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "blue-2-defensive",
-    connected: ["blue-1"],
+    id: "t0-ship|blue-2-defensive",
+    connected: ["t0-ship|blue-1"],
     depth: 2,
     index: 2,
     name: "Energy Shields",
@@ -127,8 +127,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "blue-2-offensive",
-    connected: ["blue-1"],
+    id: "t0-ship|blue-2-offensive",
+    connected: ["t0-ship|blue-1"],
     depth: 2,
     index: 4,
     name: "Tech Recovery",
@@ -139,8 +139,8 @@ export const tier0: SkillTree = [
     },
   },
   {
-    id: "blue-capstone",
-    connected: ["blue-2-defensive", "blue-2-offensive"],
+    id: "t0-ship|blue-capstone",
+    connected: ["t0-ship|blue-2-defensive", "t0-ship|blue-2-offensive"],
     depth: 3,
     index: 3,
     type: "tech",

@@ -69,12 +69,16 @@ export class SkillTreeObject extends Container {
     // update various visual states on node selection
     PlayerService.allocatedNodes.subscribe((nodes) => {
       Object.keys(nodes).forEach((id) => {
-        this.treeGraphics[id].selected = true;
-        this.treeGraphics[id].cursor = "default";
-        this.connectionGraphics[id].forEach((connection) => {
-          connection[0].alpha = 1;
-          connection[1].alpha = 1;
-        });
+        // fixme: this iterates over every allocated node for every tree
+        // seems a bit inefficient
+        if (id in this.treeGraphics) {
+          this.treeGraphics[id].selected = true;
+          this.treeGraphics[id].cursor = "default";
+          this.connectionGraphics[id].forEach((connection) => {
+            connection[0].alpha = 1;
+            connection[1].alpha = 1;
+          });
+        }
       });
     });
 
@@ -109,7 +113,7 @@ export class SkillTreeObject extends Container {
       const currentNode = this.addChild(
         new TreeNodeGraphic({
           node: skill,
-          selected: selected[skill.id],
+          selected: skill.id in selected,
         })
       );
       currentNode.interactive = true;
@@ -239,7 +243,7 @@ export class SkillTreeObject extends Container {
   toggleAllocation(node: TreeNodeGraphic) {
     if (!node.selected) {
       if (PlayerService.canAllocate(node.skillTreeNode)) {
-        PlayerService.allocateNode(node.skillTreeNode.id);
+        PlayerService.allocateNode(node.skillTreeNode);
       }
     } else {
       // can only unallocate if all of the connected nodes are still attached to the tree

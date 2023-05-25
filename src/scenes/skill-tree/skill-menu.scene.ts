@@ -2,6 +2,7 @@ import { Container, Graphics, Ticker } from "pixi.js";
 import { Easing, Group, Tween } from "tweedle.js";
 import { SkillTreeObject, TREE_HEIGHT, TREE_WIDTH } from "./objects/skill-tree";
 import { Class } from "./skill-tree.model";
+import { tier1red } from "./trees";
 import { tier0 } from "./trees/tier-0-ship";
 
 /**
@@ -12,10 +13,16 @@ import { tier0 } from "./trees/tier-0-ship";
 export class SkillMenuScene extends Container {
   private classes: Class[] = [
     {
-      id: "tier0",
+      id: "t0-ship",
       name: "JOURNEYMAN-class",
       description: "A basic mech equipped with a rotary cannon.",
       skillTree: tier0,
+    },
+    {
+      id: "t1-red",
+      name: "RAIDER-class",
+      description: "A heavily-armoured mech equipped with a missile system.",
+      skillTree: tier1red,
     },
   ];
 
@@ -74,7 +81,7 @@ export class SkillMenuScene extends Container {
       });
     });
 
-    this.switchToTree(this.trees[this.classes[0].id]);
+    this.switchToTree(this.trees[this.classes[1].id]);
   }
 
   switchToTree(tree: SkillTreeObject) {
