@@ -347,12 +347,12 @@ export class CombatScene extends Container {
       // cooldowns are displayed as text atm, making it impossible to judge how long they have left.
       // instead, we change the actual cooldown based on recharge speed so it's more clear.
       // FIXME: should move it back to the original way once cooldowns are displayed graphically.
-      const cdr = calculateFinalStat(
-        "rechargeSpeed",
-        skill.tags,
-        1,
-        this.player.statAdjustments
-      );
+      const cdr = calculateFinalStat({
+        stat: "rechargeSpeed",
+        tags: skill.tags,
+        baseValue: 1,
+        adjustments: this.player.statAdjustments,
+      });
       this.activeSkillCooldowns[index] = (1 / cdr) * skill.cooldown;
     }
   }
@@ -393,12 +393,12 @@ export class CombatScene extends Container {
     );
 
     const weapon = this.weapons[this.selectedWeapon];
-    const finalRof = calculateFinalStat(
-      "rof",
-      [],
-      weapon.rof,
-      this.player.statAdjustments
-    );
+    const finalRof = calculateFinalStat({
+      stat: "rof",
+      tags: weapon.tags,
+      baseValue: weapon.rof,
+      adjustments: this.player.statAdjustments,
+    });
 
     // Fire if able
     if (this.shootTime <= 60_000 / finalRof) {

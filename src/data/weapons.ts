@@ -1,5 +1,5 @@
 import { Easing, Tween } from "tweedle.js";
-import { Tag } from "../scenes/combat/combat.model";
+import { WeaponTag } from "../scenes/combat/combat.model";
 import { CombatScene } from "../scenes/combat/combat.scene";
 import { PhysicsObject } from "../scenes/combat/objects/physics-object";
 import { PlayerShip } from "../scenes/combat/objects/player-ship";
@@ -17,7 +17,7 @@ export interface Weapon {
   /** Damage type on hit */
   readonly damageType: "kinetic" | "energy" | "explosive";
   /** Damage tags for calculating buffs */
-  readonly damageTags: Tag["damage"][];
+  readonly tags: WeaponTag[];
   /** Projectile sped (if applicable) */
   readonly projectileSpeed?: number;
   /**
@@ -40,7 +40,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     rof: 270,
     damage: 6,
     damageType: "kinetic",
-    damageTags: ["kinetic", "projectile"],
+    tags: ["kinetic", "projectile"],
     projectileSpeed: 10,
     shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [
@@ -59,7 +59,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     rof: 90,
     damage: 1, // explosion has separate damage
     damageType: "explosive",
-    damageTags: ["explosive", "projectile"],
+    tags: ["explosive", "projectile"],
     projectileSpeed: 6,
     shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [
@@ -99,7 +99,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
         ...WEAPONS.missile,
         damage: 10,
         onHit: undefined,
-        damageTags: ["explosive"],
+        tags: ["explosive"],
       };
       explosion.scale;
       g.parent.addChild(explosion);
@@ -117,7 +117,7 @@ export const WEAPONS: { [k: string]: Weapon } = {
     damage: 4,
     rof: 150,
     damageType: "energy",
-    damageTags: ["energy"],
+    tags: ["energy"],
     projectileSpeed: 40,
     shoot(shooter: PlayerShip, to: { x: number; y: number }) {
       return [

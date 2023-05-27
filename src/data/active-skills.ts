@@ -1,5 +1,5 @@
 import { Tween } from "tweedle.js";
-import { calculateFinalStat } from "../scenes/combat/combat.model";
+import { SkillTag, calculateFinalStat } from "../scenes/combat/combat.model";
 import { CombatEntity } from "../scenes/combat/objects/entity";
 import { PhysicsObject } from "../scenes/combat/objects/physics-object";
 import { PlayerShip } from "../scenes/combat/objects/player-ship";
@@ -17,7 +17,7 @@ export interface ActiveSkill {
   /** Base time between usages (ms) */
   readonly cooldown: number;
   /** Tags for calculating buffs (to damage, cooldown, etc) */
-  readonly tags: ("movement" | "defensive")[];
+  readonly tags: SkillTag[];
   /**
    * Use the skill.
    * Returns any created projectiles or entities.
@@ -38,12 +38,11 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
     tags: ["defensive"],
     use: (user: PlayerShip) => {
       // set armour to current max armour
-      user.tempArmour = calculateFinalStat(
-        "armour",
-        [],
-        user.armour,
-        user.statAdjustments
-      );
+      user.tempArmour = calculateFinalStat({
+        stat: "armour",
+        baseValue: user.armour,
+        adjustments: user.statAdjustments,
+      });
       // add a buff to clean up after 6s
       user.buffs.push({
         name: "Armour Reinforcement",

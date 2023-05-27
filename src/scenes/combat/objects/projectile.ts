@@ -44,12 +44,12 @@ export class Projectile extends PhysicsObject {
 
     this.owner = config.owner;
     this.source = config.source;
-    this.hp = calculateFinalStat(
-      "projectileHP",
-      [],
-      1,
-      this.owner.statAdjustments
-    );
+    this.hp = calculateFinalStat({
+      stat: "projectileHP",
+      tags: this.source.tags,
+      baseValue: 1,
+      adjustments: this.owner.statAdjustments,
+    });
   }
 
   onCollide(other: PhysicsObject) {
@@ -63,30 +63,30 @@ export class Projectile extends PhysicsObject {
     // deal self damage to other object
     // TODO: move this to some kind of helper file for calculating damage
     if (other instanceof CombatEntity) {
-      let finalDamage = calculateFinalStat(
-        "damage",
-        this.source.damageTags,
-        this.source.damage,
-        this.owner.statAdjustments
-      );
+      let finalDamage = calculateFinalStat({
+        stat: "damage",
+        tags: this.source.tags,
+        baseValue: this.source.damage,
+        adjustments: this.owner.statAdjustments,
+      });
       if (finalDamage > 0) {
         // TODO: make this visible
-        const finalCritChance = calculateFinalStat(
-          "critChance",
-          [],
-          this.owner.critChance,
-          this.owner.statAdjustments
-        );
-        const finalCritDamage = calculateFinalStat(
-          "critDamage",
-          [],
-          this.owner.critDamage,
-          this.owner.statAdjustments
-        );
+        const finalCritChance = calculateFinalStat({
+          stat: "critChance",
+          tags: this.source.tags,
+          baseValue: this.owner.critChance,
+          adjustments: this.owner.statAdjustments,
+        });
+        const finalCritDamage = calculateFinalStat({
+          stat: "critDamage",
+          tags: this.source.tags,
+          baseValue: this.owner.critDamage,
+          adjustments: this.owner.statAdjustments,
+        });
         if (Math.random() <= finalCritChance) {
           finalDamage *= finalCritDamage;
         }
-        other.takeDamage(finalDamage, this.source.damageTags);
+        other.takeDamage(finalDamage, this.source.tags);
       }
       this.source.onHit?.(this);
     }

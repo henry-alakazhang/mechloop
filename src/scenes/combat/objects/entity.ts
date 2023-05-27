@@ -1,6 +1,7 @@
 import { Tween } from "tweedle.js";
 import { isDefined } from "../../../util";
 import {
+  DamageTag,
   StatAdjustments,
   calculateFinalStat,
   flattenStatAdjustments,
@@ -164,15 +165,18 @@ export class CombatEntity extends PhysicsObject {
     this.buffs = [];
 
     this.baseHP = maxHP;
-    this.maxHP = calculateFinalStat("maxHP", [], maxHP, statAdjustments);
+    this.maxHP = calculateFinalStat({
+      stat: "maxHP",
+      baseValue: maxHP,
+      adjustments: statAdjustments,
+    });
     this.hp = this.maxHP;
     this.baseShields = maxShields;
-    this.maxShields = calculateFinalStat(
-      "maxShields",
-      [],
-      maxShields,
-      statAdjustments
-    );
+    this.maxShields = calculateFinalStat({
+      stat: "maxShields",
+      baseValue: maxShields,
+      adjustments: statAdjustments,
+    });
     this.shields = this.maxShields;
 
     // if `showHealthBar` is set, use it.
@@ -225,12 +229,11 @@ export class CombatEntity extends PhysicsObject {
     ]);
 
     // recalculate max HP
-    const newMaxHP = calculateFinalStat(
-      "maxHP",
-      [],
-      this.baseHP,
-      this.statAdjustments
-    );
+    const newMaxHP = calculateFinalStat({
+      stat: "maxHP",
+      baseValue: this.baseHP,
+      adjustments: this.statAdjustments,
+    });
     if (newMaxHP !== this.maxHP) {
       // keep current HP at the same percentage
       const currentPercentage = this.hp / this.maxHP;
@@ -239,12 +242,11 @@ export class CombatEntity extends PhysicsObject {
     }
 
     // recalculate max shields
-    const newMaxShields = calculateFinalStat(
-      "maxShields",
-      [],
-      this.baseShields,
-      this.statAdjustments
-    );
+    const newMaxShields = calculateFinalStat({
+      stat: "maxShields",
+      baseValue: this.baseShields,
+      adjustments: this.statAdjustments,
+    });
     // shields can regenerate, so we don't need to adjust current value.
     this.maxShields = newMaxShields;
 
@@ -272,14 +274,14 @@ export class CombatEntity extends PhysicsObject {
     // TODO: implement momentum/knockback and prevent objects from sitting inside each other
   }
 
-  public takeDamage(damage: number, tags: string[] = []) {
+  public takeDamage(damage: number, tags: DamageTag[] = []) {
     // Step 0: Apply avoidances
-    const finalAvoidance = calculateFinalStat(
-      "avoidance",
-      tags as any, // fixme: type this properly
-      0,
-      this.statAdjustments
-    );
+    const finalAvoidance = calculateFinalStat({
+      stat: "avoidance",
+      tags,
+      baseValue: 0,
+      adjustments: this.statAdjustments,
+    });
     if (Math.random() < finalAvoidance) {
       // do nothing; take no damage; show no effects
       return;
@@ -289,18 +291,16 @@ export class CombatEntity extends PhysicsObject {
 
     // Step 2: Calculate and apply defenses:
     // Evasion:
-    const finalEvadeChance = calculateFinalStat(
-      "evadeChance",
-      [],
-      this.evadeChance,
-      this.statAdjustments
-    );
-    const finalEvadeEffect = calculateFinalStat(
-      "evadeEffect",
-      [],
-      this.evadeEffect,
-      this.statAdjustments
-    );
+    const finalEvadeChance = calculateFinalStat({
+      stat: "evadeChance",
+      baseValue: this.evadeChance,
+      adjustments: this.statAdjustments,
+    });
+    const finalEvadeEffect = calculateFinalStat({
+      stat: "evadeEffect",
+      baseValue: this.evadeEffect,
+      adjustments: this.statAdjustments,
+    });
     // Evade chance stacks past 100%; each one applies multiple times.
     const evasionStacks = Math.floor(finalEvadeChance);
     let evadedDamageMult = (1 - finalEvadeEffect) ** evasionStacks;
@@ -311,7 +311,11 @@ export class CombatEntity extends PhysicsObject {
 
     // Armour:
     const finalArmour = Math.min(
-      calculateFinalStat("armour", [], this.armour, this.statAdjustments),
+      calculateFinalStat({
+        stat: "armour",
+        baseValue: this.armour,
+        adjustments: this.statAdjustments,
+      }),
       this.maxHP
     );
     let armourDamageReduction = 0;

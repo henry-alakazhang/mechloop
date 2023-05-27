@@ -64,9 +64,7 @@ export class NodeTooltip extends Container {
         break;
       case "weapon":
         this.titleText.text = node.weapon.name;
-        this.descriptionText.text = `Weapon (${node.weapon.damageTags.join(
-          ", "
-        )})
+        this.descriptionText.text = `Weapon (${node.weapon.tags.join(", ")})
 Firepower: ${node.weapon.damage} / Rate of Fire: ${node.weapon.rof}rpm\n`;
         break;
       case "tech":

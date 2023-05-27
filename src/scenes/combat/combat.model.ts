@@ -18,6 +18,10 @@ export type Stat =
   | "armour"
   | "rechargeSpeed";
 
+export type WeaponTag = "kinetic" | "explosive" | "energy" | "projectile";
+export type DamageTag = WeaponTag | "collision";
+export type SkillTag = "movement" | "defensive";
+
 /**
  * Tags for stat modifiers. Each stat has different available tags,
  * and adjustments can be applied to these stats based on these tags
@@ -26,18 +30,18 @@ export type Stat =
  * "+10% Kinetic Damage" would be applied to the "kinetic" tag.
  */
 export type Tag = {
-  damage: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
-  rof: never;
-  projectileHP: "kinetic" | "explosive" | "energy";
-  critChance: never;
-  critDamage: never;
+  damage: DamageTag;
+  rof: WeaponTag;
+  projectileHP: WeaponTag;
+  critChance: DamageTag;
+  critDamage: DamageTag;
   maxHP: never;
   maxShields: never;
   evadeChance: never;
   evadeEffect: never;
-  avoidance: "kinetic" | "explosive" | "energy" | "projectile" | "collision";
+  avoidance: DamageTag;
   armour: never;
-  rechargeSpeed: "movement" | "defensive";
+  rechargeSpeed: SkillTag;
 };
 
 /**
@@ -106,12 +110,20 @@ export function flattenStatAdjustments(
   );
 }
 
-export function calculateFinalStat<S extends Stat>(
-  stat: S,
-  tags: Tag[S][],
-  baseValue: number,
-  adjustments: StatAdjustments
-) {
+export function calculateFinalStat<S extends Stat>({
+  stat,
+  baseValue,
+  adjustments,
+  tags = [],
+}: {
+  stat: S;
+  baseValue: number;
+  adjustments: StatAdjustments;
+} & (Tag[S] extends never
+  ? // this forces `tags` to be undefined if there are no valid tags for the stat.
+    // otherwise, it has to be provided and have valid values
+    { tags?: never }
+  : { tags: Tag[S][] })) {
   let statAdjustments = adjustments[stat];
   if (statAdjustments) {
     let totalMultiplier = 1;

@@ -68,7 +68,11 @@ export class HpBar extends Graphics {
 
     // calculate actual armour numbers
     const finalArmour = Math.min(
-      calculateFinalStat("armour", [], armour, statAdjustments),
+      calculateFinalStat({
+        stat: "armour",
+        baseValue: armour,
+        adjustments: statAdjustments,
+      }),
       maxHP
     );
     const displayedArmour = Math.max(
