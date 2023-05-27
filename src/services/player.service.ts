@@ -1,4 +1,8 @@
-import { SkillId, SkillTreeNode } from "../scenes/skill-tree/skill-tree.model";
+import {
+  Class,
+  SkillId,
+  SkillTreeNode,
+} from "../scenes/skill-tree/skill-tree.model";
 import { tier0 } from "../scenes/skill-tree/trees";
 import { Observable } from "../util/observable";
 
@@ -51,10 +55,30 @@ export class PlayerService {
     );
   }
 
-  // todo: some skill tree state (tree id -> allocated passives?)
+  public static canAllocateClass(c: Class): boolean {
+    if (!c.prerequisites) {
+      return true;
+    }
 
-  /**
-   * Allocated skill tree nodes
-   */
-  // public static selectedNodes = new Observable(???);
+    // calculate total ratings by summing up colours from allocated nodes
+    // TODO: maybe inefficient to do every time we call this function?
+    const ratings = Object.values(this.allocatedNodes.currentValue).reduce(
+      (total, allocatedNode) => {
+        if (allocatedNode.colour) {
+          return {
+            ...total,
+            [allocatedNode.colour]: total[allocatedNode.colour] + 1,
+          };
+        }
+        return total;
+      },
+      { r: 0, g: 0, b: 0 }
+    );
+    return (
+      // all valid prerequisites are met
+      ratings.r >= (c.prerequisites.r ?? 0) &&
+      ratings.g >= (c.prerequisites.g ?? 0) &&
+      ratings.b >= (c.prerequisites.b ?? 0)
+    );
+  }
 }

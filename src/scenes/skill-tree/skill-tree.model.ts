@@ -18,7 +18,11 @@ export type SkillId = `${ClassId}|${string}`;
 export interface BaseSkillTreeNode {
   /** Identifier for the node. Prepended with class ID and has to be unique across all skill trees. */
   readonly id: SkillId;
-  /** Connected (prerequisite) nodes on the skill tree */
+  /**
+   * Prerequisite nodes on the skill tree.
+   * Nodes in the same tree will be connected by a line.
+   * Nodes in different trees will not (obviously)
+   */
   readonly connected: SkillId[];
   /** Vertical depth for display. Starts at 0 and goes up. */
   readonly depth: number;
@@ -64,8 +68,8 @@ export interface Class {
   readonly description: string;
   readonly skillTree: SkillTree;
   readonly prerequisites?: {
-    readonly red?: number;
-    readonly green?: number;
-    readonly blue?: number;
+    readonly r?: number;
+    readonly g?: number;
+    readonly b?: number;
   };
 }
