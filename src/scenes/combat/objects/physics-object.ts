@@ -1,5 +1,5 @@
 import { Graphics, Ticker } from "pixi.js";
-import { normalizeVector } from "../../../util/math";
+import { normalizeVector, rotateVector } from "../../../util/math";
 
 export interface PhysicsObjectConfig {
   side: "player" | "enemy";
@@ -57,7 +57,7 @@ export abstract class PhysicsObject extends Graphics {
   /**
    * Set velocity via explicit x/y velocity.
    */
-  public setVelocity(x: number, y: number): this {
+  public setVelocity({ x, y }: { x: number; y: number }): this {
     this.velocityX = x;
     this.velocityY = y;
     this.updateRotation();
@@ -65,14 +65,26 @@ export abstract class PhysicsObject extends Graphics {
   }
 
   /**
-   * Set velocity to move towards a certain point at a given speed
+   * Set velocity to move towards a certain point at a given speed,
+   * optionally with an angular deviation.
    */
-  public setVelocityTo(x: number, y: number, speed: number): this {
-    const { x: vx, y: vy } = normalizeVector(
-      { x: x - this.x, y: y - this.y },
-      speed
-    );
-    return this.setVelocity(vx, vy);
+  public setVelocityTo({
+    x,
+    y,
+    speed,
+    deviation = 0,
+  }: {
+    x: number;
+    y: number;
+    speed: number;
+    /** Angular deviation off the straight */
+    deviation?: number;
+  }): this {
+    const vector = normalizeVector({ x: x - this.x, y: y - this.y }, speed);
+    if (deviation) {
+      return this.setVelocity(rotateVector(vector, deviation));
+    }
+    return this.setVelocity(vector);
   }
 
   public setAcceleration(x: number, y: number): this {

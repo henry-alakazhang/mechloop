@@ -1,4 +1,4 @@
-import { WEAPONS } from "../../../data/weapons";
+import { missileLauncher, shotgun } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
 export const tier1red: SkillTree = [
@@ -9,7 +9,7 @@ export const tier1red: SkillTree = [
     depth: 0,
     colour: "r",
     type: "weapon",
-    weapon: WEAPONS.missile,
+    weapon: missileLauncher,
   },
   {
     id: "t1-red|damage-boost",
@@ -207,7 +207,7 @@ export const tier1red: SkillTree = [
     depth: 3,
     colour: "r",
     type: "weapon",
-    weapon: WEAPONS.shotgun,
+    weapon: shotgun,
   },
   {
     id: "t1-red|multiproj",

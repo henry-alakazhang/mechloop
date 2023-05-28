@@ -85,7 +85,7 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
     tags: ["movement"],
     use: (user: PlayerShip, { x, y }: { x: number; y: number }) => {
       // stop movement
-      user.setVelocity(0, 0);
+      user.setVelocity({ x: 0, y: 0 });
       new Tween(user)
         // Shrink to nothing
         .to({ scale: { x: 0, y: 0 } }, 150)

@@ -34,117 +34,142 @@ export interface Weapon {
   readonly onHit?: (g: Projectile) => void;
 }
 
-export const WEAPONS: { [k: string]: Weapon } = {
-  cannon: {
-    name: "TI-4-G Twin-Mounted Autocannon",
-    rof: 270,
-    damage: 6,
-    damageType: "kinetic",
-    tags: ["kinetic", "projectile"],
-    projectileSpeed: 10,
-    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-      return [
-        Projectile.shoot(
-          shooter,
-          this,
-          shooter.shootBox.getGlobalPosition(),
-          to,
-          (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
-        ),
-      ];
-    },
+export const autocannon: Weapon = {
+  name: "TI-4-G Twin-Mounted Autocannon",
+  rof: 270,
+  damage: 6,
+  damageType: "kinetic",
+  tags: ["kinetic", "projectile"],
+  projectileSpeed: 10,
+  shoot(shooter: PlayerShip, to: { x: number; y: number }) {
+    return [
+      Projectile.shoot(
+        shooter,
+        this,
+        shooter.shootBox.getGlobalPosition(),
+        to,
+        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
+      ),
+    ];
   },
-  missile: {
-    name: "G-Class Missile Launcher",
-    rof: 90,
-    damage: 1, // explosion has separate damage
-    damageType: "explosive",
-    tags: ["explosive", "projectile"],
-    projectileSpeed: 6,
-    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-      return [
-        Projectile.shoot(
-          shooter,
-          this,
-          shooter.shootBox.getGlobalPosition(),
-          to,
-          (g) =>
-            g
-              // vaguely resembles a rocket shape
-              .beginFill(0xffffff)
-              .drawPolygon([
-                { x: 6, y: 2 },
-                { x: 6, y: -1 },
-                { x: 0, y: -4 },
-                { x: 0, y: 4 },
-              ])
-              .drawCircle(6, 0, 2)
-              .endFill()
-        ),
-      ];
-    },
-    onHit: (g: Projectile) => {
-      const explosion = new Projectile({ owner: g.owner, source: g.source })
-        .beginFill(0xff0000)
-        .drawCircle(0, 0, 10)
-        .endFill();
-      explosion.x = g.x;
-      explosion.y = g.y;
-      // can hit up to 10 targets
-      explosion.hp = 10;
-      // this weapon, except it doesn't trigger the onHit explosion again
-      // and is also no longer a projectile
-      // fixme: probably a better way to do this.
-      explosion.source = {
-        ...WEAPONS.missile,
-        damage: 10,
-        onHit: undefined,
-        tags: ["explosive"],
-      };
-      explosion.scale;
-      g.parent.addChild(explosion);
-      new Tween(explosion)
-        .to({ scale: { x: 5, y: 5 }, alpha: 0.5 }, 250)
-        .easing(Easing.Exponential.Out)
-        .onComplete(() => {
-          explosion.destroy();
-        })
-        .start();
-    },
+};
+
+export const missileLauncher: Weapon = {
+  name: "G-Class Missile Launcher",
+  rof: 90,
+  damage: 1, // explosion has separate damage
+  damageType: "explosive",
+  tags: ["explosive", "projectile"],
+  projectileSpeed: 6,
+  shoot(shooter: PlayerShip, to: { x: number; y: number }) {
+    return [
+      Projectile.shoot(
+        shooter,
+        this,
+        shooter.shootBox.getGlobalPosition(),
+        to,
+        (g) =>
+          g
+            // vaguely resembles a rocket shape
+            .beginFill(0xffffff)
+            .drawPolygon([
+              { x: 6, y: 2 },
+              { x: 6, y: -1 },
+              { x: 0, y: -4 },
+              { x: 0, y: 4 },
+            ])
+            .drawCircle(6, 0, 2)
+            .endFill()
+      ),
+    ];
   },
-  arc: {
-    name: "High Impulse Arc Coil",
-    damage: 4,
-    rof: 150,
-    damageType: "energy",
-    tags: ["energy"],
-    projectileSpeed: 40,
-    shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-      return [
-        Projectile.shoot(
-          shooter,
-          this,
-          shooter.shootBox.getGlobalPosition(),
-          to,
-          (g) => {
-            g.hp = 6;
-            return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
-          }
-        ),
-      ];
-    },
-    onHit: (g) => {
-      // chain towards a new target
-      // fixme: don't assume the projectile's parent is the combat scene...
-      let scene = g.parent as CombatScene;
-      const newTarget = scene.getNearbyObject(
-        g,
-        g.side === "player" ? "enemy" : "player",
-        100
+  onHit(g: Projectile) {
+    const explosion = new Projectile({ owner: g.owner, source: g.source })
+      .beginFill(0xff0000)
+      .drawCircle(0, 0, 10)
+      .endFill();
+    explosion.x = g.x;
+    explosion.y = g.y;
+    // can hit up to 10 targets
+    explosion.hp = 10;
+    // this weapon, except it doesn't trigger the onHit explosion again
+    // and is also no longer a projectile
+    // fixme: probably a better way to do this.
+    explosion.source = {
+      ...this,
+      damage: 10,
+      onHit: undefined,
+      tags: ["explosive"],
+    };
+    explosion.scale;
+    g.parent.addChild(explosion);
+    new Tween(explosion)
+      .to({ scale: { x: 5, y: 5 }, alpha: 0.5 }, 250)
+      .easing(Easing.Exponential.Out)
+      .onComplete(() => {
+        explosion.destroy();
+      })
+      .start();
+  },
+};
+
+export const shotgun: Weapon = {
+  name: "Converted Industrial Shrapnel Ejector",
+  rof: 60,
+  damage: 2,
+  damageType: "kinetic",
+  tags: ["kinetic", "projectile"],
+  projectileSpeed: 15,
+  shoot(shooter: PlayerShip, to: { x: number; y: number }) {
+    const arr = [...Array(8)].map((_, index) => {
+      // shoots in an arc from the shootbox
+      // approx 50 degrees
+      const angle = (index - 4) * 0.12 + 0.06;
+      return Projectile.shoot(
+        shooter,
+        this,
+        shooter.shootBox.getGlobalPosition(),
+        { ...to, angle },
+        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
       );
-      if (newTarget) {
-        g.setVelocityTo(newTarget.x, newTarget.y, 40);
-      }
-    },
+    });
+    console.log(arr);
+    return arr;
+  },
+};
+
+export const arcCoil: Weapon = {
+  name: "High Impulse Arc Coil",
+  damage: 4,
+  rof: 150,
+  damageType: "energy",
+  tags: ["energy"],
+  projectileSpeed: 40,
+  shoot(shooter: PlayerShip, to: { x: number; y: number }) {
+    return [
+      Projectile.shoot(
+        shooter,
+        this,
+        shooter.shootBox.getGlobalPosition(),
+        to,
+        (g) => {
+          g.hp = 6;
+          return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
+        }
+      ),
+    ];
+  },
+  onHit: (g) => {
+    // chain towards a new target
+    // fixme: don't assume the projectile's parent is the combat scene...
+    let scene = g.parent as CombatScene;
+    const newTarget = scene.getNearbyObject(
+      g,
+      g.side === "player" ? "enemy" : "player",
+      100
+    );
+    if (newTarget) {
+      g.setVelocityTo({ x: newTarget.x, y: newTarget.y, speed: 40 });
+    }
   },
 };

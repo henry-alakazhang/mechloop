@@ -44,20 +44,20 @@ export class PlayerShip extends CombatEntity {
 
   public setDirectionX(x: -1 | 0 | 1) {
     this.directionX = x;
-    this.setVelocityTo(
-      this.x + this.directionX,
-      this.y + this.directionY,
-      this.maxSpeed
-    );
+    this.setVelocityTo({
+      x: this.x + this.directionX,
+      y: this.y + this.directionY,
+      speed: this.maxSpeed,
+    });
   }
 
   public setDirectionY(y: -1 | 0 | 1) {
     this.directionY = y;
-    this.setVelocityTo(
-      this.x + this.directionX,
-      this.y + this.directionY,
-      this.maxSpeed
-    );
+    this.setVelocityTo({
+      x: this.x + this.directionX,
+      y: this.y + this.directionY,
+      speed: this.maxSpeed,
+    });
   }
 
   protected override update(delta: number) {

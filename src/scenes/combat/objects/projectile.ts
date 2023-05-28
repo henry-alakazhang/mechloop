@@ -16,7 +16,7 @@ export class Projectile extends PhysicsObject {
     owner: CombatEntity,
     source: Weapon,
     from: { x: number; y: number },
-    to: { x: number; y: number },
+    to: { x: number; y: number; angle?: number },
     drawProjectile: (g: Projectile) => Projectile
   ): Projectile {
     const projectile = new Projectile({
@@ -26,7 +26,12 @@ export class Projectile extends PhysicsObject {
     drawProjectile(projectile);
     projectile.x = from.x;
     projectile.y = from.y;
-    projectile.setVelocityTo(to.x, to.y, source.projectileSpeed ?? 10);
+    projectile.setVelocityTo({
+      x: to.x,
+      y: to.y,
+      speed: source.projectileSpeed ?? 10,
+      deviation: to.angle,
+    });
 
     return projectile;
   }

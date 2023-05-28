@@ -322,12 +322,13 @@ export class CombatScene extends Container {
     const enemy = CombatEntity.ASTEROID(this.spawner.speed);
     enemy.x = Math.random() * 1500;
     enemy.y = Math.random() * 800;
-    enemy.setVelocityTo(
-      this.player.x,
-      this.player.y,
-      Math.ceil(3 / Math.ceil(Math.random() * enemy.maxHP + 1)) *
-        this.spawner.speed
-    );
+    enemy.setVelocityTo({
+      x: this.player.x,
+      y: this.player.y,
+      speed:
+        Math.ceil(3 / Math.ceil(Math.random() * enemy.maxHP + 1)) *
+        this.spawner.speed,
+    });
     enemy.on("destroyed", () => {
       if (enemy.hp <= 0) {
         this.score += 1;

@@ -1,5 +1,5 @@
 import { ACTIVE_SKILLS } from "../../../data/active-skills";
-import { WEAPONS } from "../../../data/weapons";
+import { autocannon } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
 export const tier0: SkillTree = [
@@ -9,7 +9,7 @@ export const tier0: SkillTree = [
     depth: 0,
     index: 0,
     type: "weapon",
-    weapon: WEAPONS.cannon,
+    weapon: autocannon,
   },
   {
     id: "t0-ship|red-1",

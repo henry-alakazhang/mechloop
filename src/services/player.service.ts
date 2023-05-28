@@ -17,7 +17,7 @@ export class PlayerService {
   /**
    * The amount of unallocated skill points the player has.
    */
-  public static skillPoints = new Observable(0);
+  public static skillPoints = new Observable(20);
 
   /**
    * A map of allocated nodes in all skill trees, mapping ID to the node itself.

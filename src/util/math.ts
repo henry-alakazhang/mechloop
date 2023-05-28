@@ -15,3 +15,15 @@ export function normalizeVector(
     y: (y / (Math.abs(x) + Math.abs(y))) * speed,
   };
 }
+
+export function rotateVector(
+  { x, y }: Coordinates,
+  angle: number
+): Coordinates {
+  return {
+    // copilot wrote this bad boy. nice.
+    // and after all the trouble i went to to google it.
+    x: x * Math.cos(angle) - y * Math.sin(angle),
+    y: x * Math.sin(angle) + y * Math.cos(angle),
+  };
+}
