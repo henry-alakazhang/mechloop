@@ -37,7 +37,7 @@ export interface Weapon {
 export const autocannon: Weapon = {
   name: "TI-4-G Twin-Mounted Autocannon",
   rof: 270,
-  damage: 6,
+  damage: 3,
   damageType: "kinetic",
   tags: ["kinetic", "projectile"],
   projectileSpeed: 10,
@@ -47,7 +47,14 @@ export const autocannon: Weapon = {
         shooter,
         this,
         shooter.shootBox.getGlobalPosition(),
-        to,
+        { ...to, angle: -0.03 },
+        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
+      ),
+      Projectile.shoot(
+        shooter,
+        this,
+        shooter.shootBox.getGlobalPosition(),
+        { ...to, angle: 0.03 },
         (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
       ),
     ];
