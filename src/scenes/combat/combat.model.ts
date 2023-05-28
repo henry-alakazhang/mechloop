@@ -60,9 +60,9 @@ export type StatAdjustments = {
     // it means the Tag type doesn't cover all the Stats.
     [t in Tag[s] | "global"]?: {
       /** Flat additions to a stat. Applied before all multipliers. */
-      addition: number;
+      addition?: number;
       /** Total multiplier to a stat. Stored as an additive percentage (eg. +20%, -20%) */
-      multiplier: number;
+      multiplier?: number;
     };
   };
 };
@@ -75,7 +75,7 @@ export type StatAdjustments = {
 type UntypedStatAdjustment = {
   [k: string]:
     | {
-        [k: string]: { addition: number; multiplier: number } | undefined;
+        [k: string]: { addition?: number; multiplier?: number } | undefined;
       }
     | undefined;
 };
@@ -92,12 +92,12 @@ export function flattenStatAdjustments(
         const accStats = untypedAcc[stat] ?? {};
         for (let tag in untypedNext[stat]) {
           // grab adjustment from the flattened accumulator (or create it if it doesn't exist)
-          const adjustments = accStats[tag] ?? {
-            addition: 0,
-            multiplier: 0,
+          const adjustments = {
+            addition: accStats[tag]?.addition ?? 0,
+            multiplier: accStats[tag]?.multiplier ?? 0,
           };
-          adjustments.addition += untypedNext[stat]![tag]!.addition;
-          adjustments.multiplier += untypedNext[stat]![tag]!.multiplier;
+          adjustments.addition += untypedNext[stat]![tag]!.addition ?? 0;
+          adjustments.multiplier += untypedNext[stat]![tag]!.multiplier ?? 0;
           accStats[tag] = adjustments;
         }
         untypedAcc[stat] = accStats;
@@ -133,8 +133,8 @@ export function calculateFinalStat<S extends Stat>({
     for (const tag of ["global" as const, ...tags]) {
       const adjustment = statAdjustments[tag];
       if (adjustment) {
-        totalMultiplier += adjustment.multiplier;
-        totalAddition += adjustment.addition;
+        totalMultiplier += adjustment.multiplier ?? 0;
+        totalAddition += adjustment.addition ?? 0;
       }
     }
 
@@ -177,22 +177,21 @@ export function getAdjustmentDescriptions(
   for (let stat in adjustments) {
     for (let tag in adjustments[stat]) {
       const adjustment = adjustments[stat]![tag]!;
-      if (adjustment.addition !== 0) {
+      const addition = adjustment.addition ?? 0;
+      const multiplier = adjustment.multiplier ?? 0;
+      if (addition !== 0) {
         // add + sign for positive numbers (negative sign is added automatically);
-        const additionSign = adjustment.addition > 0 ? "+" : "";
+        const additionSign = addition > 0 ? "+" : "";
         // add % sign for % values (< 1);
         // fixme: doesn't work if it's > 100%.
-        const valueDisplay =
-          adjustment.addition < 1
-            ? `${adjustment.addition * 100}%`
-            : adjustment.addition;
+        const valueDisplay = addition < 1 ? `${addition * 100}%` : addition;
         text += `${additionSign}${valueDisplay} to ${
           displayText[tag as Tag[Stat]]
         } ${displayText[stat as Stat]}\n`;
       }
       if (adjustment.multiplier !== 0) {
-        const multiplierSign = adjustment.multiplier > 0 ? "+" : "";
-        text += `${multiplierSign}${Math.round(adjustment.multiplier * 100)}% ${
+        const multiplierSign = multiplier > 0 ? "+" : "";
+        text += `${multiplierSign}${Math.round(multiplier * 100)}% ${
           displayText[tag as Tag[Stat]]
         } ${displayText[stat as Stat]}\n`;
       }

@@ -20,8 +20,8 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "r",
     statAdjustments: {
-      maxHP: { global: { addition: 10, multiplier: 0 } },
-      damage: { global: { addition: 1, multiplier: 0 } },
+      maxHP: { global: { addition: 10 } },
+      damage: { global: { addition: 1 } },
     },
   },
   {
@@ -32,7 +32,9 @@ export const tier0: SkillTree = [
     name: "Armour",
     type: "passive",
     colour: "r",
-    statAdjustments: { armour: { global: { addition: 10, multiplier: 0 } } },
+    statAdjustments: {
+      armour: { global: { addition: 10 } },
+    },
   },
   {
     id: "t0-ship|red-2-offensive",
@@ -43,7 +45,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "r",
     statAdjustments: {
-      damage: { global: { addition: 0, multiplier: 0.15 } },
+      damage: { global: { multiplier: 0.15 } },
     },
   },
   {
@@ -64,8 +66,8 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "g",
     statAdjustments: {
-      maxHP: { global: { addition: 10, multiplier: 0 } },
-      critChance: { global: { addition: 0.1, multiplier: 0 } },
+      maxHP: { global: { addition: 10 } },
+      critChance: { global: { addition: 0.1 } },
     },
   },
   {
@@ -77,7 +79,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "g",
     statAdjustments: {
-      evadeChance: { global: { addition: 0.15, multiplier: 0 } },
+      evadeChance: { global: { addition: 0.15 } },
     },
   },
   {
@@ -89,7 +91,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "g",
     statAdjustments: {
-      rof: { global: { addition: 0, multiplier: 0.15 } },
+      rof: { global: { multiplier: 0.15 } },
     },
   },
   {
@@ -110,7 +112,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "b",
     statAdjustments: {
-      maxHP: { global: { addition: 10, multiplier: 0 } },
+      maxHP: { global: { addition: 10 } },
       // TODO figure out stat here. area of effect?
     },
   },
@@ -123,7 +125,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "b",
     statAdjustments: {
-      maxShields: { global: { addition: 10, multiplier: 0 } },
+      maxShields: { global: { addition: 10 } },
     },
   },
   {
@@ -135,7 +137,7 @@ export const tier0: SkillTree = [
     type: "passive",
     colour: "b",
     statAdjustments: {
-      rechargeSpeed: { global: { addition: 0, multiplier: 0.15 } },
+      rechargeSpeed: { global: { multiplier: 0.15 } },
     },
   },
   {
