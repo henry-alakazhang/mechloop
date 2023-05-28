@@ -105,12 +105,12 @@ export class CombatEntity extends PhysicsObject {
    * Chance to evade attacks (cause them to glance)
    * Can scale past 1 and applies multiple times.
    */
-  public evadeChance = 0.5;
+  public evadeChance = 0.0;
   /**
    * Damage reduction for glancing hits.
    * Subtracted from the hit damage.
    */
-  public evadeEffect = 0.5;
+  public evadeEffect = 0.25;
 
   /** Chance for damage dealt by the entity to be critical (max 1) */
   public critChance = 0.0;
@@ -358,7 +358,7 @@ export class CombatEntity extends PhysicsObject {
 
     // Step 3: Calculate final damage and apply
     const finalDamage = Math.max(
-      0,
+      1,
       damage * evadedDamageMult - armourDamageReduction
     );
 
