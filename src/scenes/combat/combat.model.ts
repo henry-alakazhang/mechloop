@@ -85,31 +85,28 @@ type UntypedStatAdjustment = {
 export function flattenStatAdjustments(
   adjustments: StatAdjustments[]
 ): StatAdjustments {
-  return adjustments.reduce<StatAdjustments>(
-    (acc, next) => {
-      let untypedNext: UntypedStatAdjustment = next;
-      let untypedAcc: UntypedStatAdjustment = acc;
-      for (let stat in untypedNext) {
+  return adjustments.reduce<StatAdjustments>((acc, next) => {
+    let untypedNext: UntypedStatAdjustment = next;
+    let untypedAcc: UntypedStatAdjustment = acc;
+    for (let stat in untypedNext) {
+      // grab adjustment from the flattened accumulator (or create it if it doesn't exist)
+      const accStats = untypedAcc[stat] ?? {};
+      for (let tag in untypedNext[stat]) {
         // grab adjustment from the flattened accumulator (or create it if it doesn't exist)
-        const accStats = untypedAcc[stat] ?? {};
-        for (let tag in untypedNext[stat]) {
-          // grab adjustment from the flattened accumulator (or create it if it doesn't exist)
-          const adjustments = {
-            addition: accStats[tag]?.addition ?? 0,
-            multiplier: accStats[tag]?.multiplier ?? 0,
-          };
-          adjustments.addition += untypedNext[stat]![tag]!.addition ?? 0;
-          adjustments.multiplier += untypedNext[stat]![tag]!.multiplier ?? 0;
-          accStats[tag] = adjustments;
-        }
-        untypedAcc[stat] = accStats;
+        const adjustments = {
+          addition: accStats[tag]?.addition ?? 0,
+          multiplier: accStats[tag]?.multiplier ?? 0,
+        };
+        adjustments.addition += untypedNext[stat]![tag]!.addition ?? 0;
+        adjustments.multiplier += untypedNext[stat]![tag]!.multiplier ?? 0;
+        accStats[tag] = adjustments;
       }
-      // note: `untypedAcc` is a reference to this, so we've modified this too.
-      // returning `acc` here just (once again) lies to the type system.
-      return acc;
-    },
-    { damage: {}, rof: {} }
-  );
+      untypedAcc[stat] = accStats;
+    }
+    // note: `untypedAcc` is a reference to this, so we've modified this too.
+    // returning `acc` here just (once again) lies to the type system.
+    return acc;
+  }, {});
 }
 
 export function calculateFinalStat<S extends Stat>({
