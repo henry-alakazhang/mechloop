@@ -1,6 +1,7 @@
 import { Tween } from "tweedle.js";
 import { isDefined } from "../../../util";
 import {
+  Condition,
   DamageTag,
   StatAdjustments,
   calculateFinalStat,
@@ -137,6 +138,11 @@ export class CombatEntity extends PhysicsObject {
     this.baseStatAdjustments = newAdjustments;
   }
 
+  public conditionalStats: {
+    condition: Condition;
+    statAdjustments: StatAdjustments;
+  }[] = [];
+
   /**
    * Temporary buffs or debuffs to stats.
    * Push to this array to add buffs or debuffs.
@@ -223,9 +229,16 @@ export class CombatEntity extends PhysicsObject {
       .filter((buff) => buff.remaining > 0);
 
     // then recalculate combined stat adjustments
+    // PERF: do this on a lower tick rate if performance is an issue
     this._allStatAdjustments = flattenStatAdjustments([
+      // base stats
       this.baseStatAdjustments,
+      // temporary buffs
       ...this.buffs.map(({ stats }) => stats).filter(isDefined),
+      // conditional effects that are met
+      ...this.conditionalStats.map(({ condition, statAdjustments }) =>
+        this.meetsCondition(condition) ? statAdjustments : {}
+      ),
     ]);
 
     // recalculate max HP
@@ -268,6 +281,26 @@ export class CombatEntity extends PhysicsObject {
     // redraw HP bar
     // all the fields needed for HP calculation are on this self class
     this.hpBar.redraw(this);
+  }
+
+  private meetsCondition(condition: Condition): boolean {
+    const [stat, operator, value] = condition;
+    if (!isDefined(stat)) {
+      return false;
+    }
+    switch (operator) {
+      case "==":
+        return this[stat] === value;
+      case "<=":
+        return this[stat] <= value;
+      case ">=":
+        return this[stat] >= value;
+      default:
+        // enforces exhaustive switch.
+        // if this shows "string is not assignable to boolean",
+        // there's a case that hasn't been handled.
+        return operator;
+    }
   }
 
   public onCollide(other: PhysicsObject) {

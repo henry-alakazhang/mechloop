@@ -90,6 +90,7 @@ export class TreeNodeGraphic extends Graphics {
     // Now draw the element at the appropriate position
     switch (node.type) {
       case "passive":
+      case "conditionalPassive":
         this.graphic.drawCircle(0, this.verticalPos, NODE_RADIUS);
         this.unselectedBG?.drawCircle(0, this.verticalPos, BG_NODE_RADIUS);
         break;
@@ -114,6 +115,9 @@ export class TreeNodeGraphic extends Graphics {
           2
         );
         break;
+      default:
+        // enforce this switch is exhaustive
+        let _x: never = node;
     }
   }
 }

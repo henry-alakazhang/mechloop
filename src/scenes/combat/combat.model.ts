@@ -1,3 +1,5 @@
+import { CombatEntity } from "./objects/entity";
+
 /**
  * Names of stats in the game. These represent different modifiable... stats...
  */
@@ -189,7 +191,7 @@ export function getAdjustmentDescriptions(
           displayText[tag as Tag[Stat]]
         } ${displayText[stat as Stat]}\n`;
       }
-      if (adjustment.multiplier !== 0) {
+      if (multiplier !== 0) {
         const multiplierSign = multiplier > 0 ? "+" : "";
         text += `${multiplierSign}${Math.round(multiplier * 100)}% ${
           displayText[tag as Tag[Stat]]
@@ -199,3 +201,21 @@ export function getAdjustmentDescriptions(
   }
   return text;
 }
+
+// grabs out all the keys of type T that are numbers
+type NumberProperty<T> = {
+  [K in keyof T]: T[K] extends number ? K : never;
+}[keyof T];
+
+/**
+ * A condition on some property of a CombatEntity.
+ * Tuple of three values: `[stat, comparison, value]`.
+ */
+export type Condition = [
+  NumberProperty<CombatEntity>,
+  "==" | ">=" | "<=",
+  number
+];
+// Multiple conditions stacked together
+// TODO: implement and handle when needed.
+// export type MultiCond = Condition | [MultiCond, "and" | "or", MultiCond];

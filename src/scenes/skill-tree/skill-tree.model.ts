@@ -1,6 +1,6 @@
 import { ActiveSkill } from "../../data/active-skills";
 import { Weapon } from "../../data/weapons";
-import { StatAdjustments } from "../combat/combat.model";
+import { Condition, StatAdjustments } from "../combat/combat.model";
 
 /** Class IDs. Need to be `tN-<identifier>` */
 export type ClassId = `t${number}-${string}`;
@@ -33,7 +33,7 @@ export interface BaseSkillTreeNode {
   /** Colour of border. */
   readonly colour?: "r" | "g" | "b";
   /** Type of node - changes size, shape and functionality. */
-  readonly type: "passive" | "weapon" | "tech" | "class";
+  readonly type: "passive" | "conditionalPassive" | "weapon" | "tech" | "class";
 }
 
 export interface PassiveNode extends BaseSkillTreeNode {
@@ -41,6 +41,14 @@ export interface PassiveNode extends BaseSkillTreeNode {
   /** Display name */
   readonly name: string;
   readonly statAdjustments: StatAdjustments;
+}
+
+export interface ConditionalPassiveNode extends BaseSkillTreeNode {
+  readonly type: "conditionalPassive";
+  /** Display name */
+  readonly name: string;
+  readonly statAdjustments: StatAdjustments;
+  readonly condition: Condition;
 }
 
 export interface WeaponNode extends BaseSkillTreeNode {
@@ -58,7 +66,12 @@ export interface ClassNode extends BaseSkillTreeNode {
   // TODO: implement
 }
 
-export type SkillTreeNode = PassiveNode | WeaponNode | TechNode | ClassNode;
+export type SkillTreeNode =
+  | PassiveNode
+  | ConditionalPassiveNode
+  | WeaponNode
+  | TechNode
+  | ClassNode;
 
 export type SkillTree = SkillTreeNode[];
 

@@ -12,6 +12,7 @@ import { Weapon } from "../../data/weapons";
 import { PlayerService } from "../../services/player.service";
 import { SkillMenuScene } from "../skill-tree/skill-menu.scene";
 import {
+  ConditionalPassiveNode,
   PassiveNode,
   SkillTree,
   TechNode,
@@ -267,6 +268,10 @@ export class CombatScene extends Container {
       tree
         .filter((node): node is PassiveNode => node.type === "passive")
         .map((node) => node.statAdjustments)
+    );
+    this.player.conditionalStats = tree.filter(
+      (node): node is ConditionalPassiveNode =>
+        node.type === "conditionalPassive"
     );
     this.activeSkills = tree
       .filter((node): node is TechNode => node.type === "tech")
