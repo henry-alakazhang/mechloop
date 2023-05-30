@@ -247,6 +247,13 @@ export class CombatEntity extends PhysicsObject {
       ),
     ]);
 
+    // TODO: this might be better implemented as "baseStats" + "finalStats" objects
+    // which are fully recalculated on an update loop, rather than calling
+    // `calculateFinalStat` whever i feel like it or need the stat.
+    //
+    // would make it a lot easier to implement complex conditional effects
+    // eg. "when your crit chance is greater than your evade chance"
+
     // recalculate max HP
     const newMaxHP = calculateFinalStat({
       stat: "maxHP",
