@@ -201,6 +201,20 @@ describe("CombatEntity", () => {
         entity.takeDamage(60);
         expect(entity.hp).toEqual(-10);
       });
+
+      test("should adjust damage reduction based on AC stat adjustments", () => {
+        entity.armour = 50;
+        entity.armourClass = 1;
+        entity.statAdjustments = {
+          armourClass: { global: { addition: 1 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(10);
+        // should take 2 reduced damage due to AC adjustment
+        expect(entity.hp).toEqual(92);
+      });
     });
 
     describe("with evasion", () => {
@@ -238,6 +252,34 @@ describe("CombatEntity", () => {
         entity.takeDamage(25);
         // 25 * 0.8 = 20, 20 - 5 = 15
         expect(entity.hp).toEqual(85);
+      });
+
+      test("should adjust evade chance based on evasion stat adjustments", () => {
+        entity.evadeChance = RAND_MISS;
+        entity.evadeEffect = 0.2;
+        entity.statAdjustments = {
+          // this should bump evade chance to a successful evade
+          evadeChance: { global: { addition: RAND_HIT - RAND_MISS } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(25);
+        expect(entity.hp).toEqual(80);
+      });
+
+      test("should adjust evade effect based on evasion stat adjustments", () => {
+        entity.evadeChance = RAND_HIT;
+        entity.evadeEffect = 0.2;
+        entity.statAdjustments = {
+          evadeEffect: { global: { addition: 0.3 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(20);
+        // should take 50% damage (0.2 + 0.3 = 0.5)
+        expect(entity.hp).toEqual(90);
       });
     });
 
