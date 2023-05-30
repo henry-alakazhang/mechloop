@@ -1,5 +1,5 @@
 import { Tween } from "tweedle.js";
-import { SkillTag, calculateFinalStat } from "../scenes/combat/combat.model";
+import { SkillTag } from "../scenes/combat/combat.model";
 import { CombatEntity } from "../scenes/combat/objects/entity";
 import { PhysicsObject } from "../scenes/combat/objects/physics-object";
 import { PlayerShip } from "../scenes/combat/objects/player-ship";
@@ -38,19 +38,16 @@ export const ACTIVE_SKILLS: { [k: string]: ActiveSkill } = {
     tags: ["defensive"],
     use: (user: PlayerShip) => {
       // set armour to current max armour
-      user.tempArmour = calculateFinalStat({
-        stat: "armour",
-        baseValue: user.armour,
-        adjustments: user.statAdjustments,
-      });
+      const initialAmount = user.armour;
+      user.armour = user.maxArmour;
       // add a buff to clean up after 6s
       user.buffs.push({
         name: "Armour Reinforcement",
         remaining: 6000,
         expire: (u: CombatEntity) => {
-          // fixme: this shouldn't delete temp armour from other sources
-          // temp armour should just be a stat adjustment?
-          u.tempArmour = 0;
+          // if armour is still above initial amount, restore it to initial amount.
+          // otherwise leave it as-is - all the temp armour has been used up.
+          u.armour = u.armour > initialAmount ? initialAmount : u.armour;
         },
       });
       return [];

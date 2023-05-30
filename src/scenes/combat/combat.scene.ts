@@ -385,7 +385,6 @@ export class CombatScene extends Container {
       // copy all HP/maxHP etc values from the player
       ...this.player,
       width: 500,
-      statAdjustments: this.player.statAdjustments,
     });
 
     // Reduce all cooldowns by elapsed time

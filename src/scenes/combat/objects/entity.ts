@@ -59,23 +59,23 @@ export class CombatEntity extends PhysicsObject {
   protected readonly baseHP: number;
 
   /**
-   * Amount of HP protected by armour (cannot be higher than HP).
-   * While a unit has armour, all damage is reduced by 10% of the full armour value.
+   * Maximum amount of HP protected by armour (cannot be higher than HP).
+   * While a unit has armour, all damage is reduced by the entity's armour class.
    *
-   * Armour stops being effective when it breaks (ie. HP is below `maxHP - armour`).
-   *
-   * TODO: armour doesn't actually go down, which is kind of convoluted and unintuitive.
-   * Should just make it like HP/Shields with an `armour` and `maxArmour` value.
-   * Temp armour is already tracked like that anyway...
+   * This is not really used for anything useful at the moment,
+   * but will become relevant once HP repair comes into play.
+   */
+  public maxArmour = 0;
+  /**
+   * Current armour. This is tracked and removed alongside HP.
+   * While a unit has armour, all damage is reduced by the entity's armour class.
    */
   public armour = 0;
   /**
-   * Temporary armour.
-   * Acts like armour (using the base `armour` value), but depletes like HP.
-   * Used for when armour is broken (or partly broken) but is restored when not at max HP.
-   * It needs to be manually tracked.
+   * Armour class - effectiveness of armour.
+   * Damage dealt to armour is reduced by this amount.
    */
-  public tempArmour = 0;
+  public armourClass = 1;
 
   /**
    * HP equivalent of shields.
@@ -184,6 +184,12 @@ export class CombatEntity extends PhysicsObject {
       adjustments: statAdjustments,
     });
     this.shields = this.maxShields;
+    this.maxArmour = calculateFinalStat({
+      stat: "armour",
+      baseValue: 0,
+      adjustments: statAdjustments,
+    });
+    this.armour = this.maxArmour;
 
     // if `showHealthBar` is set, use it.
     // otherwise, default to damaged-only healthbars for enemies.
@@ -262,6 +268,16 @@ export class CombatEntity extends PhysicsObject {
     });
     // shields can regenerate, so we don't need to adjust current value.
     this.maxShields = newMaxShields;
+
+    // recalculate max armour
+    const newMaxArmour = calculateFinalStat({
+      stat: "armour",
+      baseValue: 0,
+      adjustments: this.statAdjustments,
+    });
+    // armour regenerates worse, so we shoiuld adjust current value.
+    this.armour += newMaxArmour - this.maxArmour;
+    this.maxArmour = newMaxArmour;
 
     // update shield recharge
     if (
@@ -343,18 +359,7 @@ export class CombatEntity extends PhysicsObject {
     }
 
     // Armour:
-    const finalArmour = Math.min(
-      calculateFinalStat({
-        stat: "armour",
-        baseValue: this.armour,
-        adjustments: this.statAdjustments,
-      }),
-      this.maxHP
-    );
-    let armourDamageReduction = 0;
-    if (this.hp > this.maxHP - finalArmour || this.tempArmour > 0) {
-      armourDamageReduction = finalArmour / 10;
-    }
+    const armourDamageReduction = this.armour > 0 ? this.armourClass : 0;
 
     // Step 3: Calculate final damage and apply
     const finalDamage = Math.max(
@@ -369,9 +374,9 @@ export class CombatEntity extends PhysicsObject {
       this.shields = Math.max(0, this.shields - finalDamage);
     } else {
       this.hp -= Math.round(finalDamage);
-      if (this.tempArmour > 0) {
-        // reduce temporary armour if applicable
-        this.tempArmour = Math.max(0, this.tempArmour - finalDamage);
+      if (this.armour > 0) {
+        // reduce armour if applicable
+        this.armour = Math.max(0, this.armour - finalDamage);
       }
     }
 

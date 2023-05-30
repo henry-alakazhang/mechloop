@@ -1,5 +1,4 @@
 import { Graphics } from "pixi.js";
-import { StatAdjustments, calculateFinalStat } from "../combat.model";
 
 interface HpBarConfig {
   showHealthBar: "never" | "damaged" | "always";
@@ -40,8 +39,6 @@ export class HpBar extends Graphics {
     shields,
     maxShields,
     armour,
-    tempArmour,
-    statAdjustments,
   }: {
     width: number;
     hp: number;
@@ -49,8 +46,6 @@ export class HpBar extends Graphics {
     shields: number;
     maxShields: number;
     armour: number;
-    tempArmour: number;
-    statAdjustments: StatAdjustments;
   }) {
     // update health bar visibility and size
     if (this.showHealthBar === "always") {
@@ -66,21 +61,8 @@ export class HpBar extends Graphics {
       return;
     }
 
-    // calculate actual armour numbers
-    const finalArmour = Math.min(
-      calculateFinalStat({
-        stat: "armour",
-        baseValue: armour,
-        adjustments: statAdjustments,
-      }),
-      maxHP
-    );
-    const displayedArmour = Math.max(
-      // temp armour
-      tempArmour,
-      // remaining armour after lost HP
-      finalArmour - (maxHP - hp)
-    );
+    // dispalyed armour caps out at the entity's HP
+    const displayedArmour = Math.min(armour, hp);
 
     // recalculate widths
     this.shieldBar.width = Math.max(
@@ -98,7 +80,7 @@ export class HpBar extends Graphics {
       0,
       // the armour bar covers the HP bar based on how much armour you have
       // but it caps out at your actual HP.
-      (width * Math.min(displayedArmour, hp)) / maxHP
+      (width * displayedArmour) / maxHP
     );
     // set the armour bar so it's always covering the right side of the HP bar
     this.armourBar.x =

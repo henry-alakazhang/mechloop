@@ -116,18 +116,20 @@ describe("CombatEntity", () => {
       });
     });
 
-    test("should recalculate max HP and shields if modified by adjustments", () => {
+    test("should recalculate max HP, shields and armour if modified by adjustments", () => {
       entity.destroy();
       entity = new CombatEntity({ side: "player", maxHP: 10, maxShields: 10 });
       entity.statAdjustments = {
         maxHP: { global: { addition: 1 } },
         maxShields: { global: { addition: 1 } },
+        armour: { global: { addition: 11 } }, // no base armour
       };
 
       (entity as any).update(0);
 
       expect(entity.maxHP).toEqual(11);
       expect(entity.maxShields).toEqual(11);
+      expect(entity.armour).toEqual(11);
     });
 
     test("should keep HP at the same percentage if modified by adjustments", () => {
@@ -143,6 +145,19 @@ describe("CombatEntity", () => {
       expect(entity.hp).toEqual(100);
       expect(entity.maxHP).toEqual(200);
     });
+
+    test("should add extra armour if modified by adjustments", () => {
+      entity.statAdjustments = {
+        armour: { global: { addition: 10 } },
+      };
+
+      expect(entity.armour).toEqual(0);
+
+      (entity as any).update(0);
+
+      expect(entity.armour).toEqual(10);
+      expect(entity.maxArmour).toEqual(10);
+    });
   });
 
   describe("takeDamage", () => {
@@ -157,34 +172,34 @@ describe("CombatEntity", () => {
     });
 
     describe("with armour", () => {
-      test("should reduce damage by 10% of armour", () => {
+      test("should reduce damage by armour class", () => {
         entity.armour = 50;
+        entity.armourClass = 5;
         entity.takeDamage(10);
         expect(entity.hp).toEqual(95);
+
+        entity.armourClass = 10;
+        entity.takeDamage(20);
+        expect(entity.hp).toEqual(85);
       });
 
       test("should not reduce damage below 1", () => {
         entity.armour = 50;
+        entity.armourClass = 1;
         entity.takeDamage(1);
         expect(entity.hp).toEqual(99);
       });
 
-      test("should not have functional armour beyond max HP", () => {
-        // maxHP of 100 will cap this to 100, resulting in 10 damage reduction
-        entity.armour = 500;
-        entity.takeDamage(50);
-        expect(entity.hp).toEqual(60);
-      });
-
       test("should have no effect once broken", () => {
         entity.armour = 50;
+        entity.armourClass = 10;
         entity.takeDamage(60);
-        // took 55 damage due to armour reduction
-        expect(entity.hp).toEqual(45);
+        // took 50 damage due to armour reduction
+        expect(entity.hp).toEqual(50);
 
         // armour should no longer be active: will take all damage
         entity.takeDamage(60);
-        expect(entity.hp).toEqual(-15);
+        expect(entity.hp).toEqual(-10);
       });
     });
 
@@ -219,6 +234,7 @@ describe("CombatEntity", () => {
         entity.evadeChance = RAND_HIT;
         entity.evadeEffect = 0.2;
         entity.armour = 50;
+        entity.armourClass = 5;
         entity.takeDamage(25);
         // 25 * 0.8 = 20, 20 - 5 = 15
         expect(entity.hp).toEqual(85);
