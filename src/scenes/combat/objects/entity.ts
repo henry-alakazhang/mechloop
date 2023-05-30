@@ -359,7 +359,14 @@ export class CombatEntity extends PhysicsObject {
     }
 
     // Armour:
-    const armourDamageReduction = this.armour > 0 ? this.armourClass : 0;
+    let armourDamageReduction = 0;
+    if (this.armour > 0) {
+      armourDamageReduction = calculateFinalStat({
+        stat: "armourClass",
+        baseValue: this.armourClass,
+        adjustments: this.statAdjustments,
+      });
+    }
 
     // Step 3: Calculate final damage and apply
     const finalDamage = Math.max(

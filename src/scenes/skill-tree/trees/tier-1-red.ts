@@ -153,6 +153,7 @@ export const tier1red: SkillTree = [
     name: "Armour Conversion",
     statAdjustments: {
       // TODO: 10% of life as armour
+      armourClass: { global: { addition: 1 } },
     },
   },
   {

@@ -18,6 +18,7 @@ export type Stat =
   | "evadeEffect"
   | "avoidance"
   | "armour"
+  | "armourClass"
   | "rechargeSpeed";
 
 export type WeaponTag = "kinetic" | "explosive" | "energy" | "projectile";
@@ -43,6 +44,7 @@ export type Tag = {
   evadeEffect: never;
   avoidance: DamageTag;
   armour: never;
+  armourClass: never;
   rechargeSpeed: SkillTag;
 };
 
@@ -164,6 +166,7 @@ const displayText: {
   evadeEffect: "Damage reduction from evaded attacks",
   avoidance: "Chance to completely avoid damage",
   armour: "Armour",
+  armourClass: "Armour Class (Damage Reduction)",
   rechargeSpeed: "Tech Recharge Speed",
   defensive: "Defensive",
   movement: "Movement",
