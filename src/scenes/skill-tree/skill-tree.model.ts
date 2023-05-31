@@ -19,9 +19,13 @@ export interface BaseSkillTreeNode {
   /** Identifier for the node. Prepended with class ID and has to be unique across all skill trees. */
   readonly id: SkillId;
   /**
-   * Prerequisite nodes on the skill tree.
+   * Directly connected nodes on the skill tree.
+   * If any of these are allocated, this node can be allocated, and vice versa.
+   *
+   * Connections are bi-directional and only defined from one side.
+   * By convention, connections should be defined from the node further away from the root.
+   *
    * Nodes in the same tree will be connected by a line.
-   * Nodes in different trees will not (obviously)
    */
   readonly connected: SkillId[];
   /** Vertical depth for display. Starts at 0 and goes up. */

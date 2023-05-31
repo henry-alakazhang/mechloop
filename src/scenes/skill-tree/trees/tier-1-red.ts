@@ -132,18 +132,6 @@ export const tier1red: SkillTree = [
     },
   },
   {
-    id: "t1-red|collision-damage-transfer",
-    connected: ["t1-red|armour-boost"],
-    index: 4,
-    depth: 1,
-    colour: "r",
-    type: "passive",
-    name: "Momentum",
-    statAdjustments: {
-      // TODO: transfer collision damage to enemy
-    },
-  },
-  {
     id: "t1-red|life-to-armour",
     connected: ["t1-red|armour-boost"],
     index: 2,
@@ -153,7 +141,30 @@ export const tier1red: SkillTree = [
     name: "Armour Conversion",
     statAdjustments: {
       // TODO: 10% of life as armour
+    },
+  },
+  {
+    id: "t1-red|armour-class",
+    connected: ["t1-red|life-to-armour"],
+    index: 4,
+    depth: 2,
+    colour: "r",
+    type: "passive",
+    name: "Armour Integrity +",
+    statAdjustments: {
       armourClass: { global: { addition: 1 } },
+    },
+  },
+  {
+    id: "t1-red|collision-damage-transfer",
+    connected: ["t1-red|armour-class"],
+    index: 4,
+    depth: 1,
+    colour: "r",
+    type: "passive",
+    name: "Momentum",
+    statAdjustments: {
+      // TODO: transfer collision damage to enemy
     },
   },
   {
@@ -180,7 +191,7 @@ export const tier1red: SkillTree = [
   },
   {
     id: "t1-red|reinforce-buff",
-    connected: ["t1-red|area-boost"],
+    connected: ["t1-red|area-boost", "t1-red|armour-class"],
     index: 4,
     depth: 3,
     colour: "r",

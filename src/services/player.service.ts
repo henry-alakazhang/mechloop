@@ -31,6 +31,13 @@ export class PlayerService {
   });
   public static activatedTrees = new Observable<{ [k: string]: true }>({});
 
+  /**
+   * A mapping of all nodes connected to nodes that have been allocated.
+   * This allows for traversing either direction along the skill tree,
+   * without having to duplicate the connection data in the trees themselves.
+   */
+  public static connectedNodes: { [k: SkillId]: unknown } = {};
+
   public static allocateNode(node: SkillTreeNode) {
     if (this.skillPoints.currentValue >= 0) {
       this.skillPoints.update((p) => p - 1);
@@ -45,13 +52,16 @@ export class PlayerService {
     return (
       // have skill points
       this.skillPoints.currentValue > 0 &&
-      // node isn't allocated
+      // and node isn't allocated
       !this.allocatedNodes.currentValue[skillTreeNode.id] &&
-      // node either has no prerequisites, or its prerequisites are allocated
+      // and node either: has no prerequisites
       (skillTreeNode.connected.length === 0 ||
+        // or its prerequisites are allocated
         skillTreeNode.connected.some(
           (connectedNode) => this.allocatedNodes.currentValue[connectedNode]
-        ))
+        ) ||
+        // or it itself is the "prerequisite" of an already-allocated node
+        skillTreeNode.id in this.connectedNodes)
     );
   }
 
