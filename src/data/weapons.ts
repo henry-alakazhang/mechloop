@@ -64,7 +64,7 @@ export const autocannon: Weapon = {
 export const missileLauncher: Weapon = {
   name: "G-Class Missile Launcher",
   rof: 90,
-  damage: 1, // explosion has separate damage
+  damage: 10,
   damageType: "explosive",
   tags: ["explosive", "projectile"],
   projectileSpeed: 6,
@@ -72,7 +72,8 @@ export const missileLauncher: Weapon = {
     return [
       Projectile.shoot(
         shooter,
-        this,
+        // projectile does no damage, only explosion
+        { ...this, damage: 0 },
         shooter.shootBox.getGlobalPosition(),
         to,
         (g) =>
@@ -91,7 +92,11 @@ export const missileLauncher: Weapon = {
     ];
   },
   onHit(g: Projectile) {
-    const explosion = new Projectile({ owner: g.owner, source: g.source })
+    const explosion = new Projectile({
+      owner: g.owner,
+      source: g.source,
+      type: "area",
+    })
       .beginFill(0xff0000)
       .drawCircle(0, 0, 10)
       .endFill();
@@ -104,14 +109,21 @@ export const missileLauncher: Weapon = {
     // fixme: probably a better way to do this.
     explosion.source = {
       ...this,
-      damage: 10,
+      damage: 10, // fixme: don't repeat this
       onHit: undefined,
       tags: ["explosive"],
     };
     explosion.scale;
     g.parent.addChild(explosion);
     new Tween(explosion)
-      .to({ scale: { x: 5, y: 5 }, alpha: 0.5 }, 250)
+      .to(
+        {
+          height: 5 * explosion.height,
+          width: 5 * explosion.width,
+          alpha: 0.5,
+        },
+        250
+      )
       .easing(Easing.Exponential.Out)
       .onComplete(() => {
         explosion.destroy();

@@ -152,6 +152,7 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Armour Integrity +",
     statAdjustments: {
+      armour: { global: { addition: 10 } },
       armourClass: { global: { addition: 1 } },
     },
   },
@@ -176,8 +177,8 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Heavy Ordinance",
     statAdjustments: {
-      // TODO: increased aoe
-      // increased area damage
+      effectSize: { area: { multiplier: 0.15 } },
+      damage: { area: { multiplier: 0.1 } },
     },
   },
   {

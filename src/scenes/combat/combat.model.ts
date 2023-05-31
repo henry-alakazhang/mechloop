@@ -19,10 +19,11 @@ export type Stat =
   | "avoidance"
   | "armour"
   | "armourClass"
-  | "rechargeSpeed";
+  | "rechargeSpeed"
+  | "effectSize";
 
 export type WeaponTag = "kinetic" | "explosive" | "energy" | "projectile";
-export type DamageTag = WeaponTag | "collision";
+export type DamageTag = WeaponTag | "collision" | "area";
 export type SkillTag = "movement" | "defensive";
 
 /**
@@ -46,6 +47,7 @@ export type Tag = {
   armour: never;
   armourClass: never;
   rechargeSpeed: SkillTag;
+  effectSize: DamageTag;
 };
 
 /**
@@ -154,6 +156,7 @@ const displayText: {
   explosive: "Explosive",
   energy: "Energy",
   projectile: "Projectile",
+  area: "Area",
   collision: "Collision",
   damage: "Damage",
   rof: "Rate of Fire",
@@ -168,6 +171,7 @@ const displayText: {
   armour: "Armour",
   armourClass: "Armour Class (Damage Reduction)",
   rechargeSpeed: "Tech Recharge Speed",
+  effectSize: "Effect Size",
   defensive: "Defensive",
   movement: "Movement",
 };
