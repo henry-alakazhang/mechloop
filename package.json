@@ -5,7 +5,7 @@
     "build": "run-s clean build-only",
     "build-only": "webpack --mode=production && cp CNAME dist/CNAME",
     "clean": "rimraf dist",
-    "deploy": "npm run build && gh-pages -d dist",
+    "deploy": "npm run test && npm run build && gh-pages -d dist",
     "test": "jest",
     "test:watch": "jest --watch"
   },
