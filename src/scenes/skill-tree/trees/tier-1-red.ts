@@ -165,7 +165,9 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Momentum",
     statAdjustments: {
-      // TODO: transfer collision damage to enemy
+      effectSize: { collision: { multiplier: 0.25 } },
+      damage: { collision: { multiplier: 0.25 } },
+      damageTaken: { collision: { multiplier: -0.25 } },
     },
   },
   {

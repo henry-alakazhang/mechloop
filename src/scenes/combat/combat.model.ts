@@ -19,6 +19,8 @@ export type Stat =
   | "avoidance"
   | "armour"
   | "armourClass"
+  // Direct modifiers to damage taken. Can be negative to reduce damage.
+  | "damageTaken"
   | "rechargeSpeed"
   | "effectSize";
 
@@ -44,6 +46,7 @@ export type Tag = {
   evadeChance: never;
   evadeEffect: never;
   avoidance: DamageTag;
+  damageTaken: DamageTag;
   armour: never;
   armourClass: never;
   rechargeSpeed: SkillTag;
@@ -168,6 +171,7 @@ const displayText: {
   evadeChance: "Evasion Chance",
   evadeEffect: "Damage reduction from evaded attacks",
   avoidance: "Chance to completely avoid damage",
+  damageTaken: "Damage Taken",
   armour: "Armour",
   armourClass: "Armour Class (Damage Reduction)",
   rechargeSpeed: "Tech Recharge Speed",

@@ -1,6 +1,6 @@
 import { DisplayObject, Graphics } from "pixi.js";
+import { DamageTag } from "../combat.model";
 import { CombatEntity } from "./entity";
-import { PhysicsObject } from "./physics-object";
 
 /**
  * The player-controlled ship. Tracks player movement.
@@ -64,17 +64,15 @@ export class PlayerShip extends CombatEntity {
     super.update(delta);
   }
 
-  public override onCollide(other: PhysicsObject) {
-    super.onCollide(other);
+  public override takeDamage(amount: number, tags: DamageTag[]) {
+    super.takeDamage(amount, tags);
 
-    // 250ms of invulnerability after collision
-    if (this.timeSinceLastHit >= 250) {
-      // take 5% of each side'sdw HP as damage
-      if (other instanceof CombatEntity) {
-        this.takeDamage(Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05), [
-          "collision",
-        ]);
-      }
-    }
+    // brief invulnerability on being hit
+    this.buffs.push({
+      remaining: 250,
+      stats: {
+        avoidance: { global: { addition: 1 } },
+      },
+    });
   }
 }

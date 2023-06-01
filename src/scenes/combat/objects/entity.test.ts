@@ -158,6 +158,19 @@ describe("CombatEntity", () => {
       expect(entity.armour).toEqual(10);
       expect(entity.maxArmour).toEqual(10);
     });
+
+    test("should adjust size if modified by adjustments", () => {
+      entity.beginFill().drawRect(0, 0, 1, 1).endFill();
+      expect(entity.width).toEqual(1);
+
+      entity.statAdjustments = {
+        effectSize: { global: { multiplier: 1 } },
+      };
+
+      (entity as any).update(0);
+
+      expect(entity.width).toEqual(2);
+    });
   });
 
   describe("takeDamage", () => {
@@ -169,6 +182,30 @@ describe("CombatEntity", () => {
     test("should round off HP after damage", () => {
       entity.takeDamage(0.6);
       expect(entity.hp).toEqual(99);
+    });
+
+    describe("with damage modifiers", () => {
+      test("should reduce damage with negative damage modifiers", () => {
+        entity.statAdjustments = {
+          damageTaken: { global: { multiplier: -0.5 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(10);
+        expect(entity.hp).toEqual(95);
+      });
+
+      test("should increase damage with positive damage modifier", () => {
+        entity.statAdjustments = {
+          damageTaken: { global: { multiplier: 0.5 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(10);
+        expect(entity.hp).toEqual(85);
+      });
     });
 
     describe("with armour", () => {
@@ -215,6 +252,20 @@ describe("CombatEntity", () => {
         // should take 2 reduced damage due to AC adjustment
         expect(entity.hp).toEqual(92);
       });
+
+      test("should apply after damage modifiers", () => {
+        entity.armour = 50;
+        entity.armourClass = 1;
+        entity.statAdjustments = {
+          damageTaken: { global: { multiplier: -0.5 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(10);
+        // should take 10 / 2 = 5 - 1 = 4 damage
+        expect(entity.hp).toEqual(96);
+      });
     });
 
     describe("with evasion", () => {
@@ -252,6 +303,20 @@ describe("CombatEntity", () => {
         entity.takeDamage(25);
         // 25 * 0.8 = 20, 20 - 5 = 15
         expect(entity.hp).toEqual(85);
+      });
+
+      test("should apply multiplicatively with damage modifiers", () => {
+        entity.evadeChance = RAND_HIT;
+        entity.evadeEffect = 0.2;
+        entity.statAdjustments = {
+          damageTaken: { global: { multiplier: -0.5 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.takeDamage(10);
+        // should take 10 * 0.5 = 5 * 0.8 = 4 damage
+        expect(entity.hp).toEqual(96);
       });
 
       test("should adjust evade chance based on evasion stat adjustments", () => {

@@ -286,6 +286,15 @@ export class CombatEntity extends PhysicsObject {
     this.armour += newMaxArmour - this.maxArmour;
     this.maxArmour = newMaxArmour;
 
+    // recalculate size
+    const collisionSize = calculateFinalStat({
+      stat: "effectSize",
+      baseValue: 1,
+      adjustments: this.statAdjustments,
+      tags: ["collision"],
+    });
+    this.scale = { x: collisionSize, y: collisionSize };
+
     // update shield recharge
     if (
       this.shields !== this.maxShields &&
@@ -327,10 +336,24 @@ export class CombatEntity extends PhysicsObject {
   }
 
   public onCollide(other: PhysicsObject) {
+    // deal collision damage to the other entity
+    if (other instanceof CombatEntity) {
+      // base damage is 5% of each target's HP.
+      const damage = calculateFinalStat({
+        stat: "damage",
+        baseValue: Math.ceil(this.maxHP * 0.05 + other.maxHP * 0.05),
+        adjustments: this.statAdjustments,
+        tags: ["collision"],
+      });
+      other.takeDamage(damage, ["collision"]);
+    }
+
     // TODO: implement momentum/knockback and prevent objects from sitting inside each other
   }
 
-  public takeDamage(damage: number, tags: DamageTag[] = []) {
+  public takeDamage(initialDamage: number, tags: DamageTag[] = []) {
+    let damage = initialDamage;
+
     // Step 0: Apply avoidances
     const finalAvoidance = calculateFinalStat({
       stat: "avoidance",
@@ -343,7 +366,13 @@ export class CombatEntity extends PhysicsObject {
       return;
     }
 
-    // Step 1: Apply general damage reductions
+    // Step 1: Apply overall damage modifiers
+    damage = calculateFinalStat({
+      stat: "damageTaken",
+      baseValue: damage,
+      adjustments: this.statAdjustments,
+      tags,
+    });
 
     // Step 2: Calculate and apply defenses:
     // Evasion:
@@ -375,22 +404,18 @@ export class CombatEntity extends PhysicsObject {
       });
     }
 
-    // Step 3: Calculate final damage and apply
-    const finalDamage = Math.max(
-      1,
-      damage * evadedDamageMult - armourDamageReduction
-    );
+    damage = Math.max(1, damage * evadedDamageMult - armourDamageReduction);
 
     // If shields are up, damage them instead
     if (this.shields > 0) {
       // note: even if the last hit would overkill the shields, they absorb the entire blow
       // this is probably a balancing factor, and not me being lazy.
-      this.shields = Math.max(0, this.shields - finalDamage);
+      this.shields = Math.max(0, this.shields - damage);
     } else {
-      this.hp -= Math.round(finalDamage);
+      this.hp -= Math.round(damage);
       if (this.armour > 0) {
         // reduce armour if applicable
-        this.armour = Math.max(0, this.armour - finalDamage);
+        this.armour = Math.max(0, this.armour - damage);
       }
     }
 
