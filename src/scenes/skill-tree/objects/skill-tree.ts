@@ -14,12 +14,17 @@ interface SkillTreeSceneConfig {
  */
 export const TREE_OFFSET = 200;
 /**
+ * Position of the tree within the scene
+ * Shifted down slightly to better center it within the scene.
+ */
+export const TREE_POSITION = TREE_OFFSET + 50;
+/**
  * The height of each layer in the tree (each arc).
  */
 export const LAYER_HEIGHT = 80;
 
-export const TREE_WIDTH = 900;
-export const TREE_HEIGHT = 600;
+export const TREE_WIDTH = 990;
+export const TREE_HEIGHT = 660;
 
 /**
  * Representation of a skill tree which can be used to allocate skill points.
@@ -61,7 +66,7 @@ export class SkillTreeObject extends Container {
       }
     );
     this.skillPointText.x = Math.round(-this.skillPointText.width / 2);
-    this.skillPointText.y = 100;
+    this.skillPointText.y = 150;
     this.addChild(this.skillPointText);
     PlayerService.skillPoints.subscribe(
       (points) => (this.skillPointText.text = `Skill Points: ${points}`)
@@ -86,7 +91,7 @@ export class SkillTreeObject extends Container {
     // Otherwise this will inherit the crosshair pointer from the combat scene below.
     const background = this.addChild(
       new Graphics()
-        .beginFill(0x000000)
+        .beginFill(0x100010)
         .drawRoundedRect(
           -TREE_WIDTH / 2,
           -TREE_HEIGHT / 2,
@@ -94,6 +99,7 @@ export class SkillTreeObject extends Container {
           TREE_HEIGHT,
           5
         )
+        .endFill()
     );
     background.cursor = "default";
     // addChild at the end so it goes into index 0.
@@ -116,6 +122,7 @@ export class SkillTreeObject extends Container {
           selected: skill.id in selected,
         })
       );
+      currentNode.y = TREE_POSITION;
       currentNode.interactive = true;
       currentNode.cursor = selected[skill.id] ? "default" : "pointer";
       currentNode.on("pointerover", () => {
@@ -155,7 +162,7 @@ export class SkillTreeObject extends Container {
           .moveTo(0, currentNode.verticalPos)
           // to the vertical level of the connected one
           .lineTo(0, connectedNode.verticalPos);
-        verticalPath.y = TREE_OFFSET;
+        verticalPath.y = TREE_POSITION;
         verticalPath.alpha = pathAlpha;
         // rotate to the correct angle
         verticalPath.rotation = currentNode.rotation;
@@ -172,7 +179,7 @@ export class SkillTreeObject extends Container {
           // switch direction depending on how it needs to work.
           currentNode.rotation > connectedNode.rotation
         );
-        arcedPath.y = TREE_OFFSET;
+        arcedPath.y = TREE_POSITION;
         arcedPath.alpha = pathAlpha;
 
         // add to container at index 0 so these paths all go under the nodes themselves
@@ -204,7 +211,7 @@ export class SkillTreeObject extends Container {
         )
       );
     }
-    layerBorders.y = TREE_OFFSET;
+    layerBorders.y = TREE_POSITION;
     // layerBorders.visible = false;
     this.addChildAt(layerBorders, 0);
     this.addChildAt(background, 0);

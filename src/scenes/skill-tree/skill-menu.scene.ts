@@ -61,23 +61,28 @@ export class SkillMenuScene extends Container {
       const tree = this.grid.addChild(
         new SkillTreeObject({ tree: c.skillTree })
       );
-      tree.width = 300;
-      tree.height = 200;
+      tree.width = TREE_WIDTH / 3;
+      tree.height = TREE_HEIGHT / 3;
       // position in a grid
-      // add 150/100 because tree is center-origin
-      tree.x = (idx % 3) * 300 + 150;
-      tree.y = Math.floor(idx / 3) * 200 + 100;
+      // add half again because tree is center-origin
+      tree.x = (idx % 3) * tree.width + tree.width / 2;
+      tree.y = Math.floor(idx / 3) * tree.height + tree.width / 2;
 
       const hoverState = this.grid.addChild(
-        new Graphics().beginFill(0xffffff).drawRect(0, 0, 300, 200).endFill()
+        new Graphics()
+          .beginFill(0xffffff)
+          .drawRect(0, 0, tree.width, tree.height)
+          .endFill()
       );
       const border = this.grid.addChild(
-        new Graphics().lineStyle(2, 0xffffff).drawRect(0, 0, 300, 200)
+        new Graphics()
+          .lineStyle(2, 0xffffff)
+          .drawRect(0, 0, tree.width, tree.height)
       );
-      hoverState.x = tree.x - 150;
-      hoverState.y = tree.y - 100;
-      border.x = tree.x - 150;
-      border.y = tree.y - 100;
+      hoverState.x = tree.x - tree.width / 2;
+      hoverState.y = tree.y - tree.height / 2;
+      border.x = tree.x - tree.width / 2;
+      border.y = tree.y - tree.height / 2;
       hoverState.alpha = 0;
       hoverState.interactive = true;
 
@@ -171,7 +176,15 @@ export class SkillMenuScene extends Container {
 
     // expand animation
     new Tween(tree, this.animationGroup)
-      .to({ x: 450, y: 300, width: TREE_WIDTH, height: TREE_HEIGHT }, 250)
+      .to(
+        {
+          x: TREE_WIDTH / 2,
+          y: TREE_HEIGHT / 2,
+          width: TREE_WIDTH,
+          height: TREE_HEIGHT,
+        },
+        250
+      )
       .easing(Easing.Quadratic.Out)
       .start()
       .onComplete(() => {
@@ -183,8 +196,8 @@ export class SkillMenuScene extends Container {
     if (this.activeTree && this.activeTreeOriginalPosition) {
       this.activeTree.x = this.activeTreeOriginalPosition.x;
       this.activeTree.y = this.activeTreeOriginalPosition.y;
-      this.activeTree.width = 300;
-      this.activeTree.height = 200;
+      this.activeTree.width = TREE_WIDTH / 3;
+      this.activeTree.height = TREE_HEIGHT / 3;
       this.grid.visible = true;
       // swap the tree back into the grid so it can be hidden alongside the rest
       this.grid.addChildAt(this.activeTree, 0);
