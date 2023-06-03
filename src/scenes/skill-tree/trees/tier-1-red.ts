@@ -1,3 +1,4 @@
+import { reinforce } from "../../../data/active-skills";
 import { missileLauncher, shotgun } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
@@ -195,9 +196,9 @@ export const tier1red: SkillTree = [
     index: 4,
     depth: 3,
     colour: "r",
-    type: "passive",
-    name: "Armour Reinforcement +",
-    statAdjustments: {},
+    type: "techEnhancement",
+    tech: reinforce,
+    enhancement: "reinforce|expulsion",
   },
   {
     id: "t1-red|life-and-life-on-kill",

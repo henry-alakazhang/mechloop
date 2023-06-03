@@ -100,6 +100,7 @@ export class TreeNodeGraphic extends Graphics {
         break;
       case "weapon":
       case "tech":
+      case "techEnhancement":
         this.graphic.drawRoundedRect(
           -NODE_RADIUS,
           -NODE_RADIUS + this.verticalPos,

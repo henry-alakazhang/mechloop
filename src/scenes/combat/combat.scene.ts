@@ -15,6 +15,7 @@ import {
   ConditionalPassiveNode,
   PassiveNode,
   SkillTree,
+  TechEnhancementNode,
   TechNode,
   WeaponNode,
 } from "../skill-tree/skill-tree.model";
@@ -277,6 +278,11 @@ export class CombatScene extends Container {
       .filter((node): node is TechNode => node.type === "tech")
       .map((node) => node.tech);
     this.activeSkillCooldowns = this.activeSkills.map((skill) => 0);
+    this.player.activeEnhancements = tree
+      .filter(
+        (node): node is TechEnhancementNode => node.type === "techEnhancement"
+      )
+      .map((node) => node.enhancement);
   }
 
   handleGameEnd() {

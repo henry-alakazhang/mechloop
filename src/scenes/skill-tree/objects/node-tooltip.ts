@@ -72,6 +72,16 @@ Firepower: ${node.weapon.damage} / Rate of Fire: ${node.weapon.rof}rpm\n`;
         this.descriptionText.text = `Tech (${node.tech.tags.join(", ")})
 ${node.tech.description}\n`;
         break;
+      case "techEnhancement":
+        this.titleText.text = node.tech.enhancements![node.enhancement].name;
+        this.descriptionText.text = `Tech Enhancement - ${node.tech.name}
+${node.tech.enhancements![node.enhancement].description}`;
+        break;
+      case "conditionalPassive":
+      case "class":
+        break;
+      default:
+        let _x: never = node;
     }
 
     this.background.height =

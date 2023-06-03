@@ -18,6 +18,9 @@ export class PlayerShip extends CombatEntity {
 
   public maxSpeed = 5;
 
+  // PERF: make a map if needed
+  public activeEnhancements: string[] = [];
+
   constructor() {
     super({
       side: "player",

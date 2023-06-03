@@ -1,4 +1,8 @@
-import { ACTIVE_SKILLS } from "../../../data/active-skills";
+import {
+  evasiveManeuvers,
+  portableWormhole,
+  reinforce,
+} from "../../../data/active-skills";
 import { autocannon } from "../../../data/weapons";
 import { SkillTree } from "../skill-tree.model";
 
@@ -55,7 +59,7 @@ export const tier0: SkillTree = [
     index: -3,
     type: "tech",
     colour: "r",
-    tech: ACTIVE_SKILLS.reinforce,
+    tech: reinforce,
   },
   {
     id: "t0-ship|green-1",
@@ -101,7 +105,7 @@ export const tier0: SkillTree = [
     index: 0,
     type: "tech",
     colour: "g",
-    tech: ACTIVE_SKILLS.evasiveManeuvers,
+    tech: evasiveManeuvers,
   },
   {
     id: "t0-ship|blue-1",
@@ -147,6 +151,6 @@ export const tier0: SkillTree = [
     index: 3,
     type: "tech",
     colour: "b",
-    tech: ACTIVE_SKILLS.portableWormhole,
+    tech: portableWormhole,
   },
 ];

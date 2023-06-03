@@ -37,7 +37,13 @@ export interface BaseSkillTreeNode {
   /** Colour of border. */
   readonly colour?: "r" | "g" | "b";
   /** Type of node - changes size, shape and functionality. */
-  readonly type: "passive" | "conditionalPassive" | "weapon" | "tech" | "class";
+  readonly type:
+    | "passive"
+    | "conditionalPassive"
+    | "weapon"
+    | "tech"
+    | "techEnhancement"
+    | "class";
 }
 
 export interface PassiveNode extends BaseSkillTreeNode {
@@ -65,6 +71,12 @@ export interface TechNode extends BaseSkillTreeNode {
   readonly tech: ActiveSkill;
 }
 
+export interface TechEnhancementNode extends BaseSkillTreeNode {
+  readonly type: "techEnhancement";
+  readonly tech: ActiveSkill;
+  readonly enhancement: string;
+}
+
 export interface ClassNode extends BaseSkillTreeNode {
   readonly type: "class";
   // TODO: implement
@@ -75,6 +87,7 @@ export type SkillTreeNode =
   | ConditionalPassiveNode
   | WeaponNode
   | TechNode
+  | TechEnhancementNode
   | ClassNode;
 
 export type SkillTree = SkillTreeNode[];
