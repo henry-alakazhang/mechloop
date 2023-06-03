@@ -42,22 +42,16 @@ export const autocannon: Weapon = {
   tags: ["kinetic", "projectile"],
   projectileSpeed: 10,
   shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-    return [
-      Projectile.shoot(
-        shooter,
-        this,
-        shooter.shootBox.getGlobalPosition(),
-        { ...to, angle: -0.03 },
-        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
-      ),
-      Projectile.shoot(
-        shooter,
-        this,
-        shooter.shootBox.getGlobalPosition(),
-        { ...to, angle: 0.03 },
-        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
-      ),
-    ];
+    return Projectile.shoot({
+      owner: shooter,
+      source: this,
+      from: shooter.shootBox.getGlobalPosition(),
+      to,
+      count: 2,
+      angle: 0.06,
+      drawProjectile: (g) =>
+        g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill(),
+    });
   },
 };
 
@@ -69,27 +63,25 @@ export const missileLauncher: Weapon = {
   tags: ["explosive", "projectile"],
   projectileSpeed: 6,
   shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-    return [
-      Projectile.shoot(
-        shooter,
-        // projectile does no damage, only explosion
-        { ...this, damage: 0 },
-        shooter.shootBox.getGlobalPosition(),
-        to,
-        (g) =>
-          g
-            // vaguely resembles a rocket shape
-            .beginFill(0xffffff)
-            .drawPolygon([
-              { x: 6, y: 2 },
-              { x: 6, y: -1 },
-              { x: 0, y: -4 },
-              { x: 0, y: 4 },
-            ])
-            .drawCircle(6, 0, 2)
-            .endFill()
-      ),
-    ];
+    return Projectile.shoot({
+      owner: shooter,
+      // projectile does no damage, only explosion
+      source: { ...this, damage: 0 },
+      from: shooter.shootBox.getGlobalPosition(),
+      to,
+      drawProjectile: (g) =>
+        g
+          // vaguely resembles a rocket shape
+          .beginFill(0xffffff)
+          .drawPolygon([
+            { x: 6, y: 2 },
+            { x: 6, y: -1 },
+            { x: 0, y: -4 },
+            { x: 0, y: 4 },
+          ])
+          .drawCircle(6, 0, 2)
+          .endFill(),
+    });
   },
   onHit(g: Projectile) {
     const explosion = new Projectile({
@@ -140,20 +132,16 @@ export const shotgun: Weapon = {
   tags: ["kinetic", "projectile"],
   projectileSpeed: 15,
   shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-    const arr = [...Array(8)].map((_, index) => {
-      // shoots in an arc from the shootbox
-      // approx 50 degrees
-      const angle = (index - 4) * 0.12 + 0.06;
-      return Projectile.shoot(
-        shooter,
-        this,
-        shooter.shootBox.getGlobalPosition(),
-        { ...to, angle },
-        (g) => g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill()
-      );
+    return Projectile.shoot({
+      owner: shooter,
+      source: this,
+      from: shooter.shootBox.getGlobalPosition(),
+      to,
+      count: 8,
+      angle: 0.12,
+      drawProjectile: (g) =>
+        g.beginFill(0xffffff).drawRect(0, -1, 6, 2).endFill(),
     });
-    console.log(arr);
-    return arr;
   },
 };
 
@@ -165,18 +153,16 @@ export const arcCoil: Weapon = {
   tags: ["energy"],
   projectileSpeed: 40,
   shoot(shooter: PlayerShip, to: { x: number; y: number }) {
-    return [
-      Projectile.shoot(
-        shooter,
-        this,
-        shooter.shootBox.getGlobalPosition(),
-        to,
-        (g) => {
-          g.hp = 6;
-          return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
-        }
-      ),
-    ];
+    return Projectile.shoot({
+      owner: shooter,
+      source: this,
+      from: shooter.shootBox.getGlobalPosition(),
+      to,
+      drawProjectile: (g) => {
+        g.hp = 6;
+        return g.beginFill(0xffffff).drawRect(-60, -1, 60, 1).endFill();
+      },
+    });
   },
   onHit: (g) => {
     // chain towards a new target
