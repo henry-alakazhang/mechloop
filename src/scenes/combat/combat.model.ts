@@ -22,7 +22,9 @@ export type Stat =
   // Direct modifiers to damage taken. Can be negative to reduce damage.
   | "damageTaken"
   | "rechargeSpeed"
-  | "effectSize";
+  | "effectSize"
+  | "projectileCount"
+  | "projectileSpread";
 
 export type WeaponTag = "kinetic" | "explosive" | "energy" | "projectile";
 export type DamageTag = WeaponTag | "collision" | "area";
@@ -51,6 +53,8 @@ export type Tag = {
   armourClass: never;
   rechargeSpeed: SkillTag;
   effectSize: DamageTag;
+  projectileCount: WeaponTag;
+  projectileSpread: WeaponTag;
 };
 
 /**
@@ -176,6 +180,8 @@ const displayText: {
   armourClass: "Armour Class (Damage Reduction)",
   rechargeSpeed: "Tech Recharge Speed",
   effectSize: "Effect Size",
+  projectileCount: "Projectile Count",
+  projectileSpread: "Projectile Spread",
   defensive: "Defensive",
   movement: "Movement",
 };

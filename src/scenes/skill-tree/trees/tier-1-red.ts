@@ -233,9 +233,9 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Spray and Pray",
     statAdjustments: {
-      // TODO:
-      // 33% more projectiles
-      // +33 base inaccuracy
+      projectileCount: { global: { multiplier: 0.33 } },
+      projectileSpread: { global: { multiplier: 0.33 } },
+      // TODO: inaccuracy?
     },
   },
 ];

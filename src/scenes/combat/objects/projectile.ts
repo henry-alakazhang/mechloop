@@ -50,9 +50,20 @@ export class Projectile extends PhysicsObject {
     /** Callback to apply graphics calls to the Projectile itself */
     drawProjectile: (g: Projectile) => Projectile;
   }): Projectile[] {
-    // TODO: add stat adjustments for these:
-    const finalCount = count;
-    const finalAngle = angle;
+    const finalCount = Math.round(
+      calculateFinalStat({
+        stat: "projectileCount",
+        baseValue: count,
+        tags: source.tags,
+        adjustments: owner.statAdjustments,
+      })
+    );
+    const finalAngle = calculateFinalStat({
+      stat: "projectileSpread",
+      baseValue: angle,
+      tags: source.tags,
+      adjustments: owner.statAdjustments,
+    });
 
     return [
       // create this many projectiles
