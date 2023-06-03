@@ -10,6 +10,8 @@ export type Stat =
   | "critChance"
   | "critDamage"
   | "maxHP"
+  // hp recovered on kill. This is an explicit stat and not an on-kill handler so it can be scaled
+  | "hpOnKill"
   | "maxShields"
   // TODO: this should probably be called "glance",
   // because that's what it actually does (reduce damage)
@@ -44,6 +46,7 @@ export type Tag = {
   critChance: DamageTag;
   critDamage: DamageTag;
   maxHP: never;
+  hpOnKill: never;
   maxShields: never;
   evadeChance: never;
   evadeEffect: never;
@@ -171,6 +174,7 @@ const displayText: {
   critChance: "Critical Strike Chance",
   critDamage: "Critical Damage Multiplier",
   maxHP: "Max HP",
+  hpOnKill: "HP on Kill",
   maxShields: "Shields",
   evadeChance: "Evasion Chance",
   evadeEffect: "Damage reduction from evaded attacks",

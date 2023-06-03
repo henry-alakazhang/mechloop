@@ -351,6 +351,27 @@ export class CombatEntity extends PhysicsObject {
     // TODO: implement momentum/knockback and prevent objects from sitting inside each other
   }
 
+  public onKill(other: CombatEntity) {
+    // apply HP on kill
+    const hpOnKill = calculateFinalStat({
+      stat: "hpOnKill",
+      baseValue: 0,
+      adjustments: this.statAdjustments,
+    });
+
+    if (this.hp < this.maxHP) {
+      // recover health first
+      this.hp = Math.min(this.maxHP, this.hp + hpOnKill);
+    } else if (this.armour < this.maxArmour) {
+      // then recover armour if health is at max.
+      // todo: should just recover armour alongside health if within armour threshold?
+      // maybe at a lower rate
+      this.armour = Math.min(this.maxArmour, this.armour + hpOnKill);
+    }
+
+    // add other stuff like onKill triggers etc.
+  }
+
   public takeDamage(initialDamage: number, tags: DamageTag[] = []) {
     let damage = initialDamage;
 

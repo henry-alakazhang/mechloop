@@ -173,6 +173,72 @@ describe("CombatEntity", () => {
     });
   });
 
+  describe("onKill", () => {
+    describe("hpOnKill", () => {
+      test("should heal by hpOnKill amount", () => {
+        entity.statAdjustments = {
+          hpOnKill: { global: { addition: 1 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.maxHP = 100;
+        entity.hp = 10;
+        entity.onKill(entity /* doesn't matter */);
+
+        expect(entity.hp).toEqual(11);
+      });
+
+      test("should not heal above maxHP", () => {
+        entity.statAdjustments = {
+          hpOnKill: { global: { addition: 100 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.maxHP = 100;
+        entity.hp = 10;
+        entity.onKill(entity /* doesn't matter */);
+
+        expect(entity.hp).toEqual(100);
+      });
+
+      test("should heal armour if HP is full", () => {
+        entity.statAdjustments = {
+          hpOnKill: { global: { addition: 1 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.maxHP = 100;
+        entity.hp = 100;
+        entity.maxArmour = 50;
+        entity.armour = 0;
+        entity.onKill(entity /* doesn't matter */);
+
+        expect(entity.hp).toEqual(100);
+        expect(entity.armour).toEqual(1);
+      });
+
+      test("should not heal armour if HP needs healing", () => {
+        entity.statAdjustments = {
+          hpOnKill: { global: { addition: 1 } },
+        };
+
+        (entity as any).update(0);
+
+        entity.maxHP = 100;
+        entity.hp = 10;
+        entity.maxArmour = 50;
+        entity.armour = 0;
+        entity.onKill(entity /* doesn't matter */);
+
+        expect(entity.hp).toEqual(11);
+        expect(entity.armour).toEqual(0);
+      });
+    });
+  });
+
   describe("takeDamage", () => {
     test("should reduce HP", () => {
       entity.takeDamage(50);

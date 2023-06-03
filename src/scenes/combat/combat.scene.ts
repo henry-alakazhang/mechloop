@@ -335,6 +335,7 @@ export class CombatScene extends Container {
         if (this.score % 10 === 0) {
           PlayerService.skillPoints.update((p) => p + 1);
         }
+        this.player.onKill(enemy);
       }
     });
     this.addChild(enemy);

@@ -34,9 +34,9 @@ export const tier1red: SkillTree = [
     name: "Technical Cross-Pollination",
     statAdjustments: {
       damage: {
-        kinetic: { multiplier: 0.1 },
-        explosive: { multiplier: 0.1 },
-        energy: { multiplier: 0.1 },
+        kinetic: { multiplier: 0.15 },
+        explosive: { multiplier: 0.15 },
+        energy: { multiplier: 0.15 },
       },
     },
   },
@@ -49,8 +49,7 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Kinetic Damage",
     statAdjustments: {
-      damage: { kinetic: { multiplier: 0.2 } },
-      // other small bonus - range? RoF? proj speed?
+      damage: { kinetic: { multiplier: 0.12 } },
     },
   },
   {
@@ -63,7 +62,7 @@ export const tier1red: SkillTree = [
     name: "Piercing Kinetics",
     statAdjustments: {
       projectileHP: { kinetic: { addition: 1 } },
-      damage: { kinetic: { multiplier: 0.1 } },
+      damage: { kinetic: { multiplier: 0.18 } },
     },
   },
   {
@@ -75,8 +74,7 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Explosive Damage",
     statAdjustments: {
-      damage: { explosive: { multiplier: 0.2 } },
-      // other small bonus - armour? AoE? proj speed?
+      damage: { explosive: { multiplier: 0.12 } },
     },
   },
   {
@@ -89,7 +87,7 @@ export const tier1red: SkillTree = [
     name: "Clustering Explosives",
     statAdjustments: {
       projectileHP: { explosive: { addition: 1 } },
-      damage: { explosive: { multiplier: 0.1 } },
+      damage: { explosive: { multiplier: 0.18 } },
     },
   },
   {
@@ -101,8 +99,7 @@ export const tier1red: SkillTree = [
     type: "passive",
     name: "Energy Damage",
     statAdjustments: {
-      damage: { energy: { multiplier: 0.2 } },
-      // other small bonus - effect duration? proj speed?
+      damage: { energy: { multiplier: 0.12 } },
     },
   },
   {
@@ -115,7 +112,7 @@ export const tier1red: SkillTree = [
     name: "Chaining Energy",
     statAdjustments: {
       projectileHP: { energy: { addition: 1 } },
-      damage: { energy: { multiplier: 0.1 } },
+      damage: { energy: { multiplier: 0.18 } },
     },
   },
   {
@@ -212,7 +209,7 @@ export const tier1red: SkillTree = [
     name: "Salvage Nanomachines",
     statAdjustments: {
       maxHP: { global: { multiplier: 0.15 } },
-      // TODO: life gain on kill
+      hpOnKill: { global: { addition: 1 } },
     },
   },
   {
