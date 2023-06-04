@@ -45,6 +45,10 @@ export class PlayerService {
         state[node.id] = node;
         return state;
       });
+      // mark all connected nodes as available
+      node.connected.forEach((connection) => {
+        this.connectedNodes[connection] = true;
+      });
     }
   }
 
